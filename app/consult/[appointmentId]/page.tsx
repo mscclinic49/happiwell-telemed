@@ -11,15 +11,22 @@ export default function ConsultPage() {
   const callRef = useRef<DailyCall | null>(null)
   const containerRef = useRef<HTMLDivElement>(null)
 
-  const [status, setStatus] = useState<'loading' | 'consent' | 'joining' | 'in-call' | 'error'>('loading')
+  const [status, setStatus] = useState<'consent' | 'joining' | 'in-call' | 'error'>('consent')
   const [error, setError] = useState<string | null>(null)
-  const [roomUrl, setRoomUrl] = useState<string | null>(null)
 
-  useEffect(() => {
-    setStatus('consent')
-  }, [])
+  async function cleanupCall() {
+    if (callRef.current) {
+      try {
+        await callRef.current.destroy()
+      } catch (e) {
+        console.error('Destroy error:', e)
+      }
+      callRef.current = null
+    }
+  }
 
   async function createAndJoinRoom() {
+    await cleanupCall()
     setStatus('joining')
     setError(null)
 
@@ -36,7 +43,7 @@ export default function ConsultPage() {
         throw new Error(data.error || 'Failed to create room')
       }
 
-      setRoomUrl(data.roomUrl)
+      await new Promise((resolve) => setTimeout(resolve, 100))
 
       if (!containerRef.current) {
         throw new Error('Container not ready')
@@ -54,7 +61,8 @@ export default function ConsultPage() {
 
       callRef.current = callFrame
 
-      callFrame.on('left-meeting', () => {
+      callFrame.on('left-meeting', async () => {
+        await cleanupCall()
         setStatus('consent')
       })
 
@@ -64,82 +72,84 @@ export default function ConsultPage() {
       const msg = err instanceof Error ? err.message : 'Unknown error'
       setError(msg)
       setStatus('error')
+      await cleanupCall()
     }
+  }
+
+  async function handleRetry() {
+    await cleanupCall()
+    setStatus('consent')
+    setError(null)
   }
 
   useEffect(() => {
     return () => {
-      if (callRef.current) {
-        callRef.current.destroy()
-        callRef.current = null
-      }
+      cleanupCall()
     }
   }, [])
 
-  if (status === 'loading') {
-    return <p className="p-8">กำลังโหลด...</p>
-  }
-
-  if (status === 'consent') {
-    return (
-      <main className="min-h-screen p-6 max-w-md mx-auto">
-        <a href="/" className="text-teal-600 mb-4 inline-block">← กลับ</a>
-        <h1 className="text-2xl font-bold mb-4">เตรียมเข้าห้องปรึกษา</h1>
-
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
-          <h2 className="font-semibold text-yellow-900 mb-2">⚠️ การยินยอมบันทึกวิดีโอ</h2>
-          <ul className="text-sm text-yellow-800 space-y-2 list-disc list-inside">
-            <li>การปรึกษานี้จะถูกบันทึกเป็นวิดีโอเพื่อเก็บเป็นเวชระเบียน</li>
-            <li>ข้อมูลจะถูกเข้ารหัสและเก็บรักษาเป็นความลับตาม พ.ร.บ. คุ้มครองข้อมูลส่วนบุคคล (PDPA)</li>
-            <li>คุณสามารถขอลบบันทึกได้ในภายหลังตามสิทธิ์ PDPA</li>
-            <li>วิดีโอจะถูกเก็บไว้ 5 ปีตามกฎหมายเวชระเบียน</li>
-          </ul>
-        </div>
-
-        <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6">
-          <h2 className="font-semibold mb-2">ก่อนเข้าห้อง โปรดตรวจสอบ:</h2>
-          <ul className="text-sm text-gray-700 space-y-1">
-            <li>✓ กล้องและไมโครโฟนทำงานปกติ</li>
-            <li>✓ อินเทอร์เน็ตเสถียร</li>
-            <li>✓ อยู่ในที่เงียบและเป็นส่วนตัว</li>
-            <li>✓ มียาประจำตัว/ผลตรวจล่าสุดอยู่ใกล้มือ (ถ้ามี)</li>
-          </ul>
-        </div>
-
-        <button
-          onClick={createAndJoinRoom}
-          className="w-full bg-teal-600 text-white py-3 rounded-full font-medium hover:bg-teal-700"
-        >
-          ยินยอมและเข้าห้องปรึกษา
-        </button>
-      </main>
-    )
-  }
-
-  if (status === 'joining') {
-    return (
-      <main className="min-h-screen p-8 text-center">
-        <div className="text-4xl mb-4">⏳</div>
-        <p className="text-gray-600">กำลังเข้าห้องปรึกษา...</p>
-      </main>
-    )
-  }
-
-  if (status === 'error') {
-    return (
-      <main className="min-h-screen p-6 max-w-md mx-auto">
-        <a href="/" className="text-teal-600 mb-4 inline-block">← กลับ</a>
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-          <h2 className="font-semibold text-red-900 mb-2">เกิดข้อผิดพลาด</h2>
-          <p className="text-sm text-red-800">{error}</p>
-        </div>
-      </main>
-    )
-  }
-
   return (
-    <main className="min-h-screen bg-black">
-      <div ref={containerRef} className="w-full h-screen" />
+    <main className="min-h-screen">
+      <div
+        ref={containerRef}
+        className="w-full h-screen bg-black"
+        style={{ display: status === 'in-call' || status === 'joining' ? 'block' : 'none' }}
+      />
+
+      {status === 'consent' && (
+        <div className="p-6 max-w-md mx-auto">
+          <a href="/" className="text-teal-600 mb-4 inline-block">← กลับ</a>
+          <h1 className="text-2xl font-bold mb-4">เตรียมเข้าห้องปรึกษา</h1>
+
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+            <h2 className="font-semibold text-yellow-900 mb-2">⚠️ การยินยอมบันทึกวิดีโอ</h2>
+            <ul className="text-sm text-yellow-800 space-y-2 list-disc list-inside">
+              <li>การปรึกษานี้อาจถูกบันทึกเพื่อเก็บเป็นเวชระเบียน</li>
+              <li>ข้อมูลจะถูกเก็บรักษาเป็นความลับตาม พ.ร.บ. คุ้มครองข้อมูลส่วนบุคคล (PDPA)</li>
+              <li>คุณสามารถขอลบบันทึกได้ในภายหลังตามสิทธิ์ PDPA</li>
+            </ul>
+          </div>
+
+          <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6">
+            <h2 className="font-semibold mb-2">ก่อนเข้าห้อง โปรดตรวจสอบ:</h2>
+            <ul className="text-sm text-gray-700 space-y-1">
+              <li>✓ กล้องและไมโครโฟนทำงานปกติ</li>
+              <li>✓ อินเทอร์เน็ตเสถียร</li>
+              <li>✓ อยู่ในที่เงียบและเป็นส่วนตัว</li>
+            </ul>
+          </div>
+
+          <button
+            onClick={createAndJoinRoom}
+            className="w-full bg-teal-600 text-white py-3 rounded-full font-medium hover:bg-teal-700"
+          >
+            ยินยอมและเข้าห้องปรึกษา
+          </button>
+        </div>
+      )}
+
+      {status === 'joining' && (
+        <div className="fixed inset-0 flex flex-col items-center justify-center bg-black bg-opacity-80 z-50">
+          <div className="text-4xl mb-4">⏳</div>
+          <p className="text-white">กำลังเข้าห้องปรึกษา...</p>
+        </div>
+      )}
+
+      {status === 'error' && (
+        <div className="p-6 max-w-md mx-auto">
+          <a href="/" className="text-teal-600 mb-4 inline-block">← กลับ</a>
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+            <h2 className="font-semibold text-red-900 mb-2">เกิดข้อผิดพลาด</h2>
+            <p className="text-sm text-red-800">{error}</p>
+          </div>
+          <button
+            onClick={handleRetry}
+            className="w-full bg-teal-600 text-white py-3 rounded-full font-medium"
+          >
+            ลองอีกครั้ง
+          </button>
+        </div>
+      )}
     </main>
   )
 }
