@@ -75,8 +75,14 @@ function SuccessContent() {
       </div>
 
       
+      <a href={`/consult/${appt.id}`}
+        className="block w-full bg-teal-600 text-white py-3 rounded-full font-medium hover:bg-teal-700 mb-3"
+      >
+        เข้าห้องปรึกษา
+      </a>
+      
       <a href="/"
-        className="block w-full bg-teal-600 text-white py-3 rounded-full font-medium hover:bg-teal-700"
+        className="block w-full bg-white border border-gray-300 text-gray-700 py-3 rounded-full font-medium hover:bg-gray-50"
       >
         กลับหน้าหลัก
       </a>
