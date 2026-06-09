@@ -13,6 +13,7 @@ export default function ConsultPage() {
 
   const [status, setStatus] = useState<'consent' | 'joining' | 'in-call' | 'error'>('consent')
   const [error, setError] = useState<string | null>(null)
+  const [roomUrl, setRoomUrl] = useState<string | null>(null)
 
   async function cleanupCall() {
     if (callRef.current) {
@@ -43,7 +44,9 @@ export default function ConsultPage() {
         throw new Error(data.error || 'Failed to create room')
       }
 
-      await new Promise((resolve) => setTimeout(resolve, 100))
+      setRoomUrl(data.roomUrl)
+
+      await new Promise((resolve) => setTimeout(resolve, 200))
 
       if (!containerRef.current) {
         throw new Error('Container not ready')
@@ -54,7 +57,6 @@ export default function ConsultPage() {
           width: '100%',
           height: '100%',
           border: '0',
-          borderRadius: '12px',
         },
         showLeaveButton: true,
       })
@@ -66,8 +68,17 @@ export default function ConsultPage() {
         setStatus('consent')
       })
 
+      callFrame.on('joined-meeting', () => {
+        setStatus('in-call')
+      })
+
+      callFrame.on('error', (e) => {
+        console.error('Daily error:', e)
+        setError('เกิดข้อผิดพลาดในการเชื่อมต่อ: ' + (e?.errorMsg || 'unknown'))
+        setStatus('error')
+      })
+
       await callFrame.join({ url: data.roomUrl })
-      setStatus('in-call')
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Unknown error'
       setError(msg)
@@ -131,7 +142,17 @@ export default function ConsultPage() {
       {status === 'joining' && (
         <div className="fixed inset-0 flex flex-col items-center justify-center bg-black bg-opacity-80 z-50">
           <div className="text-4xl mb-4">⏳</div>
-          <p className="text-white">กำลังเข้าห้องปรึกษา...</p>
+          <p className="text-white mb-4">กำลังเข้าห้องปรึกษา...</p>
+          {roomUrl && (
+            
+              href={roomUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-teal-300 underline text-sm"
+            >
+              เปิดในแท็บใหม่ (ถ้าค้างนาน)
+            </a>
+          )}
         </div>
       )}
 
