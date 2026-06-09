@@ -9,6 +9,8 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@daily-co/daily-js": "^0.90.0",
+    "@daily-co/daily-react": "^0.25.2",
     "@line/liff": "^2.29.0",
     "@supabase/ssr": "^0.10.3",
     "@supabase/supabase-js": "^2.108.0",
