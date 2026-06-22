@@ -45,7 +45,6 @@ export default function ConsultPage() {
       }
 
       setRoomUrl(data.roomUrl)
-
       await new Promise((resolve) => setTimeout(resolve, 200))
 
       if (!containerRef.current) {
@@ -117,7 +116,6 @@ export default function ConsultPage() {
             <ul className="text-sm text-yellow-800 space-y-2 list-disc list-inside">
               <li>การปรึกษานี้อาจถูกบันทึกเพื่อเก็บเป็นเวชระเบียน</li>
               <li>ข้อมูลจะถูกเก็บรักษาเป็นความลับตาม พ.ร.บ. คุ้มครองข้อมูลส่วนบุคคล (PDPA)</li>
-              <li>คุณสามารถขอลบบันทึกได้ในภายหลังตามสิทธิ์ PDPA</li>
             </ul>
           </div>
 
@@ -145,7 +143,7 @@ export default function ConsultPage() {
           <p className="text-white mb-4">กำลังเข้าห้องปรึกษา...</p>
           {roomUrl && (
             
-              href={roomUrl}
+            <a href={roomUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="text-teal-300 underline text-sm"

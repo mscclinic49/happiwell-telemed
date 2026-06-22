@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { supabase, type Doctor } from '@/lib/supabase'
+import { useAuth } from '@/lib/auth-context'
 
 const TIME_SLOTS = ['09:00', '10:00', '11:00', '13:00', '14:00', '15:00', '16:00', '17:00']
 
@@ -11,6 +12,7 @@ export default function BookingPage() {
   const router = useRouter()
   const doctorId = params.id as string
 
+  const { user } = useAuth()
   const [doctor, setDoctor] = useState<Doctor | null>(null)
   const [selectedDate, setSelectedDate] = useState<string>('')
   const [selectedTime, setSelectedTime] = useState<string>('')
@@ -65,11 +67,10 @@ export default function BookingPage() {
 
     const scheduledAt = `${selectedDate}T${selectedTime}:00+07:00`
 
-    // ตอนนี้ยังไม่มี auth — ใช้ test user_id ไปก่อน
-    // เมื่อทำ auth จริง จะดึงจาก session
     const { data, error } = await supabase
       .from('hw_appointments')
       .insert({
+        user_id: user!.id,
         doctor_id: doctorId,
         scheduled_at: scheduledAt,
         duration_minutes: 15,

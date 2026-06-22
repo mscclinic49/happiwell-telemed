@@ -1,0 +1,136 @@
+'use client'
+
+import { useState } from 'react'
+import { createBrowserClient } from '@supabase/ssr'
+
+export default function RegisterPage() {
+  const [fullName, setFullName] = useState('')
+  const [phone, setPhone] = useState('')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [sent, setSent] = useState(false)
+
+  const supabase = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  )
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    setLoading(true)
+    setError(null)
+
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: { full_name: fullName, phone },
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
+      },
+    })
+
+    if (error) {
+      setError(error.message)
+      setLoading(false)
+      return
+    }
+
+    setSent(true)
+    setLoading(false)
+  }
+
+  if (sent) {
+    return (
+      <main className="min-h-screen p-6 max-w-md mx-auto flex flex-col items-center justify-center text-center">
+        <div className="text-5xl mb-4">📧</div>
+        <h1 className="text-2xl font-bold mb-2">ตรวจสอบอีเมลของคุณ</h1>
+        <p className="text-gray-600">
+          ส่งลิงก์ยืนยันไปที่ <strong>{email}</strong> แล้ว
+          <br />
+          กรุณาคลิกลิงก์ในอีเมลเพื่อเข้าสู่ระบบ
+        </p>
+      </main>
+    )
+  }
+
+  return (
+    <main className="min-h-screen p-6 max-w-md mx-auto">
+      <div className="mt-16 mb-8">
+        <h1 className="text-2xl font-bold mb-1">สมัครใช้งาน</h1>
+        <p className="text-gray-600">HappiWell Telemedicine</p>
+      </div>
+
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium mb-1">ชื่อ-นามสกุล</label>
+          <input
+            type="text"
+            required
+            value={fullName}
+            onChange={e => setFullName(e.target.value)}
+            className="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:border-teal-500"
+            placeholder="กรอกชื่อ-นามสกุล"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-1">เบอร์โทรศัพท์</label>
+          <input
+            type="tel"
+            required
+            value={phone}
+            onChange={e => setPhone(e.target.value)}
+            className="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:border-teal-500"
+            placeholder="0812345678"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-1">อีเมล</label>
+          <input
+            type="email"
+            required
+            value={email}
+            onChange={e => setEmail(e.target.value)}
+            className="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:border-teal-500"
+            placeholder="example@email.com"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-1">รหัสผ่าน</label>
+          <input
+            type="password"
+            required
+            minLength={8}
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+            className="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:border-teal-500"
+            placeholder="อย่างน้อย 8 ตัวอักษร"
+          />
+        </div>
+
+        {error && (
+          <div className="bg-red-50 border border-red-200 rounded p-3 text-red-700 text-sm">
+            {error}
+          </div>
+        )}
+
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full bg-teal-600 text-white py-3 rounded-full font-medium hover:bg-teal-700 disabled:opacity-50"
+        >
+          {loading ? 'กำลังสมัคร...' : 'สมัครใช้งาน'}
+        </button>
+      </form>
+
+      <p className="mt-6 text-center text-sm text-gray-600">
+        มีบัญชีแล้ว?{' '}
+        <a href="/login" className="text-teal-600 hover:underline">เข้าสู่ระบบ</a>
+      </p>
+    </main>
+  )
+}

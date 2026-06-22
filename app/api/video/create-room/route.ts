@@ -1,36 +1,46 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
+import { createSupabaseServerClient, createSupabaseServiceClient } from '@/lib/supabase-server'
 
 const DAILY_API_URL = 'https://api.daily.co/v1'
 const DAILY_API_KEY = process.env.DAILY_API_KEY!
 
 export async function POST(req: NextRequest) {
   try {
+    const supabaseAuth = await createSupabaseServerClient()
+    const { data: { user } } = await supabaseAuth.auth.getUser()
+
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
     const { appointmentId } = await req.json()
 
     if (!appointmentId) {
-      return NextResponse.json(
-        { error: 'appointmentId is required' },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: 'appointmentId is required' }, { status: 400 })
     }
 
-    const { data: existing } = await supabase
+    const service = createSupabaseServiceClient()
+
+    // ตรวจสอบว่า appointment เป็นของ user คนนี้
+    const { data: appt } = await service
+      .from('hw_appointments')
+      .select('id, user_id')
+      .eq('id', appointmentId)
+      .single()
+
+    if (!appt || appt.user_id !== user.id) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
+
+    // คืน room ที่มีอยู่แล้ว (ถ้ามี)
+    const { data: existing } = await service
       .from('hw_consultations')
       .select('id, room_name, room_url')
       .eq('appointment_id', appointmentId)
       .single()
 
-    if (existing && existing.room_url) {
-      return NextResponse.json({
-        roomUrl: existing.room_url,
-        roomName: existing.room_name,
-      })
+    if (existing?.room_url) {
+      return NextResponse.json({ roomUrl: existing.room_url, roomName: existing.room_name })
     }
 
     const roomName = `appt-${appointmentId.slice(0, 8)}-${Date.now()}`
@@ -51,7 +61,7 @@ export async function POST(req: NextRequest) {
           enable_screenshare: true,
           start_video_off: false,
           start_audio_off: false,
-          //enable_recording: 'cloud',
+          enable_recording: 'cloud',
         },
       }),
     })
@@ -59,25 +69,20 @@ export async function POST(req: NextRequest) {
     if (!dailyRes.ok) {
       const errorText = await dailyRes.text()
       console.error('Daily.co API error:', errorText)
-      return NextResponse.json(
-        { error: 'Failed to create video room', details: errorText },
-        { status: 500 }
-      )
+      return NextResponse.json({ error: 'Failed to create video room', details: errorText }, { status: 500 })
     }
 
     const room = await dailyRes.json()
 
-    await supabase.from('hw_consultations').insert({
+    await service.from('hw_consultations').insert({
       appointment_id: appointmentId,
       room_name: room.name,
       room_url: room.url,
-      patient_consent: false,
+      patient_consent: true,
+      recording_status: 'pending',
     })
 
-    return NextResponse.json({
-      roomUrl: room.url,
-      roomName: room.name,
-    })
+    return NextResponse.json({ roomUrl: room.url, roomName: room.name })
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error'
     console.error('Create room error:', errorMessage)
