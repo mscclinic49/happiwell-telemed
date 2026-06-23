@@ -31,15 +31,15 @@ const NAV = [
 ]
 
 const PROFILE_MENU = [
-  { href: '/account/profile', label: 'ข้อมูลส่วนตัว', Icon: IconUser },
-  { href: '/account/settings', label: 'ตั้งค่าความยินยอม', Icon: IconSettings },
-  { href: '/complaint', label: 'ร้องเรียน / แจ้งปัญหา', Icon: IconMessageCircle2 },
+  { href: '/account/profile',  label: 'ข้อมูลส่วนตัว',         Icon: IconUser },
+  { href: '/account/settings', label: 'ตั้งค่าความยินยอม',      Icon: IconSettings },
+  { href: '/complaint',        label: 'ร้องเรียน / แจ้งปัญหา',  Icon: IconMessageCircle2 },
 ]
 
 const NO_SHELL = ['/login', '/register', '/consent', '/auth', '/consult']
 
 function UserAvatar({ name, size = 32 }: { name: string; size?: number }) {
-  const initial = name.replace(/^(นาย|นาง|น\.ส\.|ด\.ช\.|ด\.ญ\.)\s*/u, '').slice(0, 1) || '?'
+  const initial = name.replace(/^(นาย|นาง|น\.ส\.|ด\.ช\.|ด\.ญ\.)\s*/, '').slice(0, 1) || '?'
   return (
     <div
       className="rounded-full flex items-center justify-center font-bold text-white flex-shrink-0"
@@ -70,8 +70,7 @@ function ProfileDropdown({ displayName, email, onSignOut }: {
     <div ref={ref} className="relative">
       <button
         onClick={() => setOpen(v => !v)}
-        className="flex items-center gap-2 w-full px-3 py-2 rounded-xl hover:bg-[var(--hw-mint-bg)] transition-colors"
-        style={{ '--hw-mint-bg': '#e8f7f3' } as React.CSSProperties}
+        className="flex items-center gap-2 w-full px-3 py-2 rounded-xl hover:bg-[#e8f7f3] transition-colors"
       >
         <UserAvatar name={displayName} size={32} />
         <div className="flex-1 min-w-0 text-left hidden md:block">
@@ -100,7 +99,7 @@ function ProfileDropdown({ displayName, email, onSignOut }: {
             className="flex items-center gap-2.5 px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors w-full"
           >
             <IconLogout size={16} className="flex-shrink-0" />
-            ออกจากระบบ
+            {'ออกจากระบบ'}
           </button>
         </div>
       )}
@@ -147,7 +146,7 @@ function MobileProfileDropdown({ displayName, onSignOut }: {
             className="flex items-center gap-2.5 px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors w-full"
           >
             <IconLogout size={16} className="flex-shrink-0" />
-            ออกจากระบบ
+            {'ออกจากระบบ'}
           </button>
         </div>
       )}
@@ -175,21 +174,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex h-screen overflow-hidden" style={{ background: 'var(--background)' }}>
 
-      {/* ── Desktop sidebar ── */}
+      {/* Desktop sidebar */}
       <aside className="hidden md:flex flex-col w-56 flex-shrink-0 bg-[var(--card-bg)] border-r border-[var(--border)]">
-        {/* Logo */}
         <div className="px-5 py-4 border-b border-[var(--border)]">
-          <Image
-            src="/logo-icon.png"
-            alt="HappiWell"
-            width={44}
-            height={44}
-            className="object-contain"
-            priority
-          />
+          <Image src="/logo-icon-new.png" alt="HappiWell" width={44} height={44} className="object-contain" priority />
         </div>
 
-        {/* Nav */}
         <nav className="flex-1 p-3 space-y-1">
           {NAV.map(({ href, label, Icon, match }) => {
             const active = match(pathname)
@@ -211,40 +201,22 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           })}
         </nav>
 
-        {/* Profile */}
         {user && (
           <div className="p-3 border-t border-[var(--border)]">
-            <ProfileDropdown
-              displayName={displayName}
-              email={user.email ?? ''}
-              onSignOut={handleSignOut}
-            />
+            <ProfileDropdown displayName={displayName} email={user.email ?? ''} onSignOut={handleSignOut} />
           </div>
         )}
       </aside>
 
-      {/* ── Main column ── */}
+      {/* Main column */}
       <div className="flex flex-col flex-1 overflow-hidden">
 
         {/* Mobile top bar */}
         <header className="md:hidden flex items-center justify-between px-4 py-3 bg-[var(--card-bg)] border-b border-[var(--border)] flex-shrink-0">
-          <Image
-            src="/logo.png"
-            alt="HappiWell Clinic"
-            width={120}
-            height={40}
-            className="object-contain"
-            priority
-          />
-          {user && (
-            <MobileProfileDropdown
-              displayName={displayName}
-              onSignOut={handleSignOut}
-            />
-          )}
+          <Image src="/logo-new.png" alt="HappiWell Clinic" width={120} height={40} className="object-contain" priority />
+          {user && <MobileProfileDropdown displayName={displayName} onSignOut={handleSignOut} />}
         </header>
 
-        {/* Scrollable content */}
         <main className="flex-1 overflow-y-auto">
           {children}
         </main>
