@@ -76,7 +76,7 @@ export default function RegisterPage() {
             required
             value={title}
             onChange={e => setTitle(e.target.value)}
-            className="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:border-teal-500 bg-white"
+            className="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:border-teal-500 bg-white text-gray-900"
           >
             <option value="">เลือกคำนำหน้า</option>
             {TITLES.map(t => (
@@ -93,7 +93,7 @@ export default function RegisterPage() {
               required
               value={firstName}
               onChange={e => setFirstName(e.target.value)}
-              className="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:border-teal-500"
+              className="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:border-teal-500 text-gray-900"
               placeholder="ชื่อจริง"
             />
           </div>
@@ -104,7 +104,7 @@ export default function RegisterPage() {
               required
               value={lastName}
               onChange={e => setLastName(e.target.value)}
-              className="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:border-teal-500"
+              className="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:border-teal-500 text-gray-900"
               placeholder="นามสกุล"
             />
           </div>
@@ -118,7 +118,7 @@ export default function RegisterPage() {
             value={dateOfBirth}
             onChange={e => setDateOfBirth(e.target.value)}
             max={new Date().toISOString().split('T')[0]}
-            className="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:border-teal-500"
+            className="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:border-teal-500 text-gray-900"
           />
         </div>
 
@@ -129,7 +129,7 @@ export default function RegisterPage() {
             required
             value={phone}
             onChange={e => setPhone(e.target.value)}
-            className="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:border-teal-500"
+            className="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:border-teal-500 text-gray-900"
             placeholder="0812345678"
           />
         </div>
@@ -141,7 +141,7 @@ export default function RegisterPage() {
             required
             value={email}
             onChange={e => setEmail(e.target.value)}
-            className="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:border-teal-500"
+            className="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:border-teal-500 text-gray-900"
             placeholder="example@email.com"
           />
         </div>
@@ -154,7 +154,7 @@ export default function RegisterPage() {
             minLength={8}
             value={password}
             onChange={e => setPassword(e.target.value)}
-            className="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:border-teal-500"
+            className="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:border-teal-500 text-gray-900"
             placeholder="อย่างน้อย 8 ตัวอักษร"
           />
         </div>
