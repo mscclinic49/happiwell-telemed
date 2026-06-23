@@ -5,15 +5,11 @@ import { usePathname, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import {
-  IconCalendarClock,
-  IconStethoscope,
-  IconPill,
-  IconUser,
-  IconSettings,
-  IconLogout,
-  IconChevronDown,
-  IconMessageCircle2,
-  IconId,
+  IconCalendarClock, IconStethoscope, IconPill,
+  IconUser, IconId, IconLock, IconSignature,
+  IconHistory, IconBook2, IconHeart, IconShield,
+  IconMapPin, IconShieldCheck, IconMessageCircle2,
+  IconFileText, IconHelp, IconLogout, IconChevronDown,
 } from '@tabler/icons-react'
 import { useAuth } from '@/lib/auth-context'
 
@@ -38,11 +34,40 @@ const NAV = [
   },
 ]
 
-const PROFILE_MENU = [
-  { href: '/account/profile',  label: 'ข้อมูลส่วนตัว',         Icon: IconUser },
-  { href: '/account/verify',   label: 'ยืนยันตัวตน',            Icon: IconId },
-  { href: '/account/settings', label: 'ตั้งค่าความยินยอม',      Icon: IconSettings },
-  { href: '/complaint',        label: 'ร้องเรียน / แจ้งปัญหา',  Icon: IconMessageCircle2 },
+const PROFILE_SECTIONS = [
+  {
+    title: 'บัญชี',
+    items: [
+      { href: '/account/profile',         label: 'ข้อมูลส่วนตัว',         Icon: IconUser },
+      { href: '/account/verify',           label: 'ยืนยันตัวตน',            Icon: IconId },
+      { href: '/account/change-password',  label: 'เปลี่ยนรหัสผ่าน',       Icon: IconLock },
+      { href: '/account/signature',        label: 'ลายเซ็นดิจิทัล',        Icon: IconSignature },
+    ],
+  },
+  {
+    title: 'สุขภาพ',
+    items: [
+      { href: '/history',                  label: 'ประวัติการปรึกษา',       Icon: IconHistory },
+      { href: '/health-journal',           label: 'สมุดบันทึกสุขภาพ',      Icon: IconBook2 },
+      { href: '/account/favorites',        label: 'แพทย์ที่ชื่นชอบ',       Icon: IconHeart },
+      { href: '/account/insurance',        label: 'สิทธิเบิกจ่าย',         Icon: IconShield },
+    ],
+  },
+  {
+    title: 'บริการ',
+    items: [
+      { href: '/account/delivery-address', label: 'ที่อยู่รับยา',           Icon: IconMapPin },
+    ],
+  },
+  {
+    title: 'การตั้งค่า',
+    items: [
+      { href: '/account/settings',         label: 'ความยินยอม PDPA',       Icon: IconShieldCheck },
+      { href: '/complaint',                label: 'ร้องเรียน / แจ้งปัญหา', Icon: IconMessageCircle2 },
+      { href: '/terms',                    label: 'เงื่อนไขการใช้บริการ',   Icon: IconFileText },
+      { href: '/help',                     label: 'ศูนย์ช่วยเหลือ',        Icon: IconHelp },
+    ],
+  },
 ]
 
 const NO_SHELL = ['/login', '/register', '/consent', '/auth', '/consult']
@@ -59,10 +84,46 @@ function UserAvatar({ name, size = 32 }: { name: string; size?: number }) {
   )
 }
 
+function MenuItems({ onClose, onSignOut }: { onClose: () => void; onSignOut: () => void }) {
+  return (
+    <div className="overflow-y-auto max-h-[70vh]">
+      {PROFILE_SECTIONS.map((section, si) => (
+        <div key={section.title}>
+          {si > 0 && <div className="border-t border-[var(--border)]" />}
+          <div className="px-4 py-2">
+            <div className="text-[10px] font-bold uppercase tracking-widest text-[var(--muted)] mb-1">
+              {section.title}
+            </div>
+            {section.items.map(({ href, label, Icon }) => (
+              <Link
+                key={href}
+                href={href}
+                onClick={onClose}
+                className="flex items-center gap-2.5 px-2 py-2.5 rounded-[10px] text-sm hover:bg-[#e8f7f3] transition-colors"
+              >
+                <Icon size={16} className="text-[#1a8a6e] flex-shrink-0" />
+                {label}
+              </Link>
+            ))}
+          </div>
+        </div>
+      ))}
+      <div className="border-t border-[var(--border)]" />
+      <div className="p-2">
+        <button
+          onClick={onSignOut}
+          className="flex items-center gap-2.5 px-2 py-2.5 rounded-[10px] text-sm text-red-600 hover:bg-red-50 transition-colors w-full"
+        >
+          <IconLogout size={16} className="flex-shrink-0" />
+          {'ออกจากระบบ'}
+        </button>
+      </div>
+    </div>
+  )
+}
+
 function ProfileDropdown({ displayName, email, onSignOut }: {
-  displayName: string
-  email: string
-  onSignOut: () => void
+  displayName: string; email: string; onSignOut: () => void
 }) {
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
@@ -82,34 +143,16 @@ function ProfileDropdown({ displayName, email, onSignOut }: {
         className="flex items-center gap-2 w-full px-3 py-2 rounded-xl hover:bg-[#e8f7f3] transition-colors"
       >
         <UserAvatar name={displayName} size={32} />
-        <div className="flex-1 min-w-0 text-left hidden md:block">
+        <div className="flex-1 min-w-0 text-left">
           <div className="text-xs font-semibold truncate">{displayName}</div>
           <div className="text-xs text-[var(--muted)] truncate">{email}</div>
         </div>
-        <IconChevronDown size={14} className={`text-[var(--muted)] transition-transform flex-shrink-0 hidden md:block ${open ? 'rotate-180' : ''}`} />
+        <IconChevronDown size={14} className={`text-[var(--muted)] transition-transform flex-shrink-0 ${open ? 'rotate-180' : ''}`} />
       </button>
 
       {open && (
-        <div className="absolute bottom-full left-0 right-0 mb-1 bg-[var(--card-bg)] border border-[var(--border)] rounded-[14px] shadow-xl overflow-hidden z-50 min-w-[180px]">
-          {PROFILE_MENU.map(({ href, label, Icon }) => (
-            <Link
-              key={href}
-              href={href}
-              onClick={() => setOpen(false)}
-              className="flex items-center gap-2.5 px-4 py-3.5 text-base hover:bg-[#e8f7f3] transition-colors"
-            >
-              <Icon size={16} className="text-[#1a8a6e] flex-shrink-0" />
-              {label}
-            </Link>
-          ))}
-          <div className="border-t border-[var(--border)]" />
-          <button
-            onClick={() => { setOpen(false); onSignOut() }}
-            className="flex items-center gap-2.5 px-4 py-3.5 text-base text-red-600 hover:bg-red-50 transition-colors w-full"
-          >
-            <IconLogout size={16} className="flex-shrink-0" />
-            {'ออกจากระบบ'}
-          </button>
+        <div className="absolute bottom-full left-0 right-0 mb-1 bg-[var(--card-bg)] border border-[var(--border)] rounded-[14px] shadow-xl overflow-hidden z-50 w-56">
+          <MenuItems onClose={() => setOpen(false)} onSignOut={() => { setOpen(false); onSignOut() }} />
         </div>
       )}
     </div>
@@ -117,8 +160,7 @@ function ProfileDropdown({ displayName, email, onSignOut }: {
 }
 
 function MobileProfileDropdown({ displayName, onSignOut }: {
-  displayName: string
-  onSignOut: () => void
+  displayName: string; onSignOut: () => void
 }) {
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
@@ -137,26 +179,8 @@ function MobileProfileDropdown({ displayName, onSignOut }: {
         <UserAvatar name={displayName} size={34} />
       </button>
       {open && (
-        <div className="absolute top-full right-0 mt-2 bg-[var(--card-bg)] border border-[var(--border)] rounded-[14px] shadow-xl overflow-hidden z-50 min-w-[200px]">
-          {PROFILE_MENU.map(({ href, label, Icon }) => (
-            <Link
-              key={href}
-              href={href}
-              onClick={() => setOpen(false)}
-              className="flex items-center gap-2.5 px-4 py-3.5 text-base hover:bg-[#e8f7f3] transition-colors"
-            >
-              <Icon size={16} className="text-[#1a8a6e] flex-shrink-0" />
-              {label}
-            </Link>
-          ))}
-          <div className="border-t border-[var(--border)]" />
-          <button
-            onClick={() => { setOpen(false); onSignOut() }}
-            className="flex items-center gap-2.5 px-4 py-3.5 text-base text-red-600 hover:bg-red-50 transition-colors w-full"
-          >
-            <IconLogout size={16} className="flex-shrink-0" />
-            {'ออกจากระบบ'}
-          </button>
+        <div className="absolute top-full right-0 mt-2 bg-[var(--card-bg)] border border-[var(--border)] rounded-[14px] shadow-xl overflow-hidden z-50 w-60">
+          <MenuItems onClose={() => setOpen(false)} onSignOut={() => { setOpen(false); onSignOut() }} />
         </div>
       )}
     </div>

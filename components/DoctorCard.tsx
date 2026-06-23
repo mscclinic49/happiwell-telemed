@@ -1,7 +1,7 @@
 'use client'
 
 import Image from 'next/image'
-import { IconStar, IconStethoscope, IconVideo } from '@tabler/icons-react'
+import { IconStar, IconStethoscope, IconVideo, IconHeart } from '@tabler/icons-react'
 import type { Doctor } from '@/lib/supabase'
 
 const SPECIALTY_COLORS: Record<string, { bg: string; text: string }> = {
@@ -47,9 +47,11 @@ function DoctorAvatar({ name, avatarUrl, size = 56 }: { name: string; avatarUrl:
 type Props = {
   doctor: Doctor
   compact?: boolean
+  isFavorited?: boolean
+  onToggleFavorite?: (doctorId: string, isFav: boolean) => void
 }
 
-export function DoctorCard({ doctor, compact = false }: Props) {
+export function DoctorCard({ doctor, compact = false, isFavorited = false, onToggleFavorite }: Props) {
   const { bg, text } = getSpecialtyColor(doctor.specialty)
 
   if (compact) {
@@ -111,12 +113,27 @@ export function DoctorCard({ doctor, compact = false }: Props) {
                 )}
               </div>
             </div>
-            {doctor.rating != null && (
-              <span className="flex items-center gap-0.5 text-sm font-bold text-[#ef9f27] flex-shrink-0">
-                <IconStar size={14} fill="#ef9f27" />
-                {Number(doctor.rating).toFixed(1)}
-              </span>
-            )}
+            <div className="flex items-center gap-2 flex-shrink-0">
+              {doctor.rating != null && (
+                <span className="flex items-center gap-0.5 text-sm font-bold text-[#ef9f27]">
+                  <IconStar size={14} fill="#ef9f27" />
+                  {Number(doctor.rating).toFixed(1)}
+                </span>
+              )}
+              {onToggleFavorite && (
+                <button
+                  onClick={e => { e.preventDefault(); onToggleFavorite(doctor.id, isFavorited) }}
+                  className="p-1 rounded-full transition-colors hover:bg-red-50"
+                  title={isFavorited ? 'นำออกจากรายการ' : 'เพิ่มในรายการชื่นชอบ'}
+                >
+                  <IconHeart
+                    size={18}
+                    className={isFavorited ? 'text-red-500' : 'text-[var(--muted)]'}
+                    fill={isFavorited ? 'currentColor' : 'none'}
+                  />
+                </button>
+              )}
+            </div>
           </div>
 
           {doctor.bio && (
