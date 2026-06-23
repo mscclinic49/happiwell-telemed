@@ -3,12 +3,13 @@
 import { useState } from 'react'
 import { createBrowserClient } from '@supabase/ssr'
 
-const TITLES = ['นาย', 'นาง', 'นางสาว', 'เด็กชาย', 'เด็กหญิง']
+const TITLES = ['นาย', 'นาง', 'น.ส.', 'ด.ช.', 'ด.ญ.']
 
 export default function RegisterPage() {
   const [title, setTitle] = useState('')
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
+  const [dateOfBirth, setDateOfBirth] = useState('')
   const [phone, setPhone] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -32,7 +33,7 @@ export default function RegisterPage() {
       email,
       password,
       options: {
-        data: { title, first_name: firstName, last_name: lastName, full_name: fullName, phone },
+        data: { title, first_name: firstName, last_name: lastName, full_name: fullName, date_of_birth: dateOfBirth, phone },
         emailRedirectTo: `${window.location.origin}/auth/callback`,
       },
     })
@@ -107,6 +108,18 @@ export default function RegisterPage() {
               placeholder="นามสกุล"
             />
           </div>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-1">วันเกิด</label>
+          <input
+            type="date"
+            required
+            value={dateOfBirth}
+            onChange={e => setDateOfBirth(e.target.value)}
+            max={new Date().toISOString().split('T')[0]}
+            className="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:border-teal-500"
+          />
         </div>
 
         <div>
