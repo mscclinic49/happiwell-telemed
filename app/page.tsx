@@ -206,11 +206,18 @@ export default function Dashboard() {
                     </div>
                     <span className={`text-xs px-2 py-1 rounded-full flex-shrink-0 ${s.color}`}>{s.label}</span>
                   </div>
-                  <a href={`/consult/${a.id}`}
-                    className="block w-full text-center bg-blue-600 text-white py-2 rounded-xl text-sm hover:bg-blue-700 font-medium"
-                  >
-                    เข้าห้องปรึกษา
-                  </a>
+                  <div className="flex gap-2">
+                    <a href={`/consult/${a.id}`}
+                      className="flex-1 text-center bg-blue-600 text-white py-2 rounded-xl text-sm hover:bg-blue-700 font-medium"
+                    >
+                      เข้าห้องปรึกษา
+                    </a>
+                    <a href="/chat"
+                      className="px-3 text-center border border-gray-200 dark:border-slate-600 text-gray-600 dark:text-gray-300 py-2 rounded-xl text-sm hover:bg-gray-50 dark:hover:bg-slate-700 font-medium"
+                    >
+                      💬
+                    </a>
+                  </div>
                 </div>
               )
             })}

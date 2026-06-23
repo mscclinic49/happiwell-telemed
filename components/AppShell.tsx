@@ -5,10 +5,10 @@ import { usePathname, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import {
-  IconCalendarClock, IconStethoscope, IconPill,
+  IconCalendarClock, IconStethoscope, IconPill, IconMessageCircle2,
   IconUser, IconId, IconLock, IconSignature,
   IconHistory, IconBook2, IconHeart, IconShield,
-  IconMapPin, IconShieldCheck, IconMessageCircle2,
+  IconMapPin, IconShieldCheck,
   IconFileText, IconHelp, IconLogout, IconChevronDown,
 } from '@tabler/icons-react'
 import { useAuth } from '@/lib/auth-context'
@@ -16,15 +16,21 @@ import { useAuth } from '@/lib/auth-context'
 const NAV = [
   {
     href: '/',
-    label: 'นัดหมายของฉัน',
+    label: 'นัดหมาย',
     Icon: IconCalendarClock,
     match: (p: string) => p === '/',
   },
   {
     href: '/doctors',
-    label: 'ปรึกษาแพทย์',
+    label: 'แพทย์',
     Icon: IconStethoscope,
     match: (p: string) => p.startsWith('/doctors') || p.startsWith('/book'),
+  },
+  {
+    href: '/chat',
+    label: 'แชท',
+    Icon: IconMessageCircle2,
+    match: (p: string) => p.startsWith('/chat'),
   },
   {
     href: '/prescriptions',
