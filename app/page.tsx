@@ -102,9 +102,10 @@ export default function Dashboard() {
             <Image src="/logo.png" alt="HappiWell Clinic" width={180} height={72} className="object-contain" />
           </div>
           <div className="space-y-1.5 text-xs text-gray-600 dark:text-gray-400">
-            <div>📋 ใบอนุญาตประกอบกิจการสถานพยาบาล: HW-2566-001</div>
-            <div>📞 02-xxx-xxxx · Line: @happiwell</div>
-            <div>🕐 จ–ศ 08:00–20:00 · ส–อา 09:00–17:00</div>
+            <div className="font-medium text-sm text-gray-800 dark:text-gray-200">แฮปปี้เวลล์ คลินิกเวชกรรม</div>
+            <div>📍 เลขที่ 193, 195 ชั้น 1 ถนนประชาอุทิศ ตำบลบางมด อำเภอทุ่งครุ กรุงเทพมหานคร</div>
+            <div>📋 ใบอนุญาตประกอบกิจการ: 10101035068</div>
+            <div>🕐 จ–ศ 08:00–18:00 · ส–อา 08:00–12:00</div>
           </div>
         </div>
       </section>
