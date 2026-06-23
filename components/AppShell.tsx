@@ -7,11 +7,13 @@ import Image from 'next/image'
 import {
   IconCalendarClock,
   IconStethoscope,
+  IconPill,
   IconUser,
   IconSettings,
   IconLogout,
   IconChevronDown,
   IconMessageCircle2,
+  IconId,
 } from '@tabler/icons-react'
 import { useAuth } from '@/lib/auth-context'
 
@@ -28,10 +30,17 @@ const NAV = [
     Icon: IconStethoscope,
     match: (p: string) => p.startsWith('/doctors') || p.startsWith('/book'),
   },
+  {
+    href: '/prescriptions',
+    label: 'ใบสั่งยา',
+    Icon: IconPill,
+    match: (p: string) => p.startsWith('/prescriptions'),
+  },
 ]
 
 const PROFILE_MENU = [
   { href: '/account/profile',  label: 'ข้อมูลส่วนตัว',         Icon: IconUser },
+  { href: '/account/verify',   label: 'ยืนยันตัวตน',            Icon: IconId },
   { href: '/account/settings', label: 'ตั้งค่าความยินยอม',      Icon: IconSettings },
   { href: '/complaint',        label: 'ร้องเรียน / แจ้งปัญหา',  Icon: IconMessageCircle2 },
 ]
@@ -180,7 +189,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <Image src="/logo-icon-new.png" alt="HappiWell" width={44} height={44} className="object-contain" priority />
         </div>
 
-        <nav className="flex-1 p-3 space-y-1">
+        <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
           {NAV.map(({ href, label, Icon, match }) => {
             const active = match(pathname)
             return (
@@ -229,11 +238,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               <Link
                 key={href}
                 href={href}
-                className={`flex-1 flex flex-col items-center gap-0.5 py-3 text-xs font-medium transition-colors ${
+                className={`flex-1 flex flex-col items-center gap-0.5 py-2.5 text-[10px] font-medium transition-colors ${
                   active ? 'text-[#1a8a6e]' : 'text-[var(--muted)]'
                 }`}
               >
-                <Icon size={22} strokeWidth={active ? 2.2 : 1.6} />
+                <Icon size={21} strokeWidth={active ? 2.2 : 1.6} />
                 <span>{label}</span>
               </Link>
             )
