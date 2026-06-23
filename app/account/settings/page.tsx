@@ -112,6 +112,20 @@ export default function AccountSettingsPage() {
         </div>
       </section>
 
+      <section className="mb-8">
+        <h2 className="font-semibold mb-3">ช่องทางร้องเรียน</h2>
+        <a
+          href="/complaint"
+          className="flex items-center justify-between bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+        >
+          <div>
+            <div className="text-sm font-medium">แจ้งปัญหา / ร้องเรียน</div>
+            <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">ทีมงานตอบกลับภายใน 30 วัน</div>
+          </div>
+          <span className="text-gray-400">›</span>
+        </a>
+      </section>
+
       <div className="space-y-3">
         <button
           onClick={handleSignOut}

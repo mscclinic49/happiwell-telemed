@@ -28,6 +28,18 @@ export default function RegisterPage() {
     setLoading(true)
     setError(null)
 
+    // Age gate: ต้องอายุ >= 20 ปีบริบูรณ์
+    const today = new Date()
+    const birth = new Date(dateOfBirth)
+    let age = today.getFullYear() - birth.getFullYear()
+    const m = today.getMonth() - birth.getMonth()
+    if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--
+    if (age < 20) {
+      setError('บริการนี้สำหรับผู้มีอายุ 20 ปีบริบูรณ์ขึ้นไป')
+      setLoading(false)
+      return
+    }
+
     const fullName = `${title}${firstName} ${lastName}`.trim()
 
     const { error } = await supabase.auth.signUp({
