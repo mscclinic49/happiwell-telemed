@@ -1,72 +1,70 @@
-﻿'use client'
+'use client'
 
 import { useEffect, useState } from 'react'
+import { IconSearch } from '@tabler/icons-react'
 import { supabase, type Doctor } from '@/lib/supabase'
+import { DoctorCard } from '@/components/DoctorCard'
 
 export default function DoctorsPage() {
   const [doctors, setDoctors] = useState<Doctor[]>([])
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const [search, setSearch] = useState('')
 
   useEffect(() => {
     supabase
       .from('hw_doctors')
-      .select('id, full_name, specialty, consultation_fee, rating, is_online')
+      .select('id, full_name, specialty, bio, avatar_url, consultation_fee, rating, is_online')
       .eq('is_active', true)
+      .order('is_online', { ascending: false })
       .order('rating', { ascending: false })
-      .then(({ data, error }) => {
-        if (error) setError(error.message)
-        else setDoctors(data || [])
+      .then(({ data }) => {
+        setDoctors((data as Doctor[]) || [])
         setLoading(false)
       })
   }, [])
 
+  const filtered = doctors.filter(d =>
+    !search ||
+    d.full_name.toLowerCase().includes(search.toLowerCase()) ||
+    (d.specialty ?? '').includes(search)
+  )
+
   return (
-    <main className="min-h-screen p-5 max-w-xl mx-auto">
-      <div className="flex items-center gap-3 pt-4 mb-6">
-        <a href="/" className="text-blue-600 dark:text-blue-400 text-sm">← กลับ</a>
-        <h1 className="text-xl font-bold">เลือกแพทย์</h1>
+    <div className="max-w-2xl mx-auto px-5 py-6 pb-8">
+      <h1 className="text-xl font-bold mb-5">{'ปรึกษาแพทย์'}</h1>
+
+      {/* Search */}
+      <div className="relative mb-5">
+        <IconSearch size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--muted)]" />
+        <input
+          type="text"
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          placeholder={'ค้นหาชื่อแพทย์ หรือสาขา...'}
+          className="w-full pl-9 pr-4 py-2.5 rounded-[10px] border border-[var(--border)] bg-[var(--card-bg)] text-sm focus:outline-none focus:border-[#1a8a6e]"
+        />
       </div>
 
-      {loading && <p className="text-gray-500 dark:text-gray-400">กำลังโหลด...</p>}
-
-      {error && (
-        <div className="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-700 rounded-xl p-4 text-red-700 dark:text-red-400 text-sm">
-          เกิดข้อผิดพลาด: {error}
+      {loading && (
+        <div className="space-y-3">
+          {[1,2,3].map(i => (
+            <div key={i} className="h-28 rounded-[14px] bg-[var(--card-bg)] border border-[var(--border)] animate-pulse" />
+          ))}
         </div>
       )}
 
-      {!loading && !error && doctors.length === 0 && (
-        <p className="text-gray-500 dark:text-gray-400">ยังไม่มีแพทย์ในระบบ</p>
+      {!loading && filtered.length === 0 && (
+        <div className="text-center py-16 text-[var(--muted)]">
+          <IconSearch size={40} className="mx-auto mb-3 opacity-30" />
+          <p className="text-sm">{'ไม่พบแพทย์ที่ตรงกับการค้นหา'}</p>
+        </div>
       )}
 
       <div className="space-y-3">
-        {doctors.map((doc) => (
-          <div key={doc.id} className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4 flex items-center gap-4">
-            <div className="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center text-blue-700 dark:text-blue-300 font-bold text-sm flex-shrink-0">
-              DR
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="font-medium">{doc.full_name}</div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">{doc.specialty}</div>
-              <div className="flex flex-wrap gap-2 mt-1 text-xs">
-                <span className="text-yellow-600 dark:text-yellow-400">★ {doc.rating}</span>
-                {doc.is_online ? (
-                  <span className="bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-400 px-2 py-0.5 rounded-full">ออนไลน์</span>
-                ) : (
-                  <span className="bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 px-2 py-0.5 rounded-full">ออฟไลน์</span>
-                )}
-                <span className="text-gray-500 dark:text-gray-400">฿{doc.consultation_fee}/ครั้ง</span>
-              </div>
-            </div>
-            <a href={`/book/${doc.id}`}
-              className="bg-blue-600 text-white px-4 py-2 rounded-full text-sm hover:bg-blue-700 flex-shrink-0"
-            >
-              จอง
-            </a>
-          </div>
+        {filtered.map(doc => (
+          <DoctorCard key={doc.id} doctor={doc} />
         ))}
       </div>
-    </main>
+    </div>
   )
 }

@@ -1,10 +1,27 @@
 @import "tailwindcss";
 
+/* ── HappiWell Design Tokens ──────────────────────────── */
 :root {
-  --background: #f8fafc;
-  --foreground: #0f172a;
-  --brand-blue: #2563eb;
-  --brand-red: #dc2626;
+  --hw-green:     #1a8a6e;
+  --hw-green-dk:  #14705a;
+  --hw-orange:    #ef9f27;
+  --hw-blue:      #378add;
+  --hw-blue-dk:   #185fa5;
+
+  --hw-mint-bg:   #e8f7f3;
+  --hw-peach-bg:  #faeeda;
+  --hw-blue-bg:   #e6f1fb;
+  --hw-yellow-bg: #fef9ec;
+
+  --hw-radius:    14px;
+  --hw-radius-sm: 8px;
+  --hw-radius-xs: 6px;
+
+  --background:   #f4f7f6;
+  --foreground:   #0f172a;
+  --card-bg:      #ffffff;
+  --border:       #e2e8f0;
+  --muted:        #64748b;
 }
 
 @theme inline {
@@ -14,8 +31,11 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0f172a;
-    --foreground: #f1f5f9;
+    --background:  #0d1f1a;
+    --foreground:  #e8f5f1;
+    --card-bg:     #132920;
+    --border:      #1e3d33;
+    --muted:       #94a3b8;
   }
 }
 

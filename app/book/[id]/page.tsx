@@ -25,7 +25,7 @@ export default function BookingPage() {
     async function fetchDoctor() {
       const { data, error } = await supabase
         .from('hw_doctors')
-        .select('id, full_name, specialty, consultation_fee, rating, is_online')
+        .select('id, full_name, specialty, bio, avatar_url, consultation_fee, rating, is_online')
         .eq('id', doctorId)
         .single()
 

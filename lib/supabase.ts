@@ -9,7 +9,9 @@ export type Doctor = {
   id: string
   full_name: string
   specialty: string | null
+  bio: string | null
+  avatar_url: string | null
   consultation_fee: number
-  rating: number
+  rating: number | null
   is_online: boolean
 }
