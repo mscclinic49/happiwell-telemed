@@ -24,7 +24,7 @@ const NAV = [
     href: '/doctors',
     label: 'แพทย์',
     Icon: IconStethoscope,
-    match: (p: string) => p.startsWith('/doctors') || p.startsWith('/book'),
+    match: (p: string) => p.startsWith('/doctors'),
   },
   {
     href: '/chat',
