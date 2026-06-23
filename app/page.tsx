@@ -42,7 +42,7 @@ const STATUS_LABEL: Record<string, { label: string; color: string }> = {
 }
 
 export default function Dashboard() {
-  const { user, loading: authLoading, signOut } = useAuth()
+  const { user, loading: authLoading } = useAuth()
   const router = useRouter()
   const [profile, setProfile] = useState<UserProfile | null>(null)
   const [appointments, setAppointments] = useState<Appointment[]>([])
@@ -75,7 +75,7 @@ export default function Dashboard() {
   }, [user, authLoading, router])
 
   if (authLoading || loadingData) {
-    return <div className="min-h-screen flex items-center justify-center text-gray-500 dark:text-gray-400">กำลังโหลด...</div>
+    return <div className="h-full flex items-center justify-center text-gray-500 dark:text-gray-400">กำลังโหลด...</div>
   }
 
   const displayName = profile
@@ -86,34 +86,22 @@ export default function Dashboard() {
   const history  = appointments.filter(a => new Date(a.scheduled_at) < new Date() || a.status === 'completed')
 
   return (
-    <main className="min-h-screen max-w-xl mx-auto p-5 pb-24">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6 pt-4">
-        <Image src="/logo.png" alt="HappiWell Clinic" width={160} height={64} className="object-contain" priority />
-        <div className="flex gap-2">
-          <a href="/account/profile"
-            className="p-2 rounded-full border border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-300 text-sm"
-          >
-            ✏️ โปรไฟล์
-          </a>
-          <a href="/account/settings"
-            className="p-2 rounded-full border border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-300 text-sm"
-          >
-            ⚙️
-          </a>
-        </div>
-      </div>
-      <div className="mb-1">
+    <div className="max-w-xl mx-auto p-5 space-y-5 pb-6">
+
+      {/* Greeting */}
+      <div className="pt-2">
         <p className="text-sm text-gray-500 dark:text-gray-400">สวัสดี</p>
         <h1 className="text-xl font-bold">{displayName}</h1>
       </div>
 
       {/* สถานพยาบาล */}
-      <section className="mb-5">
-        <h2 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">สถานพยาบาล</h2>
-        <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
-          <Image src="/logo.png" alt="HappiWell Clinic" width={200} height={80} className="object-contain mb-3" />
-          <div className="space-y-1 text-xs text-gray-600 dark:text-gray-400">
+      <section>
+        <h2 className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2">สถานพยาบาล</h2>
+        <div className="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-2xl p-4">
+          <div className="bg-white rounded-xl p-2 inline-block mb-3">
+            <Image src="/logo.png" alt="HappiWell Clinic" width={180} height={72} className="object-contain" />
+          </div>
+          <div className="space-y-1.5 text-xs text-gray-600 dark:text-gray-400">
             <div>📋 ใบอนุญาตประกอบกิจการสถานพยาบาล: HW-2566-001</div>
             <div>📞 02-xxx-xxxx · Line: @happiwell</div>
             <div>🕐 จ–ศ 08:00–20:00 · ส–อา 09:00–17:00</div>
@@ -122,86 +110,88 @@ export default function Dashboard() {
       </section>
 
       {/* ข้อมูลคนไข้ */}
-      <section className="mb-5">
+      <section>
         <div className="flex items-center justify-between mb-2">
-          <h2 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">ข้อมูลคนไข้</h2>
-          <a href="/account/profile" className="text-xs text-teal-600 dark:text-teal-400 hover:underline">แก้ไข</a>
+          <h2 className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-widest">ข้อมูลคนไข้</h2>
+          <a href="/account/profile" className="text-xs text-blue-600 dark:text-blue-400 hover:underline font-medium">แก้ไข →</a>
         </div>
-        <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
-          {profile ? (
+        <div className="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-2xl p-4">
+          {profile?.first_name ? (
             <div className="grid grid-cols-2 gap-3 text-sm">
               <div>
-                <div className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">ชื่อ-นามสกุล</div>
-                <div className="font-medium">
-                  {profile.title}{profile.first_name} {profile.last_name}
-                </div>
+                <div className="text-xs text-gray-400 dark:text-gray-500 mb-0.5">ชื่อ-นามสกุล</div>
+                <div className="font-medium">{profile.title}{profile.first_name} {profile.last_name}</div>
               </div>
               <div>
-                <div className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">อายุ</div>
+                <div className="text-xs text-gray-400 dark:text-gray-500 mb-0.5">อายุ</div>
                 <div className="font-medium">
                   {profile.date_of_birth ? `${calcAge(profile.date_of_birth)} ปี` : '—'}
                 </div>
               </div>
               <div>
-                <div className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">วันเกิด</div>
-                <div className="font-medium">
+                <div className="text-xs text-gray-400 dark:text-gray-500 mb-0.5">วันเกิด</div>
+                <div className="font-medium text-sm">
                   {profile.date_of_birth
                     ? new Date(profile.date_of_birth).toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' })
                     : '—'}
                 </div>
               </div>
               <div>
-                <div className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">กรุ๊ปเลือด</div>
+                <div className="text-xs text-gray-400 dark:text-gray-500 mb-0.5">กรุ๊ปเลือด</div>
                 <div className="font-medium">{profile.blood_type || '—'}</div>
               </div>
               <div>
-                <div className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">เบอร์โทร</div>
+                <div className="text-xs text-gray-400 dark:text-gray-500 mb-0.5">เบอร์โทร</div>
                 <div className="font-medium">{profile.phone || '—'}</div>
               </div>
               <div>
-                <div className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">เพศ</div>
+                <div className="text-xs text-gray-400 dark:text-gray-500 mb-0.5">เพศ</div>
                 <div className="font-medium">
                   {profile.gender === 'male' ? 'ชาย' : profile.gender === 'female' ? 'หญิง' : profile.gender === 'other' ? 'อื่นๆ' : '—'}
                 </div>
               </div>
               {profile.allergies && (
                 <div className="col-span-2">
-                  <div className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">แพ้ยา/อาหาร</div>
+                  <div className="text-xs text-gray-400 dark:text-gray-500 mb-0.5">แพ้ยา/อาหาร</div>
                   <div className="font-medium text-red-600 dark:text-red-400">{profile.allergies}</div>
                 </div>
               )}
             </div>
           ) : (
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              ยังไม่มีข้อมูล —{' '}
-              <a href="/account/profile" className="text-teal-600 dark:text-teal-400 hover:underline">กรอกข้อมูล</a>
-            </p>
+            <div className="text-center py-2">
+              <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">ยังไม่มีข้อมูล</p>
+              <a href="/account/profile"
+                className="inline-block text-sm bg-blue-600 text-white px-4 py-1.5 rounded-full hover:bg-blue-700"
+              >
+                กรอกข้อมูล
+              </a>
+            </div>
           )}
         </div>
       </section>
 
       {/* นัดหมายที่กำลังจะมา */}
       {upcoming.length > 0 && (
-        <section className="mb-5">
-          <h2 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">นัดหมายที่กำลังจะมา</h2>
+        <section>
+          <h2 className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2">นัดหมายที่กำลังจะมา</h2>
           <div className="space-y-2">
             {upcoming.map(a => {
               const dt = new Date(a.scheduled_at)
               const s = STATUS_LABEL[a.status] || STATUS_LABEL.pending
               return (
-                <div key={a.id} className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
-                  <div className="flex items-start justify-between gap-2">
+                <div key={a.id} className="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-2xl p-4">
+                  <div className="flex items-start justify-between gap-2 mb-3">
                     <div>
                       <div className="font-medium text-sm">{a.hw_doctors?.full_name}</div>
                       <div className="text-xs text-gray-500 dark:text-gray-400">{a.hw_doctors?.specialty}</div>
-                      <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">
-                        {dt.toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: 'numeric' })} เวลา {dt.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })} น.
+                      <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                        {dt.toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: 'numeric' })} · {dt.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })} น.
                       </div>
                     </div>
                     <span className={`text-xs px-2 py-1 rounded-full flex-shrink-0 ${s.color}`}>{s.label}</span>
                   </div>
                   <a href={`/consult/${a.id}`}
-                    className="mt-3 block w-full text-center bg-teal-600 text-white py-2 rounded-full text-sm hover:bg-teal-700"
+                    className="block w-full text-center bg-blue-600 text-white py-2 rounded-xl text-sm hover:bg-blue-700 font-medium"
                   >
                     เข้าห้องปรึกษา
                   </a>
@@ -213,11 +203,11 @@ export default function Dashboard() {
       )}
 
       {/* ประวัติการรักษา */}
-      <section className="mb-5">
-        <h2 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">ประวัติการรักษา</h2>
+      <section>
+        <h2 className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2">ประวัติการรักษา</h2>
         {history.length === 0 ? (
-          <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
-            <p className="text-sm text-gray-500 dark:text-gray-400 text-center">ยังไม่มีประวัติการรักษา</p>
+          <div className="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-2xl p-6 text-center">
+            <p className="text-sm text-gray-400 dark:text-gray-500">ยังไม่มีประวัติการรักษา</p>
           </div>
         ) : (
           <div className="space-y-2">
@@ -225,16 +215,16 @@ export default function Dashboard() {
               const dt = new Date(a.scheduled_at)
               const s = STATUS_LABEL[a.status] || STATUS_LABEL.completed
               return (
-                <div key={a.id} className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+                <div key={a.id} className="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-2xl p-4">
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex-1 min-w-0">
                       <div className="font-medium text-sm">{a.hw_doctors?.full_name}</div>
                       <div className="text-xs text-gray-500 dark:text-gray-400">{a.hw_doctors?.specialty}</div>
-                      <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                      <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                         {dt.toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: 'numeric' })}
                       </div>
                       {a.symptoms && (
-                        <div className="text-xs text-gray-500 dark:text-gray-500 mt-1 truncate">{a.symptoms}</div>
+                        <div className="text-xs text-gray-400 dark:text-gray-500 mt-1 truncate">{a.symptoms}</div>
                       )}
                     </div>
                     <span className={`text-xs px-2 py-1 rounded-full flex-shrink-0 ${s.color}`}>{s.label}</span>
@@ -245,15 +235,6 @@ export default function Dashboard() {
           </div>
         )}
       </section>
-
-      {/* Quick action */}
-      <div className="fixed bottom-5 left-0 right-0 flex justify-center px-5">
-        <a href="/doctors"
-          className="bg-teal-600 text-white px-8 py-3 rounded-full font-medium hover:bg-teal-700 shadow-lg text-center w-full max-w-xl"
-        >
-          + จองนัดหมายใหม่
-        </a>
-      </div>
-    </main>
+    </div>
   )
 }

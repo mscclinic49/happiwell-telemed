@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useState } from 'react'
 import { supabase, type Doctor } from '@/lib/supabase'
@@ -24,7 +24,7 @@ export default function DoctorsPage() {
   return (
     <main className="min-h-screen p-5 max-w-xl mx-auto">
       <div className="flex items-center gap-3 pt-4 mb-6">
-        <a href="/" className="text-teal-600 dark:text-teal-400 text-sm">← กลับ</a>
+        <a href="/" className="text-blue-600 dark:text-blue-400 text-sm">← กลับ</a>
         <h1 className="text-xl font-bold">เลือกแพทย์</h1>
       </div>
 
@@ -43,7 +43,7 @@ export default function DoctorsPage() {
       <div className="space-y-3">
         {doctors.map((doc) => (
           <div key={doc.id} className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4 flex items-center gap-4">
-            <div className="w-12 h-12 rounded-full bg-teal-100 dark:bg-teal-900 flex items-center justify-center text-teal-700 dark:text-teal-300 font-bold text-sm flex-shrink-0">
+            <div className="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center text-blue-700 dark:text-blue-300 font-bold text-sm flex-shrink-0">
               DR
             </div>
             <div className="flex-1 min-w-0">
@@ -60,7 +60,7 @@ export default function DoctorsPage() {
               </div>
             </div>
             <a href={`/book/${doc.id}`}
-              className="bg-teal-600 text-white px-4 py-2 rounded-full text-sm hover:bg-teal-700 flex-shrink-0"
+              className="bg-blue-600 text-white px-4 py-2 rounded-full text-sm hover:bg-blue-700 flex-shrink-0"
             >
               จอง
             </a>

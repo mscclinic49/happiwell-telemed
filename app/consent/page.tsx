@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -60,13 +60,13 @@ export default function ConsentPage() {
             key={c.key}
             className={`flex gap-3 p-4 border rounded-lg cursor-pointer transition-colors ${
               checked[c.key]
-                ? 'border-teal-500 bg-teal-50 dark:bg-teal-900/30'
+                ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/30'
                 : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-600'
             }`}
           >
             <input
               type="checkbox"
-              className="mt-0.5 w-4 h-4 accent-teal-600 flex-shrink-0"
+              className="mt-0.5 w-4 h-4 accent-blue-600 flex-shrink-0"
               checked={!!checked[c.key]}
               onChange={e => setChecked(prev => ({ ...prev, [c.key]: e.target.checked }))}
             />
@@ -92,7 +92,7 @@ export default function ConsentPage() {
       <button
         onClick={handleSubmit}
         disabled={!allChecked || submitting}
-        className="w-full bg-teal-600 text-white py-3 rounded-full font-medium hover:bg-teal-700 disabled:opacity-40 disabled:cursor-not-allowed"
+        className="w-full bg-blue-600 text-white py-3 rounded-full font-medium hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed"
       >
         {submitting ? 'กำลังบันทึก...' : 'ยืนยันการยินยอมทั้งหมด'}
       </button>

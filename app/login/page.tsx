@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -34,7 +34,7 @@ export default function LoginPage() {
     router.refresh()
   }
 
-  const inputClass = 'w-full p-3 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:border-teal-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500'
+  const inputClass = 'w-full p-3 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:border-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500'
 
   return (
     <main className="min-h-screen p-6 max-w-md mx-auto">
@@ -76,7 +76,7 @@ export default function LoginPage() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-teal-600 text-white py-3 rounded-full font-medium hover:bg-teal-700 disabled:opacity-50"
+          className="w-full bg-blue-600 text-white py-3 rounded-full font-medium hover:bg-blue-700 disabled:opacity-50"
         >
           {loading ? 'กำลังเข้าสู่ระบบ...' : 'เข้าสู่ระบบ'}
         </button>
@@ -84,7 +84,7 @@ export default function LoginPage() {
 
       <p className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
         ยังไม่มีบัญชี?{' '}
-        <a href="/register" className="text-teal-600 dark:text-teal-400 hover:underline">สมัครใช้งาน</a>
+        <a href="/register" className="text-blue-600 dark:text-blue-400 hover:underline">สมัครใช้งาน</a>
       </p>
     </main>
   )

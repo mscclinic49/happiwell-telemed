@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useState, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
@@ -66,13 +66,13 @@ function SuccessContent() {
           )}
           <div className="border-t dark:border-gray-700 pt-3 flex justify-between">
             <span className="text-gray-600 dark:text-gray-400">ค่าปรึกษา</span>
-            <span className="font-bold text-teal-700 dark:text-teal-400">฿{appt.hw_doctors?.consultation_fee}</span>
+            <span className="font-bold text-blue-700 dark:text-blue-400">฿{appt.hw_doctors?.consultation_fee}</span>
           </div>
         </div>
       </div>
 
       <a href={`/consult/${appt.id}`}
-        className="block w-full bg-teal-600 text-white py-3 rounded-full font-medium hover:bg-teal-700 mb-3"
+        className="block w-full bg-blue-600 text-white py-3 rounded-full font-medium hover:bg-blue-700 mb-3"
       >
         เข้าห้องปรึกษา
       </a>

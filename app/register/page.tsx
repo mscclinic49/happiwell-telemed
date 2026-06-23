@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState } from 'react'
 import Image from 'next/image'
@@ -63,7 +63,7 @@ export default function RegisterPage() {
     )
   }
 
-  const inputClass = 'w-full p-3 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:border-teal-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500'
+  const inputClass = 'w-full p-3 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:border-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500'
 
   return (
     <main className="min-h-screen p-6 max-w-md mx-auto">
@@ -171,7 +171,7 @@ export default function RegisterPage() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-teal-600 text-white py-3 rounded-full font-medium hover:bg-teal-700 disabled:opacity-50"
+          className="w-full bg-blue-600 text-white py-3 rounded-full font-medium hover:bg-blue-700 disabled:opacity-50"
         >
           {loading ? 'กำลังสมัคร...' : 'สมัครใช้งาน'}
         </button>
@@ -179,7 +179,7 @@ export default function RegisterPage() {
 
       <p className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
         มีบัญชีแล้ว?{' '}
-        <a href="/login" className="text-teal-600 dark:text-teal-400 hover:underline">เข้าสู่ระบบ</a>
+        <a href="/login" className="text-blue-600 dark:text-blue-400 hover:underline">เข้าสู่ระบบ</a>
       </p>
     </main>
   )

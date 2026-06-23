@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -67,7 +67,7 @@ export default function AccountSettingsPage() {
 
   return (
     <main className="min-h-screen p-6 max-w-md mx-auto">
-      <a href="/" className="text-teal-600 dark:text-teal-400 mb-4 inline-block">← กลับ</a>
+      <a href="/" className="text-blue-600 dark:text-blue-400 mb-4 inline-block">← กลับ</a>
       <h1 className="text-2xl font-bold mb-6">การตั้งค่าบัญชี</h1>
 
       <section className="mb-8">

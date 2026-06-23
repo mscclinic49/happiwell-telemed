@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -22,7 +22,7 @@ const TITLES   = ['นาย', 'นาง', 'น.ส.', 'ด.ช.', 'ด.ญ.']
 const GENDERS  = [{ value: 'male', label: 'ชาย' }, { value: 'female', label: 'หญิง' }, { value: 'other', label: 'อื่นๆ' }]
 const BLOOD_TYPES = ['A', 'B', 'AB', 'O', 'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']
 
-const selectClass = 'w-full p-3 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:border-teal-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white'
+const selectClass = 'w-full p-3 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:border-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white'
 const inputClass  = `${selectClass} placeholder-gray-400 dark:placeholder-gray-500`
 
 export default function ProfilePage() {
@@ -110,7 +110,7 @@ export default function ProfilePage() {
   return (
     <main className="min-h-screen p-5 max-w-md mx-auto pb-12">
       <div className="flex items-center gap-3 pt-4 mb-6">
-        <a href="/" className="text-teal-600 dark:text-teal-400 text-sm">← กลับ</a>
+        <a href="/" className="text-blue-600 dark:text-blue-400 text-sm">← กลับ</a>
         <h1 className="text-xl font-bold">แก้ไขข้อมูลส่วนตัว</h1>
       </div>
 
@@ -215,7 +215,7 @@ export default function ProfilePage() {
         <button
           type="submit"
           disabled={saving}
-          className="w-full bg-teal-600 text-white py-3 rounded-full font-medium hover:bg-teal-700 disabled:opacity-50"
+          className="w-full bg-blue-600 text-white py-3 rounded-full font-medium hover:bg-blue-700 disabled:opacity-50"
         >
           {saving ? 'กำลังบันทึก...' : 'บันทึกข้อมูล'}
         </button>
