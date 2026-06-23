@@ -44,8 +44,7 @@ const PROFILE_SECTIONS = [
   {
     title: 'บัญชี',
     items: [
-      { href: '/account/profile',         label: 'ข้อมูลส่วนตัว',         Icon: IconUser },
-      { href: '/account/verify',           label: 'ยืนยันตัวตน',            Icon: IconId },
+      { href: '/account/profile',          label: 'ข้อมูลส่วนตัว',         Icon: IconUser },
       { href: '/account/change-password',  label: 'เปลี่ยนรหัสผ่าน',       Icon: IconLock },
       { href: '/account/signature',        label: 'ลายเซ็นดิจิทัล',        Icon: IconSignature },
     ],
