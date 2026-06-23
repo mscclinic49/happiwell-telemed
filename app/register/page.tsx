@@ -53,7 +53,7 @@ export default function RegisterPage() {
       <main className="min-h-screen p-6 max-w-md mx-auto flex flex-col items-center justify-center text-center">
         <div className="text-5xl mb-4">📧</div>
         <h1 className="text-2xl font-bold mb-2">ตรวจสอบอีเมลของคุณ</h1>
-        <p className="text-gray-600">
+        <p className="text-gray-600 dark:text-gray-400">
           ส่งลิงก์ยืนยันไปที่ <strong>{email}</strong> แล้ว
           <br />
           กรุณาคลิกลิงก์ในอีเมลเพื่อเข้าสู่ระบบ
@@ -62,11 +62,13 @@ export default function RegisterPage() {
     )
   }
 
+  const inputClass = 'w-full p-3 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:border-teal-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500'
+
   return (
     <main className="min-h-screen p-6 max-w-md mx-auto">
       <div className="mt-16 mb-8">
         <h1 className="text-2xl font-bold mb-1">สมัครใช้งาน</h1>
-        <p className="text-gray-600">HappiWell Telemedicine</p>
+        <p className="text-gray-600 dark:text-gray-400">HappiWell Telemedicine</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -76,7 +78,7 @@ export default function RegisterPage() {
             required
             value={title}
             onChange={e => setTitle(e.target.value)}
-            className="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:border-teal-500 bg-white text-gray-900"
+            className={`${inputClass} bg-white dark:bg-gray-800`}
           >
             <option value="">เลือกคำนำหน้า</option>
             {TITLES.map(t => (
@@ -93,7 +95,7 @@ export default function RegisterPage() {
               required
               value={firstName}
               onChange={e => setFirstName(e.target.value)}
-              className="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:border-teal-500 bg-white text-gray-900"
+              className={inputClass}
               placeholder="ชื่อจริง"
             />
           </div>
@@ -104,7 +106,7 @@ export default function RegisterPage() {
               required
               value={lastName}
               onChange={e => setLastName(e.target.value)}
-              className="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:border-teal-500 bg-white text-gray-900"
+              className={inputClass}
               placeholder="นามสกุล"
             />
           </div>
@@ -118,7 +120,7 @@ export default function RegisterPage() {
             value={dateOfBirth}
             onChange={e => setDateOfBirth(e.target.value)}
             max={new Date().toISOString().split('T')[0]}
-            className="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:border-teal-500 bg-white text-gray-900"
+            className={inputClass}
           />
         </div>
 
@@ -129,7 +131,7 @@ export default function RegisterPage() {
             required
             value={phone}
             onChange={e => setPhone(e.target.value)}
-            className="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:border-teal-500 bg-white text-gray-900"
+            className={inputClass}
             placeholder="0812345678"
           />
         </div>
@@ -141,7 +143,7 @@ export default function RegisterPage() {
             required
             value={email}
             onChange={e => setEmail(e.target.value)}
-            className="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:border-teal-500 bg-white text-gray-900"
+            className={inputClass}
             placeholder="example@email.com"
           />
         </div>
@@ -154,13 +156,13 @@ export default function RegisterPage() {
             minLength={8}
             value={password}
             onChange={e => setPassword(e.target.value)}
-            className="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:border-teal-500 bg-white text-gray-900"
+            className={inputClass}
             placeholder="อย่างน้อย 8 ตัวอักษร"
           />
         </div>
 
         {error && (
-          <div className="bg-red-50 border border-red-200 rounded p-3 text-red-700 text-sm">
+          <div className="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-700 rounded p-3 text-red-700 dark:text-red-400 text-sm">
             {error}
           </div>
         )}
@@ -174,9 +176,9 @@ export default function RegisterPage() {
         </button>
       </form>
 
-      <p className="mt-6 text-center text-sm text-gray-600">
+      <p className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
         มีบัญชีแล้ว?{' '}
-        <a href="/login" className="text-teal-600 hover:underline">เข้าสู่ระบบ</a>
+        <a href="/login" className="text-teal-600 dark:text-teal-400 hover:underline">เข้าสู่ระบบ</a>
       </p>
     </main>
   )

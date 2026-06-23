@@ -36,7 +36,6 @@ export default function BookingPage() {
     fetchDoctor()
   }, [doctorId])
 
-  // สร้างวันที่ 14 วันถัดไป
   const dates = Array.from({ length: 14 }, (_, i) => {
     const d = new Date()
     d.setDate(d.getDate() + i)
@@ -52,7 +51,6 @@ export default function BookingPage() {
     return {
       day: days[d.getDay()],
       date: d.getDate(),
-      month: d.getMonth() + 1,
     }
   }
 
@@ -90,28 +88,28 @@ export default function BookingPage() {
     router.push(`/book/success?id=${data.id}`)
   }
 
-  if (loading) return <p className="p-8">กำลังโหลด...</p>
-  if (!doctor) return <p className="p-8 text-red-600">ไม่พบแพทย์</p>
+  if (loading) return <p className="p-8 text-gray-500 dark:text-gray-400">กำลังโหลด...</p>
+  if (!doctor) return <p className="p-8 text-red-600 dark:text-red-400">ไม่พบแพทย์</p>
 
   return (
     <main className="min-h-screen p-6 max-w-2xl mx-auto">
-      <a href="/" className="text-teal-600 mb-4 inline-block">← กลับ</a>
+      <a href="/" className="text-teal-600 dark:text-teal-400 mb-4 inline-block">← กลับ</a>
 
       <h1 className="text-2xl font-bold mb-1">จองนัดหมาย</h1>
-      <p className="text-gray-600 mb-6">{doctor.full_name} · {doctor.specialty}</p>
+      <p className="text-gray-600 dark:text-gray-400 mb-6">{doctor.full_name} · {doctor.specialty}</p>
 
-      <div className="bg-teal-50 border border-teal-200 rounded-lg p-4 mb-6">
+      <div className="bg-teal-50 dark:bg-teal-900/30 border border-teal-200 dark:border-teal-700 rounded-lg p-4 mb-6">
         <div className="flex justify-between items-center">
-          <span className="text-sm text-teal-800">ค่าปรึกษา</span>
-          <span className="text-2xl font-bold text-teal-700">฿{doctor.consultation_fee}</span>
+          <span className="text-sm text-teal-800 dark:text-teal-300">ค่าปรึกษา</span>
+          <span className="text-2xl font-bold text-teal-700 dark:text-teal-300">฿{doctor.consultation_fee}</span>
         </div>
-        <div className="text-xs text-teal-700 mt-1">วิดีโอคอล 15 นาที</div>
+        <div className="text-xs text-teal-700 dark:text-teal-400 mt-1">วิดีโอคอล 15 นาที</div>
       </div>
 
       <div className="mb-6">
         <label className="block text-sm font-medium mb-2">เลือกวันที่</label>
         <div className="grid grid-cols-7 gap-2">
-          {dates.map((d, i) => {
+          {dates.map((d) => {
             const dateStr = formatDate(d)
             const display = displayDate(d)
             const isSelected = selectedDate === dateStr
@@ -119,10 +117,10 @@ export default function BookingPage() {
               <button
                 key={dateStr}
                 onClick={() => setSelectedDate(dateStr)}
-                className={`p-2 rounded-lg border text-center ${
+                className={`p-2 rounded-lg border text-center transition-colors ${
                   isSelected
                     ? 'bg-teal-600 text-white border-teal-600'
-                    : 'bg-white border-gray-200 hover:border-teal-400'
+                    : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:border-teal-400 dark:hover:border-teal-500'
                 }`}
               >
                 <div className="text-xs">{display.day}</div>
@@ -140,10 +138,10 @@ export default function BookingPage() {
             <button
               key={t}
               onClick={() => setSelectedTime(t)}
-              className={`p-3 rounded-lg border text-center ${
+              className={`p-3 rounded-lg border text-center transition-colors ${
                 selectedTime === t
                   ? 'bg-teal-600 text-white border-teal-600'
-                  : 'bg-white border-gray-200 hover:border-teal-400'
+                  : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:border-teal-400 dark:hover:border-teal-500'
               }`}
             >
               {t}
@@ -159,12 +157,12 @@ export default function BookingPage() {
           onChange={(e) => setSymptoms(e.target.value)}
           rows={4}
           placeholder="เช่น ปวดหัวมา 2 วัน มีไข้ต่ำ ไอแห้งๆ"
-          className="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:border-teal-500 bg-white text-gray-900"
+          className="w-full p-3 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:border-teal-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
         />
       </div>
 
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded p-3 mb-4 text-red-700 text-sm">
+        <div className="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-700 rounded p-3 mb-4 text-red-700 dark:text-red-400 text-sm">
           {error}
         </div>
       )}
@@ -178,4 +176,4 @@ export default function BookingPage() {
       </button>
     </main>
   )
-} 
+}

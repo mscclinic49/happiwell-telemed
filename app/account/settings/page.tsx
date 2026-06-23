@@ -67,13 +67,13 @@ export default function AccountSettingsPage() {
 
   return (
     <main className="min-h-screen p-6 max-w-md mx-auto">
-      <a href="/" className="text-teal-600 mb-4 inline-block">← กลับ</a>
+      <a href="/" className="text-teal-600 dark:text-teal-400 mb-4 inline-block">← กลับ</a>
       <h1 className="text-2xl font-bold mb-6">การตั้งค่าบัญชี</h1>
 
       <section className="mb-8">
         <h2 className="font-semibold mb-3">ข้อมูลบัญชี</h2>
-        <div className="bg-white border border-gray-200 rounded-lg p-4">
-          <div className="text-xs text-gray-500 uppercase mb-1">อีเมล</div>
+        <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+          <div className="text-xs text-gray-500 dark:text-gray-400 uppercase mb-1">อีเมล</div>
           <div className="font-medium">{user?.email}</div>
         </div>
       </section>
@@ -82,13 +82,13 @@ export default function AccountSettingsPage() {
         <h2 className="font-semibold mb-3">สถานะความยินยอม (PDPA)</h2>
         <div className="space-y-3">
           {consents.map(c => (
-            <div key={c.consent_type} className="bg-white border border-gray-200 rounded-lg p-4">
+            <div key={c.consent_type} className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
               <div className="flex justify-between items-start gap-3">
                 <div>
                   <div className="text-sm font-medium">
                     {CONSENT_LABELS[c.consent_type] || c.consent_type}
                   </div>
-                  <div className="text-xs text-gray-500 mt-0.5">
+                  <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
                     {c.withdrawn_at
                       ? `ถอนแล้ว: ${new Date(c.withdrawn_at).toLocaleDateString('th-TH')}`
                       : `ยินยอมเมื่อ: ${new Date(c.consented_at).toLocaleDateString('th-TH')}`
@@ -98,7 +98,7 @@ export default function AccountSettingsPage() {
                 {!c.withdrawn_at && (
                   <button
                     onClick={() => handleWithdraw(c.consent_type)}
-                    className="text-xs text-red-500 hover:underline flex-shrink-0"
+                    className="text-xs text-red-500 dark:text-red-400 hover:underline flex-shrink-0"
                   >
                     ถอนความยินยอม
                   </button>
@@ -107,7 +107,7 @@ export default function AccountSettingsPage() {
             </div>
           ))}
           {consents.length === 0 && (
-            <p className="text-sm text-gray-500">ไม่พบข้อมูลความยินยอม</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">ไม่พบข้อมูลความยินยอม</p>
           )}
         </div>
       </section>
@@ -115,14 +115,14 @@ export default function AccountSettingsPage() {
       <div className="space-y-3">
         <button
           onClick={handleSignOut}
-          className="w-full border border-gray-300 text-gray-700 py-3 rounded-full font-medium hover:bg-gray-50"
+          className="w-full border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 py-3 rounded-full font-medium hover:bg-gray-50 dark:hover:bg-gray-800"
         >
           ออกจากระบบ
         </button>
         <button
           onClick={handleDeleteAccount}
           disabled={deleting}
-          className="w-full border border-red-300 text-red-600 py-3 rounded-full font-medium hover:bg-red-50 disabled:opacity-50"
+          className="w-full border border-red-300 dark:border-red-700 text-red-600 dark:text-red-400 py-3 rounded-full font-medium hover:bg-red-50 dark:hover:bg-red-900/20 disabled:opacity-50"
         >
           {deleting ? 'กำลังลบ...' : 'ลบบัญชีถาวร'}
         </button>

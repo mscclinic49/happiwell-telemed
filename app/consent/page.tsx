@@ -51,7 +51,7 @@ export default function ConsentPage() {
     <main className="min-h-screen p-6 max-w-md mx-auto">
       <div className="mt-8 mb-6">
         <h1 className="text-2xl font-bold mb-1">การยินยอมใช้บริการ</h1>
-        <p className="text-sm text-gray-600">กรุณาอ่านและยืนยันทุกข้อก่อนเริ่มใช้งาน</p>
+        <p className="text-sm text-gray-600 dark:text-gray-400">กรุณาอ่านและยืนยันทุกข้อก่อนเริ่มใช้งาน</p>
       </div>
 
       <div className="space-y-3 mb-6">
@@ -60,8 +60,8 @@ export default function ConsentPage() {
             key={c.key}
             className={`flex gap-3 p-4 border rounded-lg cursor-pointer transition-colors ${
               checked[c.key]
-                ? 'border-teal-500 bg-teal-50'
-                : 'border-gray-200 bg-white hover:border-gray-300'
+                ? 'border-teal-500 bg-teal-50 dark:bg-teal-900/30'
+                : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-600'
             }`}
           >
             <input
@@ -72,19 +72,19 @@ export default function ConsentPage() {
             />
             <div>
               <div className="font-medium text-sm">{c.title}</div>
-              <div className="text-xs text-gray-600 mt-0.5 leading-relaxed">{c.detail}</div>
+              <div className="text-xs text-gray-600 dark:text-gray-400 mt-0.5 leading-relaxed">{c.detail}</div>
             </div>
           </label>
         ))}
       </div>
 
-      <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6 text-xs text-gray-500 leading-relaxed">
+      <div className="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 mb-6 text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
         การยินยอมจะถูกบันทึกพร้อมวันเวลาและ IP Address เป็นหลักฐานตาม พ.ร.บ. คุ้มครองข้อมูลส่วนบุคคล (PDPA)
         สามารถถอนความยินยอมได้ที่หน้าการตั้งค่าบัญชี
       </div>
 
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded p-3 mb-4 text-red-700 text-sm">
+        <div className="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-700 rounded p-3 mb-4 text-red-700 dark:text-red-400 text-sm">
           {error}
         </div>
       )}

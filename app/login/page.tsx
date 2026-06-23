@@ -33,11 +33,13 @@ export default function LoginPage() {
     router.refresh()
   }
 
+  const inputClass = 'w-full p-3 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:border-teal-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500'
+
   return (
     <main className="min-h-screen p-6 max-w-md mx-auto">
       <div className="mt-16 mb-8">
         <h1 className="text-2xl font-bold mb-1">เข้าสู่ระบบ</h1>
-        <p className="text-gray-600">HappiWell Telemedicine</p>
+        <p className="text-gray-600 dark:text-gray-400">HappiWell Telemedicine</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -48,7 +50,7 @@ export default function LoginPage() {
             required
             value={email}
             onChange={e => setEmail(e.target.value)}
-            className="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:border-teal-500 bg-white text-gray-900"
+            className={inputClass}
             placeholder="example@email.com"
           />
         </div>
@@ -60,12 +62,12 @@ export default function LoginPage() {
             required
             value={password}
             onChange={e => setPassword(e.target.value)}
-            className="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:border-teal-500 bg-white text-gray-900"
+            className={inputClass}
           />
         </div>
 
         {error && (
-          <div className="bg-red-50 border border-red-200 rounded p-3 text-red-700 text-sm">
+          <div className="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-700 rounded p-3 text-red-700 dark:text-red-400 text-sm">
             {error}
           </div>
         )}
@@ -79,9 +81,9 @@ export default function LoginPage() {
         </button>
       </form>
 
-      <p className="mt-6 text-center text-sm text-gray-600">
+      <p className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
         ยังไม่มีบัญชี?{' '}
-        <a href="/register" className="text-teal-600 hover:underline">สมัครใช้งาน</a>
+        <a href="/register" className="text-teal-600 dark:text-teal-400 hover:underline">สมัครใช้งาน</a>
       </p>
     </main>
   )
