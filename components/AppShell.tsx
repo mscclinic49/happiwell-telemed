@@ -185,8 +185,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
       {/* Desktop sidebar */}
       <aside className="hidden md:flex flex-col w-56 flex-shrink-0 bg-[var(--card-bg)] border-r border-[var(--border)]">
-        <div className="px-5 py-4 border-b border-[var(--border)]">
-          <Image src="/logo-icon-new.png" alt="HappiWell" width={44} height={44} className="object-contain" priority />
+        <div className="px-4 py-3 border-b border-[var(--border)]">
+          <Image src="/logo-new.png" alt="HappiWell Clinic" width={148} height={52} className="object-contain" priority />
         </div>
 
         <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
