@@ -3,8 +3,12 @@
 import { useState } from 'react'
 import { createBrowserClient } from '@supabase/ssr'
 
+const TITLES = ['นาย', 'นาง', 'นางสาว', 'เด็กชาย', 'เด็กหญิง']
+
 export default function RegisterPage() {
-  const [fullName, setFullName] = useState('')
+  const [title, setTitle] = useState('')
+  const [firstName, setFirstName] = useState('')
+  const [lastName, setLastName] = useState('')
   const [phone, setPhone] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -22,11 +26,13 @@ export default function RegisterPage() {
     setLoading(true)
     setError(null)
 
+    const fullName = `${title}${firstName} ${lastName}`.trim()
+
     const { error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        data: { full_name: fullName, phone },
+        data: { title, first_name: firstName, last_name: lastName, full_name: fullName, phone },
         emailRedirectTo: `${window.location.origin}/auth/callback`,
       },
     })
@@ -64,15 +70,43 @@ export default function RegisterPage() {
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-sm font-medium mb-1">ชื่อ-นามสกุล</label>
-          <input
-            type="text"
+          <label className="block text-sm font-medium mb-1">คำนำหน้า</label>
+          <select
             required
-            value={fullName}
-            onChange={e => setFullName(e.target.value)}
-            className="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:border-teal-500"
-            placeholder="กรอกชื่อ-นามสกุล"
-          />
+            value={title}
+            onChange={e => setTitle(e.target.value)}
+            className="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:border-teal-500 bg-white"
+          >
+            <option value="">เลือกคำนำหน้า</option>
+            {TITLES.map(t => (
+              <option key={t} value={t}>{t}</option>
+            ))}
+          </select>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className="block text-sm font-medium mb-1">ชื่อ</label>
+            <input
+              type="text"
+              required
+              value={firstName}
+              onChange={e => setFirstName(e.target.value)}
+              className="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:border-teal-500"
+              placeholder="ชื่อจริง"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1">นามสกุล</label>
+            <input
+              type="text"
+              required
+              value={lastName}
+              onChange={e => setLastName(e.target.value)}
+              className="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:border-teal-500"
+              placeholder="นามสกุล"
+            />
+          </div>
         </div>
 
         <div>
