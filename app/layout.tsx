@@ -5,7 +5,6 @@ import { AppShell } from '@/components/AppShell'
 import './globals.css'
 
 const sarabun = Sarabun({
-  variable: '--font-sarabun',
   subsets: ['thai', 'latin'],
   weight: ['300', '400', '500', '600', '700'],
 })
@@ -17,7 +16,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="th" className={`${sarabun.variable} h-full antialiased`}>
+    <html lang="th" className={`${sarabun.className} h-full antialiased`}>
       <body className="h-full">
         <Providers>
           <AppShell>{children}</AppShell>
