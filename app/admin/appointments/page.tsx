@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react'
 import { createBrowserClient } from '@supabase/ssr'
-import { useRouter } from 'next/navigation'
 import { IconCalendarClock, IconPlus, IconX, IconCheck, IconAlertCircle, IconChevronDown } from '@tabler/icons-react'
 import { useAuth } from '@/lib/auth-context'
 
@@ -25,13 +24,11 @@ const inputClass = 'w-full px-4 py-3 rounded-[10px] border border-[var(--border)
 
 export default function AdminAppointmentsPage() {
   const { user } = useAuth()
-  const router = useRouter()
   const sb = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   )
 
-  const [checking, setChecking] = useState(true)
   const [patients, setPatients] = useState<Patient[]>([])
   const [doctors, setDoctors] = useState<Doctor[]>([])
   const [appts, setAppts] = useState<Appt[]>([])
@@ -46,15 +43,6 @@ export default function AdminAppointmentsPage() {
 
   useEffect(() => {
     if (!user) return
-    sb.from('hw_users').select('role').eq('id', user.id).single()
-      .then(({ data }) => {
-        if (data?.role !== 'admin') router.replace('/')
-        else setChecking(false)
-      })
-  }, [user])
-
-  useEffect(() => {
-    if (checking) return
     Promise.all([
       sb.from('hw_users').select('id, full_name, first_name, last_name, phone').order('first_name'),
       sb.from('hw_doctors').select('id, full_name, specialty').eq('is_active', true).order('full_name'),
@@ -67,7 +55,7 @@ export default function AdminAppointmentsPage() {
       setDoctors((dRes.data as Doctor[]) || [])
       setAppts((aRes.data as unknown as Appt[]) || [])
     })
-  }, [checking])
+  }, [user])
 
   function loadAppts() {
     sb.from('hw_appointments')
@@ -108,8 +96,6 @@ export default function AdminAppointmentsPage() {
   function patientLabel(p: Patient) {
     return p.full_name || `${p.first_name ?? ''} ${p.last_name ?? ''}`.trim() || `(${p.id.slice(0, 8)})`
   }
-
-  if (checking) return null
 
   return (
     <div className="max-w-2xl mx-auto px-5 py-6 pb-12">

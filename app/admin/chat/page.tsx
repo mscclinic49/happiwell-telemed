@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { createBrowserClient } from '@supabase/ssr'
-import { useRouter } from 'next/navigation'
 import { IconMessageCircle2, IconSend, IconChevronLeft, IconCalendarClock, IconUser } from '@tabler/icons-react'
 import { useAuth } from '@/lib/auth-context'
 
@@ -43,12 +42,10 @@ function patientName(c: Conversation) {
 
 export default function AdminChatPage() {
   const { user } = useAuth()
-  const router = useRouter()
   const sb = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   )
-  const [checking, setChecking] = useState(true)
   const [convs, setConvs] = useState<Conversation[]>([])
   const [activeId, setActiveId] = useState<string | null>(null)
   const [messages, setMessages] = useState<Message[]>([])
@@ -58,24 +55,14 @@ export default function AdminChatPage() {
 
   const active = convs.find(c => c.id === activeId)
 
-  // Check admin role
-  useEffect(() => {
-    if (!user) return
-    sb.from('hw_users').select('role').eq('id', user.id).single()
-      .then(({ data }) => {
-        if (data?.role !== 'admin') router.replace('/')
-        else setChecking(false)
-      })
-  }, [user])
-
   // Load all conversations
   useEffect(() => {
-    if (checking) return
+    if (!user) return
     sb.from('hw_conversations')
       .select('id, type, title, appointment_id, patient_id, last_message_at, hw_users(first_name, last_name)')
       .order('last_message_at', { ascending: false })
       .then(({ data }) => setConvs((data as unknown as Conversation[]) || []))
-  }, [checking])
+  }, [user])
 
   // Load messages for active
   useEffect(() => {
@@ -121,10 +108,8 @@ export default function AdminChatPage() {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage() }
   }
 
-  if (checking) return null
-
   return (
-    <div className="flex h-full overflow-hidden" style={{ maxHeight: 'calc(100vh - 60px)' }}>
+    <div className="flex h-full overflow-hidden">
 
       {/* Conversation list */}
       <div className={`flex flex-col border-r border-[var(--border)] bg-[var(--card-bg)] flex-shrink-0 w-full md:w-72 ${activeId ? 'hidden md:flex' : 'flex'}`}>

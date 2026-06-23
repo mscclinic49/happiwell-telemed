@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { createBrowserClient } from '@supabase/ssr'
-import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import {
   IconPlus, IconEdit, IconX, IconCheck, IconAlertCircle,
@@ -32,14 +31,12 @@ const inputClass = 'w-full px-4 py-3 rounded-[10px] border border-[var(--border)
 
 export default function AdminDoctorsPage() {
   const { user } = useAuth()
-  const router = useRouter()
   const sb = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   )
   const fileRef = useRef<HTMLInputElement>(null)
 
-  const [checking, setChecking] = useState(true)
   const [doctors, setDoctors] = useState<Doctor[]>([])
   const [editing, setEditing] = useState<Doctor | null>(null)
   const [showForm, setShowForm] = useState(false)
@@ -51,13 +48,6 @@ export default function AdminDoctorsPage() {
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState('')
 
-  // Admin check
-  useEffect(() => {
-    if (!user) return
-    sb.from('hw_users').select('role').eq('id', user.id).single()
-      .then(({ data }) => { if (data?.role !== 'admin') router.replace('/'); else setChecking(false) })
-  }, [user])
-
   function loadDoctors() {
     sb.from('hw_doctors')
       .select('id, full_name, specialty, bio, avatar_url, consultation_fee, rating, is_online, is_active')
@@ -65,7 +55,7 @@ export default function AdminDoctorsPage() {
       .then(({ data }) => setDoctors((data as Doctor[]) || []))
   }
 
-  useEffect(() => { if (!checking) loadDoctors() }, [checking])
+  useEffect(() => { if (user) loadDoctors() }, [user])
 
   async function loadSchedule(doctorId: string) {
     const { data } = await sb.from('hw_doctor_schedules')
@@ -185,8 +175,6 @@ export default function AdminDoctorsPage() {
       setSaving(false)
     }
   }
-
-  if (checking) return null
 
   return (
     <div className="max-w-2xl mx-auto px-5 py-6 pb-12">
