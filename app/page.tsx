@@ -179,15 +179,27 @@ export default function Dashboard() {
         <h2 className="text-xs font-bold uppercase tracking-widest text-[var(--muted)] mb-3">{'คลินิก'}</h2>
         <div className="bg-[var(--card-bg)] border border-[var(--border)] rounded-[14px] p-4 text-sm space-y-2">
           <div className="font-semibold">{'แฮปปี้เวลล์ คลินิกเวชกรรม'}</div>
-          <div className="text-xs text-[var(--muted)]">{'เลขที่ 193, 195 ชั้น 1 ถนนประชาอุทิศ ตำบลบางมด อำเภอทุ่งครุ กรุงเทพฯ'}</div>
+          <div className="text-xs text-[var(--muted)]">{'ใบอนุญาตประกอบกิจการ: 10101035068'}</div>
+          <a
+            href="https://maps.app.goo.gl/vyo3zyNqkSrcYMmC8"
+            target="_blank" rel="noopener noreferrer"
+            className="flex items-start gap-1.5 text-xs text-[#185fa5] hover:underline"
+          >
+            <span className="mt-px">{'📍'}</span>
+            <span>{'เลขที่ 193, 195 ชั้น 1 ถนนประชาอุทิศ ตำบลบางมด อำเภอทุ่งครุ กรุงเทพฯ'}</span>
+          </a>
           <div className="text-xs text-[var(--muted)]">{'จ–ศ 08:00–18:00 · ส–อา 08:00–12:00'}</div>
-          <div className="flex gap-2 pt-1">
+          <div className="flex flex-wrap gap-2 pt-1">
             <a href="tel:020004586" className="flex items-center gap-1.5 bg-[#e6f1fb] text-[#185fa5] px-3 py-1.5 rounded-full text-xs font-medium">
               {'📞 02-000-4586'}
             </a>
             <a href="https://line.me/R/ti/p/@p49clinic" target="_blank" rel="noopener noreferrer"
               className="flex items-center gap-1.5 bg-[#e8f7f3] text-[#1a8a6e] px-3 py-1.5 rounded-full text-xs font-medium">
               {'Line @p49clinic'}
+            </a>
+            <a href="https://maps.app.goo.gl/vyo3zyNqkSrcYMmC8" target="_blank" rel="noopener noreferrer"
+              className="flex items-center gap-1.5 bg-[#faeeda] text-[#c47f00] px-3 py-1.5 rounded-full text-xs font-medium">
+              {'🗺️ Google Maps'}
             </a>
           </div>
         </div>
