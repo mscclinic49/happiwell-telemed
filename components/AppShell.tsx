@@ -85,9 +85,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <aside className="hidden md:flex flex-col w-56 flex-shrink-0 bg-white dark:bg-slate-800 border-r border-gray-200 dark:border-slate-700">
         {/* Logo */}
         <div className="px-4 py-4 border-b border-gray-100 dark:border-slate-700">
-          <div className="bg-white rounded-xl p-2 inline-block">
-            <Image src="/logo.png" alt="HappiWell Clinic" width={148} height={60} className="object-contain" priority />
-          </div>
+          <Image src="/logo-transparent.png" alt="HappiWell Clinic" width={148} height={50} className="object-contain" priority />
         </div>
 
         {/* Nav items */}
@@ -119,10 +117,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <div className="flex flex-col flex-1 overflow-hidden">
 
         {/* Mobile top bar */}
-        <header className="md:hidden flex items-center px-4 py-2 bg-white dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700 flex-shrink-0">
-          <div className="bg-white rounded-lg px-1 py-0.5">
-            <Image src="/logo.png" alt="HappiWell Clinic" width={120} height={48} className="object-contain" priority />
-          </div>
+        <header className="md:hidden flex items-center px-4 py-3 bg-white dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700 flex-shrink-0">
+          <Image src="/logo-transparent.png" alt="HappiWell Clinic" width={120} height={40} className="object-contain" priority />
         </header>
 
         {/* Scrollable content */}

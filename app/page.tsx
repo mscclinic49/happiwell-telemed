@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import Image from 'next/image'
 import { useAuth } from '@/lib/auth-context'
 import { supabase } from '@/lib/supabase'
 
@@ -98,9 +97,6 @@ export default function Dashboard() {
       <section>
         <h2 className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2">สถานพยาบาล</h2>
         <div className="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-2xl p-4">
-          <div className="bg-white rounded-xl p-2 inline-block mb-3">
-            <Image src="/logo.png" alt="HappiWell Clinic" width={180} height={72} className="object-contain" />
-          </div>
           <div className="space-y-1.5 text-xs text-gray-600 dark:text-gray-400">
             <div className="font-medium text-sm text-gray-800 dark:text-gray-200">แฮปปี้เวลล์ คลินิกเวชกรรม</div>
             <div>📍 เลขที่ 193, 195 ชั้น 1 ถนนประชาอุทิศ ตำบลบางมด อำเภอทุ่งครุ กรุงเทพมหานคร</div>
