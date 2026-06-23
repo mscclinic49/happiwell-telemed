@@ -68,7 +68,7 @@ export default function RegisterPage() {
   return (
     <main className="min-h-screen p-6 max-w-md mx-auto">
       <div className="mt-10 mb-8 flex flex-col items-center">
-        <Image src="/logo-transparent.png" alt="HappiWell Clinic" width={240} height={80} className="object-contain mb-6" priority />
+        <Image src="/logo.png" alt="HappiWell Clinic" width={240} height={80} className="object-contain mb-6" priority />
         <h1 className="text-2xl font-bold">สมัครใช้งาน</h1>
       </div>
 

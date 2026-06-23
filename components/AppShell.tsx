@@ -1,10 +1,10 @@
-'use client'
+﻿'use client'
 
 import { usePathname } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 
-// ─── Icons ───────────────────────────────────────────────────────────────────
+// โ”€โ”€โ”€ Icons โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€
 
 function HomeIcon({ active }: { active: boolean }) {
   return active ? (
@@ -56,19 +56,19 @@ function SettingsIcon({ active }: { active: boolean }) {
   )
 }
 
-// ─── Nav config ──────────────────────────────────────────────────────────────
+// โ”€โ”€โ”€ Nav config โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€
 
 const NAV = [
-  { href: '/',                  label: 'หน้าหลัก', Icon: HomeIcon,     match: (p: string) => p === '/' },
-  { href: '/doctors',           label: 'แพทย์',    Icon: DoctorIcon,   match: (p: string) => p.startsWith('/doctors') || p.startsWith('/book') },
-  { href: '/account/profile',   label: 'โปรไฟล์',  Icon: ProfileIcon,  match: (p: string) => p === '/account/profile' },
-  { href: '/account/settings',  label: 'ตั้งค่า',  Icon: SettingsIcon, match: (p: string) => p === '/account/settings' },
+  { href: '/',                  label: 'เธซเธเนเธฒเธซเธฅเธฑเธ', Icon: HomeIcon,     match: (p: string) => p === '/' },
+  { href: '/doctors',           label: 'เนเธเธ—เธขเน',    Icon: DoctorIcon,   match: (p: string) => p.startsWith('/doctors') || p.startsWith('/book') },
+  { href: '/account/profile',   label: 'เนเธเธฃเนเธเธฅเน',  Icon: ProfileIcon,  match: (p: string) => p === '/account/profile' },
+  { href: '/account/settings',  label: 'เธ•เธฑเนเธเธเนเธฒ',  Icon: SettingsIcon, match: (p: string) => p === '/account/settings' },
 ]
 
 // Pages that render WITHOUT the shell (auth, video call)
 const NO_SHELL = ['/login', '/register', '/consent', '/auth', '/consult']
 
-// ─── AppShell ─────────────────────────────────────────────────────────────────
+// โ”€โ”€โ”€ AppShell โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
@@ -81,11 +81,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex h-screen overflow-hidden bg-gray-50 dark:bg-slate-900">
 
-      {/* ── Desktop sidebar ── */}
+      {/* โ”€โ”€ Desktop sidebar โ”€โ”€ */}
       <aside className="hidden md:flex flex-col w-56 flex-shrink-0 bg-white dark:bg-slate-800 border-r border-gray-200 dark:border-slate-700">
         {/* Logo */}
         <div className="px-4 py-4 border-b border-gray-100 dark:border-slate-700">
-          <Image src="/logo-transparent.png" alt="HappiWell Clinic" width={148} height={50} className="object-contain" priority />
+          <Image src="/logo.png" alt="HappiWell Clinic" width={148} height={50} className="object-contain" priority />
         </div>
 
         {/* Nav items */}
@@ -109,16 +109,16 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
         {/* Clinic name at bottom */}
         <div className="px-4 py-3 border-t border-gray-100 dark:border-slate-700">
-          <p className="text-xs text-gray-400 dark:text-gray-500">แฮปปี้เวลล์ คลินิกเวชกรรม</p>
+          <p className="text-xs text-gray-400 dark:text-gray-500">เนเธฎเธเธเธตเนเน€เธงเธฅเธฅเน เธเธฅเธดเธเธดเธเน€เธงเธเธเธฃเธฃเธก</p>
         </div>
       </aside>
 
-      {/* ── Main column ── */}
+      {/* โ”€โ”€ Main column โ”€โ”€ */}
       <div className="flex flex-col flex-1 overflow-hidden">
 
         {/* Mobile top bar */}
         <header className="md:hidden flex items-center px-4 py-3 bg-white dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700 flex-shrink-0">
-          <Image src="/logo-transparent.png" alt="HappiWell Clinic" width={120} height={40} className="object-contain" priority />
+          <Image src="/logo.png" alt="HappiWell Clinic" width={120} height={40} className="object-contain" priority />
         </header>
 
         {/* Scrollable content */}

@@ -97,11 +97,30 @@ export default function Dashboard() {
       <section>
         <h2 className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2">สถานพยาบาล</h2>
         <div className="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-2xl p-4">
-          <div className="space-y-1.5 text-xs text-gray-600 dark:text-gray-400">
-            <div className="font-medium text-sm text-gray-800 dark:text-gray-200">แฮปปี้เวลล์ คลินิกเวชกรรม</div>
+          <div className="space-y-2 text-xs text-gray-600 dark:text-gray-400">
+            <div className="font-semibold text-sm text-gray-800 dark:text-gray-200">แฮปปี้เวลล์ คลินิกเวชกรรม</div>
             <div>📍 เลขที่ 193, 195 ชั้น 1 ถนนประชาอุทิศ ตำบลบางมด อำเภอทุ่งครุ กรุงเทพมหานคร</div>
             <div>📋 ใบอนุญาตประกอบกิจการ: 10101035068</div>
             <div>🕐 จ–ศ 08:00–18:00 · ส–อา 08:00–12:00</div>
+            <div className="flex gap-3 pt-1">
+              <a
+                href="tel:020004586"
+                className="flex items-center gap-1.5 bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400 px-3 py-1.5 rounded-full font-medium hover:bg-blue-100 dark:hover:bg-blue-900 transition-colors"
+              >
+                📞 02-000-4586
+              </a>
+              <a
+                href="https://line.me/R/ti/p/@p49clinic"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 bg-green-50 dark:bg-green-950 text-green-600 dark:text-green-400 px-3 py-1.5 rounded-full font-medium hover:bg-green-100 dark:hover:bg-green-900 transition-colors"
+              >
+                <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M19.952 10.116C19.952 5.592 15.494 1.92 9.976 1.92S0 5.592 0 10.116c0 4.066 3.607 7.47 8.48 8.116.33.071.78.218.894.5.102.255.067.655.033.913l-.145.871c-.044.255-.203.997.874.543 1.077-.453 5.815-3.425 7.93-5.862 1.463-1.608 2.886-3.72 2.886-6.081z"/>
+                </svg>
+                @p49clinic
+              </a>
+            </div>
           </div>
         </div>
       </section>
