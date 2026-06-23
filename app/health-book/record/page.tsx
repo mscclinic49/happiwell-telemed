@@ -43,7 +43,7 @@ const getTrend = (cur: number, prev: number) => {
   return { Icon: IconTrendingDown, color: 'text-[var(--hw-green)]', text: d.toFixed(0) }
 }
 
-const inputClass = 'w-full border border-[var(--border)] rounded-xl px-4 py-3 text-sm bg-[var(--card-bg)] focus:outline-none focus:border-[var(--hw-green)]'
+const inputClass = 'w-full border border-[var(--border)] rounded-[10px] px-4 py-3 text-sm bg-[var(--card-bg)] focus:outline-none focus:border-[var(--hw-green)]'
 const labelClass = 'text-sm text-[var(--muted)] mb-1.5 block font-medium'
 
 export default function RecordPage() {
@@ -142,33 +142,41 @@ export default function RecordPage() {
   }
 
   return (
-    <div>
+    <div className="max-w-lg mx-auto px-5 py-6 pb-10">
+
       {/* Header */}
-      <div className="px-5 pt-6 pb-4" style={{ background: 'linear-gradient(135deg, var(--hw-green) 0%, var(--hw-green-dk) 100%)' }}>
-        <h1 className="text-white text-lg font-bold mb-4">{'📝 บันทึกสุขภาพ'}</h1>
-        <div className="flex gap-2">
-          {([['dtx', '🩸 น้ำตาล'], ['bp', '💙 ความดัน'], ['history', '📋 ประวัติ']] as [Tab, string][]).map(([k, l]) => (
-            <button key={k} onClick={() => { setTab(k); setShowForm(false) }}
-              className={'px-3 py-1.5 rounded-xl text-sm font-medium transition-colors ' +
-                (tab === k ? 'bg-white text-[var(--hw-green)]' : 'bg-white/20 text-white')}>
-              {l}
-            </button>
-          ))}
+      <div className="flex items-start justify-between mb-5">
+        <div>
+          <p className="text-sm text-[var(--muted)]">{'สมุดสุขภาพ'}</p>
+          <h1 className="text-xl font-bold">{'บันทึกสุขภาพ'}</h1>
         </div>
+        <button onClick={() => setShowForm(v => !v)}
+          className="flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold text-white flex-shrink-0"
+          style={{ background: TAB_COLOR[tab] }}>
+          <IconPlus size={15}/>
+          {tab === 'dtx' ? 'น้ำตาล' : tab === 'bp' ? 'ความดัน' : 'ประวัติ'}
+        </button>
       </div>
 
-      <div className="px-4 py-4 pb-10 max-w-xl mx-auto">
-        {/* Add button */}
-        <button onClick={() => setShowForm(v => !v)}
-          className="w-full text-white rounded-2xl py-3 flex items-center justify-center gap-2 font-medium mb-4"
-          style={{ background: TAB_COLOR[tab] }}>
-          <IconPlus size={18}/>
-          {tab === 'dtx' ? 'บันทึกค่าน้ำตาล' : tab === 'bp' ? 'บันทึกความดัน' : 'บันทึกการรักษา'}
-        </button>
+      {/* Tabs */}
+      <div className="flex gap-2 mb-5">
+        {([['dtx', 'น้ำตาล'], ['bp', 'ความดัน'], ['history', 'ประวัติการรักษา']] as [Tab, string][]).map(([k, l]) => (
+          <button key={k} onClick={() => { setTab(k); setShowForm(false) }}
+            className={'px-4 py-2 rounded-full text-sm font-medium border transition-colors ' +
+              (tab === k
+                ? 'text-white border-transparent'
+                : 'border-[var(--border)] text-[var(--muted)] hover:text-[var(--foreground)]')}
+            style={tab === k ? { background: TAB_COLOR[k] } : {}}>
+            {l}
+          </button>
+        ))}
+      </div>
+
+      <div className="space-y-4">
 
         {/* DTX Form */}
         {showForm && tab === 'dtx' && (
-          <div className="bg-[var(--card-bg)] border border-[var(--border)] rounded-2xl p-4 mb-4 space-y-4">
+          <div className="bg-[var(--card-bg)] border border-[var(--border)] rounded-[14px] p-4 mb-4 space-y-4">
             <div><label className={labelClass}>{'ค่าน้ำตาล (mg/dL) *'}</label>
               <input type="number" value={dtxForm.value} onChange={e => setDtxForm({...dtxForm, value: e.target.value})} placeholder="เช่น 95" className={inputClass}/></div>
             <div><label className={labelClass}>{'ช่วงเวลา'}</label>
@@ -180,8 +188,8 @@ export default function RecordPage() {
             <div><label className={labelClass}>{'หมายเหตุ'}</label>
               <input value={dtxForm.note} onChange={e => setDtxForm({...dtxForm, note: e.target.value})} placeholder="เช่น หลังออกกำลังกาย" className={inputClass}/></div>
             <div className="flex gap-3">
-              <button onClick={() => setShowForm(false)} className="flex-1 border border-[var(--border)] rounded-xl py-3 text-sm text-[var(--muted)]">{'ยกเลิก'}</button>
-              <button onClick={saveDtx} disabled={saving} className="flex-1 text-white rounded-xl py-3 text-sm font-medium disabled:opacity-50" style={{ background: TAB_COLOR.dtx }}>
+              <button onClick={() => setShowForm(false)} className="flex-1 border border-[var(--border)] rounded-full py-2.5 text-sm text-[var(--muted)]">{'ยกเลิก'}</button>
+              <button onClick={saveDtx} disabled={saving} className="flex-1 text-white rounded-full py-2.5 text-sm font-semibold disabled:opacity-50" style={{ background: TAB_COLOR.dtx }}>
                 {saving ? 'กำลังบันทึก...' : 'บันทึก'}</button>
             </div>
           </div>
@@ -189,7 +197,7 @@ export default function RecordPage() {
 
         {/* BP Form */}
         {showForm && tab === 'bp' && (
-          <div className="bg-[var(--card-bg)] border border-[var(--border)] rounded-2xl p-4 mb-4 space-y-4">
+          <div className="bg-[var(--card-bg)] border border-[var(--border)] rounded-[14px] p-4 mb-4 space-y-4">
             <div><label className={labelClass}>{'ค่าบน (mmHg) *'}</label>
               <input type="number" value={bpForm.systolic} onChange={e => setBpForm({...bpForm, systolic: e.target.value})} placeholder="เช่น 120" className={inputClass}/></div>
             <div><label className={labelClass}>{'ค่าล่าง (mmHg) *'}</label>
@@ -199,8 +207,8 @@ export default function RecordPage() {
             <div><label className={labelClass}>{'วันและเวลา'}</label>
               <input type="datetime-local" value={bpForm.measuredAt} onChange={e => setBpForm({...bpForm, measuredAt: e.target.value})} className={inputClass}/></div>
             <div className="flex gap-3">
-              <button onClick={() => setShowForm(false)} className="flex-1 border border-[var(--border)] rounded-xl py-3 text-sm text-[var(--muted)]">{'ยกเลิก'}</button>
-              <button onClick={saveBp} disabled={saving} className="flex-1 text-white rounded-xl py-3 text-sm font-medium disabled:opacity-50" style={{ background: TAB_COLOR.bp }}>
+              <button onClick={() => setShowForm(false)} className="flex-1 border border-[var(--border)] rounded-full py-2.5 text-sm text-[var(--muted)]">{'ยกเลิก'}</button>
+              <button onClick={saveBp} disabled={saving} className="flex-1 text-white rounded-full py-2.5 text-sm font-semibold disabled:opacity-50" style={{ background: TAB_COLOR.bp }}>
                 {saving ? 'กำลังบันทึก...' : 'บันทึก'}</button>
             </div>
           </div>
@@ -208,7 +216,7 @@ export default function RecordPage() {
 
         {/* History Form */}
         {showForm && tab === 'history' && (
-          <div className="bg-[var(--card-bg)] border border-[var(--border)] rounded-2xl p-4 mb-4 space-y-4">
+          <div className="bg-[var(--card-bg)] border border-[var(--border)] rounded-[14px] p-4 mb-4 space-y-4">
             <p className="text-xs text-purple-600">{'⏳ รอการยืนยันจากคลินิกก่อนแสดงผล'}</p>
             <div><label className={labelClass}>{'วันที่พบแพทย์ *'}</label>
               <input type="date" value={histForm.visit_date} onChange={e => setHistForm({...histForm, visit_date: e.target.value})} className={inputClass}/></div>
@@ -223,19 +231,21 @@ export default function RecordPage() {
             <div><label className={labelClass}>{'การรักษา'}</label>
               <textarea value={histForm.treatment} onChange={e => setHistForm({...histForm, treatment: e.target.value})} rows={3} className={inputClass + ' resize-none'}/></div>
             <div className="flex gap-3">
-              <button onClick={() => setShowForm(false)} className="flex-1 border border-[var(--border)] rounded-xl py-3 text-sm text-[var(--muted)]">{'ยกเลิก'}</button>
-              <button onClick={saveHist} disabled={saving} className="flex-1 text-white rounded-xl py-3 text-sm font-medium disabled:opacity-50" style={{ background: TAB_COLOR.history }}>
+              <button onClick={() => setShowForm(false)} className="flex-1 border border-[var(--border)] rounded-full py-2.5 text-sm text-[var(--muted)]">{'ยกเลิก'}</button>
+              <button onClick={saveHist} disabled={saving} className="flex-1 text-white rounded-full py-2.5 text-sm font-semibold disabled:opacity-50" style={{ background: TAB_COLOR.history }}>
                 {saving ? 'กำลังบันทึก...' : 'ส่งเพื่อยืนยัน'}</button>
             </div>
           </div>
         )}
 
         {loading ? (
-          <div className="text-center py-10 text-[var(--muted)] text-sm">{'กำลังโหลด...'}</div>
+          <div className="flex items-center justify-center py-16">
+            <div className="w-8 h-8 border-4 border-[var(--hw-green)] border-t-transparent rounded-full animate-spin"/>
+          </div>
         ) : tab === 'dtx' ? (
           <div className="space-y-4">
             {dtxRecords.length > 0 && (
-              <div className="bg-[var(--card-bg)] border border-[var(--border)] rounded-2xl p-4">
+              <div className="bg-[var(--card-bg)] border border-[var(--border)] rounded-[14px] p-4">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-xs text-[var(--muted)]">{'ค่าล่าสุด'}</p>
@@ -259,7 +269,7 @@ export default function RecordPage() {
               </div>
             )}
             {dtxChartData.length > 1 && (
-              <div className="bg-[var(--card-bg)] border border-[var(--border)] rounded-2xl p-4">
+              <div className="bg-[var(--card-bg)] border border-[var(--border)] rounded-[14px] p-4">
                 <p className="text-xs font-bold uppercase tracking-widest text-[var(--muted)] mb-3">{'📈 แนวโน้มน้ำตาล'}</p>
                 <div className="h-48">
                   <ResponsiveContainer width="100%" height="100%">
@@ -289,7 +299,7 @@ export default function RecordPage() {
                 {dtxRecords.map(rec => {
                   const st = getDtxStatus(rec.value)
                   return (
-                    <div key={rec.id} className="bg-[var(--card-bg)] border border-[var(--border)] rounded-2xl px-4 py-3 flex items-center gap-3">
+                    <div key={rec.id} className="bg-[var(--card-bg)] border border-[var(--border)] rounded-[14px] px-4 py-3 flex items-center gap-3">
                       <div className={"w-14 h-12 rounded-xl " + st.bg + " flex items-center justify-center flex-shrink-0"}>
                         <span className={"text-base font-bold " + st.color}>{rec.value}</span>
                       </div>
@@ -312,7 +322,7 @@ export default function RecordPage() {
         ) : tab === 'bp' ? (
           <div className="space-y-4">
             {bpRecords.length > 0 && (
-              <div className="bg-[var(--card-bg)] border border-[var(--border)] rounded-2xl p-4">
+              <div className="bg-[var(--card-bg)] border border-[var(--border)] rounded-[14px] p-4">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-xs text-[var(--muted)]">{'ค่าล่าสุด'}</p>
@@ -339,7 +349,7 @@ export default function RecordPage() {
               </div>
             )}
             {bpChartData.length > 1 && (
-              <div className="bg-[var(--card-bg)] border border-[var(--border)] rounded-2xl p-4">
+              <div className="bg-[var(--card-bg)] border border-[var(--border)] rounded-[14px] p-4">
                 <p className="text-xs font-bold uppercase tracking-widest text-[var(--muted)] mb-3">{'📈 แนวโน้มความดัน'}</p>
                 <div className="h-48">
                   <ResponsiveContainer width="100%" height="100%">
@@ -369,7 +379,7 @@ export default function RecordPage() {
                 {bpRecords.map(rec => {
                   const st = getBpStatus(rec.systolic)
                   return (
-                    <div key={rec.id} className="bg-[var(--card-bg)] border border-[var(--border)] rounded-2xl px-4 py-3 flex items-center gap-3">
+                    <div key={rec.id} className="bg-[var(--card-bg)] border border-[var(--border)] rounded-[14px] px-4 py-3 flex items-center gap-3">
                       <div className={"w-20 h-12 rounded-xl " + st.bg + " flex items-center justify-center flex-shrink-0"}>
                         <span className={"text-sm font-bold " + st.color}>{rec.systolic}/{rec.diastolic}</span>
                       </div>
@@ -394,7 +404,7 @@ export default function RecordPage() {
           ) : (
             <div className="space-y-2">
               {histRecords.map(rec => (
-                <div key={rec.id} className="bg-[var(--card-bg)] border border-[var(--border)] rounded-2xl overflow-hidden">
+                <div key={rec.id} className="bg-[var(--card-bg)] border border-[var(--border)] rounded-[14px] overflow-hidden">
                   <button className="w-full px-4 py-3 flex items-center gap-3 text-left"
                     onClick={() => setExpandedId(expandedId === rec.id ? null : rec.id)}>
                     <div className="w-10 h-10 rounded-xl bg-purple-50 flex items-center justify-center flex-shrink-0 text-lg">{'🏥'}</div>

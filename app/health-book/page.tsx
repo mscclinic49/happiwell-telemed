@@ -130,29 +130,29 @@ export default function HealthBookDashboard() {
   )
 
   return (
-    <div>
+    <div className="max-w-lg mx-auto px-5 py-6 pb-10 space-y-5">
+
       {/* Header */}
-      <div className="px-5 pt-6 pb-5" style={{ background: 'linear-gradient(135deg, var(--hw-green) 0%, var(--hw-green-dk) 100%)' }}>
-        <p className="text-white/70 text-xs">สวัสดี{firstName ? `, ${firstName}` : ''}</p>
-        <h1 className="text-white text-lg font-bold mt-0.5">{'📓 สมุดสุขภาพ'}</h1>
-        <p className="text-white/60 text-xs">{'HappiWell Clinic'}</p>
+      <div>
+        <p className="text-sm text-[var(--muted)]">สวัสดี{firstName ? `, ${firstName}` : ''}</p>
+        <h1 className="text-xl font-bold">{'สมุดสุขภาพ'}</h1>
       </div>
 
       {/* Shortcut tabs */}
-      <div className="flex gap-2 px-5 py-3 border-b border-[var(--border)] bg-[var(--card-bg)]">
+      <div className="flex gap-2 flex-wrap">
         {[
-          { label: '🩸 น้ำตาล/ความดัน', href: '/health-book/record' },
-          { label: '🔬 ผลตรวจ', href: '/health-book/lab' },
-          { label: '💊 ยา/วัคซีน', href: '/health-book/meds' },
+          { label: 'น้ำตาล/ความดัน', href: '/health-book/record' },
+          { label: 'ผลตรวจเลือด', href: '/health-book/lab' },
+          { label: 'ยา/วัคซีน', href: '/health-book/meds' },
         ].map(t => (
           <button key={t.href} onClick={() => router.push(t.href)}
-            className="px-3 py-1.5 rounded-full text-xs font-medium border border-[var(--border)] bg-[var(--background)] hover:border-[var(--hw-green)] hover:text-[var(--hw-green)] transition-colors">
+            className="px-4 py-2 rounded-full text-sm font-medium border border-[var(--border)] text-[var(--muted)] hover:border-[var(--hw-green)] hover:text-[var(--hw-green)] transition-colors">
             {t.label}
           </button>
         ))}
       </div>
 
-      <div className="px-4 py-4 pb-10 space-y-3 max-w-xl mx-auto">
+      <div className="space-y-3">
 
         {/* Vital Signs */}
         {hasVitals && (

@@ -54,7 +54,7 @@ function getCategoryKey(testName: string): string {
   return 'other'
 }
 
-const inputClass = 'w-full border border-[var(--border)] rounded-xl px-4 py-3 text-sm bg-[var(--card-bg)] focus:outline-none focus:border-[var(--hw-green)]'
+const inputClass = 'w-full border border-[var(--border)] rounded-[10px] px-4 py-3 text-sm bg-[var(--card-bg)] focus:outline-none focus:border-[var(--hw-green)]'
 const labelClass = 'text-sm text-[var(--muted)] mb-1.5 block font-medium'
 
 export default function LabResultsPage() {
@@ -153,21 +153,25 @@ export default function LabResultsPage() {
   )
 
   return (
-    <div>
-      <div className="px-5 pt-6 pb-5" style={{ background: 'linear-gradient(135deg, var(--hw-green) 0%, var(--hw-green-dk) 100%)' }}>
-        <h1 className="text-white text-lg font-bold">{'🔬 ผลตรวจร่างกาย'}</h1>
-        <p className="text-white/70 text-xs mt-1">{'ผลแล็บและค่าตรวจต่างๆ'}</p>
+    <div className="max-w-lg mx-auto px-5 py-6 pb-10">
+
+      {/* Header */}
+      <div className="flex items-start justify-between mb-5">
+        <div>
+          <p className="text-sm text-[var(--muted)]">{'สมุดสุขภาพ'}</p>
+          <h1 className="text-xl font-bold">{'ผลตรวจเลือด'}</h1>
+        </div>
+        <button onClick={() => setShowForm(!showForm)}
+          className="flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold text-white flex-shrink-0"
+          style={{ background: 'var(--hw-green)' }}>
+          <IconPlus size={15}/>{'เพิ่มผลตรวจ'}
+        </button>
       </div>
 
-      <div className="px-4 py-4 pb-10 space-y-4 max-w-xl mx-auto">
-        <button onClick={() => setShowForm(!showForm)}
-          className="w-full text-white rounded-2xl py-3 flex items-center justify-center gap-2 font-medium"
-          style={{ background: 'var(--hw-green)' }}>
-          <IconPlus size={18}/>{'เพิ่มผลตรวจ'}
-        </button>
+      <div className="space-y-4">
 
         {showForm && (
-          <div className="bg-[var(--card-bg)] border border-[var(--border)] rounded-2xl p-4 space-y-4">
+          <div className="bg-[var(--card-bg)] border border-[var(--border)] rounded-[14px] p-4 space-y-4">
             <p className="text-xs text-[var(--hw-green)]">{'⏳ รอการยืนยันจากคลินิกก่อนแสดงผล'}</p>
             <div><label className={labelClass}>{'วันที่ตรวจ *'}</label><input type="date" value={form.test_date} onChange={e => setForm({...form, test_date: e.target.value})} className={inputClass}/></div>
             <div><label className={labelClass}>{'สถานที่ตรวจ'}</label><input value={form.hospital} onChange={e => setForm({...form, hospital: e.target.value})} placeholder="เช่น HappiWell Clinic" className={inputClass}/></div>
@@ -179,15 +183,15 @@ export default function LabResultsPage() {
                 <option value="normal">{'ปกติ'}</option><option value="warning">{'ระวัง'}</option><option value="critical">{'ผิดปกติ'}</option>
               </select></div>
             <div className="flex gap-3">
-              <button onClick={() => setShowForm(false)} className="flex-1 border border-[var(--border)] rounded-xl py-3 text-sm text-[var(--muted)]">{'ยกเลิก'}</button>
-              <button onClick={handleSave} disabled={saving} className="flex-1 text-white rounded-xl py-3 text-sm font-medium disabled:opacity-50" style={{ background: 'var(--hw-green)' }}>
+              <button onClick={() => setShowForm(false)} className="flex-1 border border-[var(--border)] rounded-full py-2.5 text-sm text-[var(--muted)]">{'ยกเลิก'}</button>
+              <button onClick={handleSave} disabled={saving} className="flex-1 text-white rounded-full py-2.5 text-sm font-semibold disabled:opacity-50" style={{ background: 'var(--hw-green)' }}>
                 {saving ? 'กำลังบันทึก...' : 'ส่งเพื่อยืนยัน'}</button>
             </div>
           </div>
         )}
 
         {pending.length > 0 && (
-          <div className="bg-[var(--hw-yellow-bg)] border border-yellow-200 rounded-2xl p-4">
+          <div className="bg-[var(--hw-yellow-bg)] border border-yellow-200 rounded-[14px] p-4">
             <div className="flex items-center gap-2 mb-2"><IconClock size={16} className="text-yellow-500"/><p className="text-sm font-medium text-yellow-600">{'รอการยืนยันจากคลินิก ('}{pending.length}{')'}</p></div>
             {pending.map(rec => (
               <div key={rec.id} className="flex items-center justify-between py-1.5 border-b border-yellow-100 last:border-0">
@@ -204,7 +208,7 @@ export default function LabResultsPage() {
           <>
             {/* ผลตรวจล่าสุด */}
             {latestDate && (
-              <div className="bg-[var(--card-bg)] border border-[var(--border)] rounded-2xl overflow-hidden">
+              <div className="bg-[var(--card-bg)] border border-[var(--border)] rounded-[14px] overflow-hidden">
                 <div className="px-4 py-3 bg-[var(--background)] border-b border-[var(--border)]">
                   <p className="font-semibold text-sm">{'ผลตรวจล่าสุด'}</p>
                   <p className="text-xs text-[var(--muted)] mt-0.5">
@@ -269,7 +273,7 @@ export default function LabResultsPage() {
 
             {/* กราฟแนวโน้ม */}
             {uniqueTests.length > 0 && chartData.length > 1 && (
-              <div className="bg-[var(--card-bg)] border border-[var(--border)] rounded-2xl p-4">
+              <div className="bg-[var(--card-bg)] border border-[var(--border)] rounded-[14px] p-4">
                 <p className="text-xs font-bold uppercase tracking-widest text-[var(--muted)] mb-3">{'📈 แนวโน้มผลตรวจ'}</p>
                 <div className="flex gap-2 flex-wrap mb-4">
                   {uniqueTests.slice(0, 8).map(test => (
@@ -299,7 +303,7 @@ export default function LabResultsPage() {
             )}
 
             {/* ประวัติย้อนหลัง */}
-            <div className="bg-[var(--card-bg)] border border-[var(--border)] rounded-2xl overflow-hidden">
+            <div className="bg-[var(--card-bg)] border border-[var(--border)] rounded-[14px] overflow-hidden">
               <div className="px-4 py-3 border-b border-[var(--border)] bg-[var(--background)]">
                 <p className="font-semibold text-sm">{'📅 ประวัติตรวจย้อนหลัง'}</p>
               </div>

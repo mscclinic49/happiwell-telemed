@@ -23,7 +23,7 @@ type Tab = 'meds' | 'vaccines'
 
 const isOverdue = (d: string | null) => d ? new Date(d) < new Date() : false
 
-const inputClass = 'w-full border border-[var(--border)] rounded-xl px-4 py-3 text-sm bg-[var(--card-bg)] focus:outline-none focus:border-[var(--hw-green)]'
+const inputClass = 'w-full border border-[var(--border)] rounded-[10px] px-4 py-3 text-sm bg-[var(--card-bg)] focus:outline-none focus:border-[var(--hw-green)]'
 const labelClass = 'text-sm text-[var(--muted)] mb-1.5 block font-medium'
 
 export default function MedsPage() {
@@ -90,30 +90,40 @@ export default function MedsPage() {
   }
 
   return (
-    <div>
-      <div className="px-5 pt-6 pb-4" style={{ background: 'linear-gradient(135deg, var(--hw-green) 0%, var(--hw-green-dk) 100%)' }}>
-        <h1 className="text-white text-lg font-bold mb-4">{'💊 ยาและวัคซีน'}</h1>
-        <div className="flex gap-2">
-          {([['meds', '💊 ยา'], ['vaccines', '💉 วัคซีน']] as [Tab, string][]).map(([k, l]) => (
-            <button key={k} onClick={() => { setTab(k); setShowForm(false) }}
-              className={'px-4 py-2 rounded-xl text-sm font-medium ' + (tab === k ? 'bg-white text-[var(--hw-green)]' : 'bg-white/20 text-white')}>
-              {l}
-            </button>
-          ))}
+    <div className="max-w-lg mx-auto px-5 py-6 pb-10">
+
+      {/* Header */}
+      <div className="flex items-start justify-between mb-5">
+        <div>
+          <p className="text-sm text-[var(--muted)]">{'สมุดสุขภาพ'}</p>
+          <h1 className="text-xl font-bold">{'ยาและวัคซีน'}</h1>
         </div>
+        <button onClick={() => setShowForm(v => !v)}
+          className="flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold text-white flex-shrink-0"
+          style={{ background: 'var(--hw-orange)' }}>
+          <IconPlus size={15}/>
+          {tab === 'meds' ? 'เพิ่มยา' : 'เพิ่มวัคซีน'}
+        </button>
       </div>
 
-      <div className="px-4 py-4 pb-10 max-w-xl mx-auto">
-        <button onClick={() => setShowForm(v => !v)}
-          className="w-full text-white rounded-2xl py-3 flex items-center justify-center gap-2 font-medium mb-4"
-          style={{ background: 'var(--hw-orange)' }}>
-          <IconPlus size={18}/>
-          {tab === 'meds' ? 'เพิ่มรายการยา' : 'เพิ่มประวัติวัคซีน'}
-        </button>
+      {/* Tabs */}
+      <div className="flex gap-2 mb-5">
+        {([['meds', 'ยา'], ['vaccines', 'วัคซีน']] as [Tab, string][]).map(([k, l]) => (
+          <button key={k} onClick={() => { setTab(k); setShowForm(false) }}
+            className={'px-4 py-2 rounded-full text-sm font-medium border transition-colors ' +
+              (tab === k
+                ? 'bg-[var(--hw-green)] text-white border-transparent'
+                : 'border-[var(--border)] text-[var(--muted)] hover:text-[var(--foreground)]')}>
+            {l}
+          </button>
+        ))}
+      </div>
+
+      <div className="space-y-4">
 
         {/* Med form */}
         {showForm && tab === 'meds' && (
-          <div className="bg-[var(--card-bg)] border border-[var(--border)] rounded-2xl p-4 mb-4 space-y-4">
+          <div className="bg-[var(--card-bg)] border border-[var(--border)] rounded-[14px] p-4 mb-4 space-y-4">
             <p className="text-xs text-[var(--hw-orange)]">{'⏳ รอการยืนยันจากคลินิกก่อนแสดงผล'}</p>
             <div><label className={labelClass}>{'ชื่อยา *'}</label><input value={medForm.name} onChange={e => setMedForm({...medForm, name: e.target.value})} placeholder="เช่น Metformin" className={inputClass}/></div>
             <div><label className={labelClass}>{'ขนาดยา'}</label><input value={medForm.dosage} onChange={e => setMedForm({...medForm, dosage: e.target.value})} placeholder="เช่น 500mg" className={inputClass}/></div>
@@ -125,8 +135,8 @@ export default function MedsPage() {
               <span className="text-sm text-[var(--muted)]">{'เปิดแจ้งเตือน'}</span>
             </label>
             <div className="flex gap-3">
-              <button onClick={() => setShowForm(false)} className="flex-1 border border-[var(--border)] rounded-xl py-3 text-sm text-[var(--muted)]">{'ยกเลิก'}</button>
-              <button onClick={saveMed} disabled={saving} className="flex-1 text-white rounded-xl py-3 text-sm font-medium disabled:opacity-50" style={{ background: 'var(--hw-orange)' }}>
+              <button onClick={() => setShowForm(false)} className="flex-1 border border-[var(--border)] rounded-full py-2.5 text-sm text-[var(--muted)]">{'ยกเลิก'}</button>
+              <button onClick={saveMed} disabled={saving} className="flex-1 text-white rounded-full py-2.5 text-sm font-semibold disabled:opacity-50" style={{ background: 'var(--hw-orange)' }}>
                 {saving ? 'กำลังบันทึก...' : 'ส่งเพื่อยืนยัน'}</button>
             </div>
           </div>
@@ -134,7 +144,7 @@ export default function MedsPage() {
 
         {/* Vaccine form */}
         {showForm && tab === 'vaccines' && (
-          <div className="bg-[var(--card-bg)] border border-[var(--border)] rounded-2xl p-4 mb-4 space-y-4">
+          <div className="bg-[var(--card-bg)] border border-[var(--border)] rounded-[14px] p-4 mb-4 space-y-4">
             <p className="text-xs text-[var(--hw-green)]">{'⏳ รอการยืนยันจากคลินิกก่อนแสดงผล'}</p>
             <div><label className={labelClass}>{'ชื่อวัคซีน *'}</label><input value={vacForm.vaccine_name} onChange={e => setVacForm({...vacForm, vaccine_name: e.target.value})} placeholder="เช่น COVID-19" className={inputClass}/></div>
             <div><label className={labelClass}>{'เข็มที่'}</label><input type="number" value={vacForm.dose_number} onChange={e => setVacForm({...vacForm, dose_number: e.target.value})} className={inputClass}/></div>
@@ -142,15 +152,17 @@ export default function MedsPage() {
             <div><label className={labelClass}>{'สถานที่ฉีด'}</label><input value={vacForm.hospital} onChange={e => setVacForm({...vacForm, hospital: e.target.value})} placeholder="เช่น HappiWell Clinic" className={inputClass}/></div>
             <div><label className={labelClass}>{'กำหนดฉีดครั้งถัดไป'}</label><input type="date" value={vacForm.next_due_date} onChange={e => setVacForm({...vacForm, next_due_date: e.target.value})} className={inputClass}/></div>
             <div className="flex gap-3">
-              <button onClick={() => setShowForm(false)} className="flex-1 border border-[var(--border)] rounded-xl py-3 text-sm text-[var(--muted)]">{'ยกเลิก'}</button>
-              <button onClick={saveVac} disabled={saving} className="flex-1 text-white rounded-xl py-3 text-sm font-medium disabled:opacity-50" style={{ background: 'var(--hw-green)' }}>
+              <button onClick={() => setShowForm(false)} className="flex-1 border border-[var(--border)] rounded-full py-2.5 text-sm text-[var(--muted)]">{'ยกเลิก'}</button>
+              <button onClick={saveVac} disabled={saving} className="flex-1 text-white rounded-full py-2.5 text-sm font-semibold disabled:opacity-50" style={{ background: 'var(--hw-green)' }}>
                 {saving ? 'กำลังบันทึก...' : 'ส่งเพื่อยืนยัน'}</button>
             </div>
           </div>
         )}
 
         {loading ? (
-          <div className="text-center py-10 text-[var(--muted)] text-sm">{'กำลังโหลด...'}</div>
+          <div className="flex items-center justify-center py-16">
+            <div className="w-8 h-8 border-4 border-[var(--hw-green)] border-t-transparent rounded-full animate-spin"/>
+          </div>
         ) : tab === 'meds' ? (
           <>
             {medsPending.length > 0 && (
@@ -161,7 +173,7 @@ export default function MedsPage() {
                 </div>
                 <div className="space-y-2">
                   {medsPending.map(rec => (
-                    <div key={rec.id} className="bg-[var(--hw-yellow-bg)] border border-yellow-200 rounded-2xl px-4 py-3 flex items-center gap-2">
+                    <div key={rec.id} className="bg-[var(--hw-yellow-bg)] border border-yellow-200 rounded-[14px] px-4 py-3 flex items-center gap-2">
                       <p className="font-medium text-sm flex-1">{rec.name}</p>
                       <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full">{'รอยืนยัน'}</span>
                     </div>
@@ -174,7 +186,7 @@ export default function MedsPage() {
             ) : (
               <div className="space-y-2">
                 {meds.map(rec => (
-                  <div key={rec.id} className="bg-[var(--card-bg)] border border-[var(--border)] rounded-2xl px-4 py-3">
+                  <div key={rec.id} className="bg-[var(--card-bg)] border border-[var(--border)] rounded-[14px] px-4 py-3">
                     <div className="flex items-start justify-between">
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
@@ -205,7 +217,7 @@ export default function MedsPage() {
                 </div>
                 <div className="space-y-2">
                   {vacPending.map(rec => (
-                    <div key={rec.id} className="bg-[var(--hw-yellow-bg)] border border-yellow-200 rounded-2xl px-4 py-3 flex items-center gap-2">
+                    <div key={rec.id} className="bg-[var(--hw-yellow-bg)] border border-yellow-200 rounded-[14px] px-4 py-3 flex items-center gap-2">
                       <p className="font-medium text-sm flex-1">{rec.vaccine_name}</p>
                       <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full">{'รอยืนยัน'}</span>
                     </div>
@@ -218,7 +230,7 @@ export default function MedsPage() {
             ) : (
               <div className="space-y-2">
                 {vaccines.map(rec => (
-                  <div key={rec.id} className="bg-[var(--card-bg)] border border-[var(--border)] rounded-2xl px-4 py-3">
+                  <div key={rec.id} className="bg-[var(--card-bg)] border border-[var(--border)] rounded-[14px] px-4 py-3">
                     <div className="flex items-start gap-3">
                       <div className="w-10 h-10 rounded-xl bg-[var(--hw-mint-bg)] flex items-center justify-center flex-shrink-0 text-xl">{'💉'}</div>
                       <div className="flex-1 min-w-0">
