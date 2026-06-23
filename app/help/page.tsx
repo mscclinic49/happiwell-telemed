@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState } from 'react'
 import { IconHelp, IconChevronDown, IconPhone, IconBrandLine } from '@tabler/icons-react'
@@ -83,7 +83,7 @@ export default function HelpPage() {
           <a
             href="tel:020004586"
             className="flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-semibold text-white"
-            style={{ background: '#1a8a6e' }}
+            style={{ background: 'var(--hw-green)' }}
           >
             <IconPhone size={16} />{'โทร 02-000-4586'}
           </a>
@@ -104,3 +104,4 @@ export default function HelpPage() {
     </div>
   )
 }
+

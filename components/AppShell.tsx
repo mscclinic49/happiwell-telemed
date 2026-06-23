@@ -10,7 +10,7 @@ import {
   IconHistory, IconBook2, IconHeart, IconShield,
   IconMapPin, IconShieldCheck,
   IconFileText, IconHelp, IconLogout, IconChevronDown,
-  IconSettings2,
+  IconSettings2, IconDroplet, IconMicroscope,
 } from '@tabler/icons-react'
 import { useAuth } from '@/lib/auth-context'
 
@@ -53,10 +53,13 @@ const PROFILE_SECTIONS = [
   {
     title: 'สุขภาพ',
     items: [
-      { href: '/history',                  label: 'ประวัติการปรึกษา',       Icon: IconHistory },
-      { href: '/health-journal',           label: 'สมุดบันทึกสุขภาพ',      Icon: IconBook2 },
-      { href: '/account/favorites',        label: 'แพทย์ที่ชื่นชอบ',       Icon: IconHeart },
-      { href: '/account/insurance',        label: 'สิทธิเบิกจ่าย',         Icon: IconShield },
+      { href: '/history',                  label: 'ประวัติการปรึกษา',          Icon: IconHistory },
+      { href: '/health-book',              label: 'สมุดสุขภาพ',               Icon: IconBook2 },
+      { href: '/health-book/record',       label: 'บันทึกน้ำตาล/ความดัน',     Icon: IconDroplet },
+      { href: '/health-book/lab',          label: 'ผลตรวจเลือด',              Icon: IconMicroscope },
+      { href: '/health-book/meds',         label: 'ยาและวัคซีน',              Icon: IconPill },
+      { href: '/account/favorites',        label: 'แพทย์ที่ชื่นชอบ',          Icon: IconHeart },
+      { href: '/account/insurance',        label: 'สิทธิเบิกจ่าย',            Icon: IconShield },
     ],
   },
   {

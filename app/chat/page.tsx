@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { createBrowserClient } from '@supabase/ssr'
@@ -207,7 +207,7 @@ export default function ChatPage() {
               <div className="max-w-[72%]">
                 <div className={`px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed whitespace-pre-wrap break-words ${
                   mine ? 'text-white rounded-br-sm' : 'bg-[var(--card-bg)] border border-[var(--border)] rounded-bl-sm'
-                }`} style={mine ? { background: '#1a8a6e' } : {}}>
+                }`} style={mine ? { background: 'var(--hw-green)' } : {}}>
                   {msg.content}
                 </div>
                 <div className={`text-[10px] text-[var(--muted)] mt-0.5 ${mine ? 'text-right' : ''}`}>
@@ -230,7 +230,7 @@ export default function ChatPage() {
         />
         <button onClick={sendMessage} disabled={!input.trim() || sending}
           className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 disabled:opacity-40 hover:opacity-80 transition-opacity"
-          style={{ background: '#1a8a6e' }}>
+          style={{ background: 'var(--hw-green)' }}>
           <IconSend size={16} className="text-white" />
         </button>
       </div>
@@ -263,3 +263,4 @@ export default function ChatPage() {
     </div>
   )
 }
+

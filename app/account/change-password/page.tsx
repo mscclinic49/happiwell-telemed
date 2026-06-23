@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState } from 'react'
 import { createBrowserClient } from '@supabase/ssr'
@@ -79,7 +79,7 @@ export default function ChangePasswordPage() {
           type="submit"
           disabled={loading}
           className="w-full py-3 rounded-full font-semibold text-white disabled:opacity-40 hover:opacity-90 transition-opacity"
-          style={{ background: '#1a8a6e' }}
+          style={{ background: 'var(--hw-green)' }}
         >
           {loading ? 'กำลังบันทึก...' : 'บันทึกรหัสผ่านใหม่'}
         </button>
@@ -87,3 +87,4 @@ export default function ChangePasswordPage() {
     </div>
   )
 }
+

@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useRef, useState } from 'react'
 import { createBrowserClient } from '@supabase/ssr'
@@ -194,7 +194,7 @@ export default function AdminDoctorsPage() {
         <h1 className="text-lg font-bold">{'จัดการข้อมูลแพทย์'}</h1>
         <button onClick={openNew}
           className="flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold text-white"
-          style={{ background: '#1a8a6e' }}>
+          style={{ background: 'var(--hw-green)' }}>
           <IconPlus size={15} />{'เพิ่มแพทย์'}
         </button>
       </div>
@@ -366,7 +366,7 @@ export default function AdminDoctorsPage() {
             </button>
             <button type="submit" disabled={saving}
               className="flex-1 py-3 rounded-full text-sm font-semibold text-white hover:opacity-90 disabled:opacity-40 transition-opacity"
-              style={{ background: '#1a8a6e' }}>
+              style={{ background: 'var(--hw-green)' }}>
               {saving ? 'กำลังบันทึก...' : (editing ? 'บันทึกการแก้ไข' : 'เพิ่มแพทย์')}
             </button>
           </div>
@@ -375,3 +375,4 @@ export default function AdminDoctorsPage() {
     </div>
   )
 }
+

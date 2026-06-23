@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -140,7 +140,7 @@ function UploadPanel({
         onClick={handleUpload}
         disabled={!file || uploading}
         className="w-full py-2 rounded-full text-xs font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-40"
-        style={{ background: '#1a8a6e' }}
+        style={{ background: 'var(--hw-green)' }}
       >
         {uploading ? 'กำลังอัพโหลด...' : 'อัพโหลดใบสั่งยา'}
       </button>
@@ -208,7 +208,7 @@ export default function AdminPrescriptionsPage() {
         <h1 className="text-xl font-bold">{'อัพโหลดใบสั่งยา'}</h1>
         <span
           className="text-xs px-2 py-0.5 rounded-full font-semibold text-white flex-shrink-0"
-          style={{ background: '#ef9f27' }}
+          style={{ background: 'var(--hw-orange)' }}
         >
           Admin
         </span>
@@ -285,3 +285,4 @@ export default function AdminPrescriptionsPage() {
     </div>
   )
 }
+

@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useState } from 'react'
 import { createBrowserClient } from '@supabase/ssr'
@@ -129,10 +129,11 @@ export default function DeliveryAddressPage() {
           </div>
         )}
 
-        <button type="submit" disabled={saving} className="w-full py-3 rounded-full font-semibold text-white disabled:opacity-40 hover:opacity-90 transition-opacity" style={{ background: '#1a8a6e' }}>
+        <button type="submit" disabled={saving} className="w-full py-3 rounded-full font-semibold text-white disabled:opacity-40 hover:opacity-90 transition-opacity" style={{ background: 'var(--hw-green)' }}>
           {saving ? 'กำลังบันทึก...' : 'บันทึกที่อยู่'}
         </button>
       </form>
     </div>
   )
 }
+

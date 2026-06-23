@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useState } from 'react'
 import { createBrowserClient } from '@supabase/ssr'
@@ -121,7 +121,7 @@ export default function AdminAppointmentsPage() {
         <button
           onClick={() => { setShowForm(v => !v); setError(null) }}
           className="flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold text-white"
-          style={{ background: '#1a8a6e' }}
+          style={{ background: 'var(--hw-green)' }}
         >
           {showForm ? <IconX size={15} /> : <IconPlus size={15} />}
           {showForm ? 'ยกเลิก' : 'สร้างนัดหมาย'}
@@ -205,7 +205,7 @@ export default function AdminAppointmentsPage() {
 
           <button type="submit" disabled={saving}
             className="w-full py-3 rounded-full font-semibold text-white hover:opacity-90 disabled:opacity-40 transition-opacity"
-            style={{ background: '#1a8a6e' }}>
+            style={{ background: 'var(--hw-green)' }}>
             {saving ? 'กำลังบันทึก...' : 'สร้างนัดหมาย (ยืนยันแล้ว)'}
           </button>
         </form>
@@ -243,7 +243,7 @@ export default function AdminAppointmentsPage() {
                   {a.status === 'pending' && (
                     <button onClick={() => updateStatus(a.id, 'confirmed')}
                       className="flex-1 text-xs py-2 rounded-full font-medium text-white"
-                      style={{ background: '#1a8a6e' }}>
+                      style={{ background: 'var(--hw-green)' }}>
                       {'ยืนยัน'}
                     </button>
                   )}
@@ -264,3 +264,4 @@ export default function AdminAppointmentsPage() {
     </div>
   )
 }
+

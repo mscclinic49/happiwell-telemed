@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useState } from 'react'
 import { createBrowserClient } from '@supabase/ssr'
@@ -20,8 +20,8 @@ type Appt = {
 
 const STATUS_CFG: Record<string, { label: string; color: string; bg: string; Icon: typeof IconClock }> = {
   pending:   { label: 'รอการยืนยัน', color: '#c47f00', bg: '#faeeda', Icon: IconClock },
-  confirmed: { label: 'ยืนยันแล้ว',  color: '#378add', bg: '#e6f1fb', Icon: IconCheck },
-  completed: { label: 'เสร็จสิ้น',   color: '#1a8a6e', bg: '#e8f7f3', Icon: IconCheck },
+  confirmed: { label: 'ยืนยันแล้ว',  color: 'var(--hw-blue)', bg: '#e6f1fb', Icon: IconCheck },
+  completed: { label: 'เสร็จสิ้น',   color: 'var(--hw-green)', bg: '#e8f7f3', Icon: IconCheck },
   cancelled: { label: 'ยกเลิก',      color: '#64748b', bg: '#f1f5f9', Icon: IconX },
   no_show:   { label: 'ไม่มาตามนัด', color: '#dc2626', bg: '#fee2e2', Icon: IconAlertCircle },
 }
@@ -104,7 +104,7 @@ export default function HistoryPage() {
                   <Link
                     href={`/consult/${a.id}`}
                     className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold text-white"
-                    style={{ background: '#1a8a6e' }}
+                    style={{ background: 'var(--hw-green)' }}
                   >
                     <IconVideo size={13} />
                     {'เข้าห้องปรึกษา'}
@@ -127,3 +127,4 @@ export default function HistoryPage() {
     </div>
   )
 }
+

@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useState } from 'react'
 import { createBrowserClient } from '@supabase/ssr'
@@ -59,7 +59,7 @@ export default function FavoritesPage() {
           <IconHeartOff size={44} className="mx-auto mb-3 opacity-25" />
           <p className="text-sm font-medium">{'ยังไม่มีแพทย์ที่ชื่นชอบ'}</p>
           <p className="text-xs mt-1 opacity-70">{'กดไอคอนหัวใจบนการ์ดแพทย์เพื่อเพิ่ม'}</p>
-          <Link href="/doctors" className="inline-block mt-4 px-5 py-2.5 rounded-full text-sm font-semibold text-white" style={{ background: '#1a8a6e' }}>
+          <Link href="/doctors" className="inline-block mt-4 px-5 py-2.5 rounded-full text-sm font-semibold text-white" style={{ background: 'var(--hw-green)' }}>
             {'ค้นหาแพทย์'}
           </Link>
         </div>
@@ -90,7 +90,7 @@ export default function FavoritesPage() {
                 <Link
                   href={`/book/${doc.id}`}
                   className="px-3 py-1.5 rounded-full text-xs font-semibold text-white"
-                  style={{ background: '#1a8a6e' }}
+                  style={{ background: 'var(--hw-green)' }}
                 >
                   {'นัดหมาย'}
                 </Link>
@@ -110,3 +110,4 @@ export default function FavoritesPage() {
     </div>
   )
 }
+

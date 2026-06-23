@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useState } from 'react'
 import { createBrowserClient } from '@supabase/ssr'
@@ -124,7 +124,7 @@ export default function PrescriptionsPage() {
                   onClick={() => handleDownload(rx)}
                   disabled={downloading === rx.id}
                   className="flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-semibold text-white flex-shrink-0 disabled:opacity-50 transition-opacity hover:opacity-90"
-                  style={{ background: expired ? '#94a3b8' : '#1a8a6e' }}
+                  style={{ background: expired ? '#94a3b8' : 'var(--hw-green)' }}
                 >
                   <IconDownload size={13} />
                   {downloading === rx.id ? '...' : 'ดาวน์โหลด'}
@@ -144,3 +144,4 @@ export default function PrescriptionsPage() {
     </div>
   )
 }
+

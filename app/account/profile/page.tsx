@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -228,7 +228,7 @@ function KycSection({ userId, sb }: { userId: string; sb: ReturnType<typeof crea
 
         <button type="submit" disabled={submitting || !file || (idType === 'national_id' && idNumber.length !== 13)}
           className="w-full py-3 rounded-full text-sm font-semibold text-white hover:opacity-90 disabled:opacity-40 transition-opacity"
-          style={{ background: '#1a8a6e' }}>
+          style={{ background: 'var(--hw-green)' }}>
           {submitting ? 'กำลังส่ง...' : 'ส่งข้อมูลยืนยันตัวตน'}
         </button>
       </form>
@@ -394,7 +394,7 @@ export default function ProfilePage() {
 
         <button type="submit" disabled={saving}
           className="w-full py-3 rounded-full font-semibold text-white hover:opacity-90 disabled:opacity-40 transition-opacity"
-          style={{ background: '#1a8a6e' }}>
+          style={{ background: 'var(--hw-green)' }}>
           {saving ? 'กำลังบันทึก...' : 'บันทึกข้อมูล'}
         </button>
       </form>
@@ -407,3 +407,4 @@ export default function ProfilePage() {
     </div>
   )
 }
+

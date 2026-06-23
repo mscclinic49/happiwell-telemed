@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -132,7 +132,7 @@ export default function Dashboard() {
                   {(a.status === 'confirmed' || isNow) && (
                     <Link href={`/consult/${a.id}`}
                       className="flex items-center justify-center gap-2 w-full py-2.5 rounded-full text-sm font-semibold text-white"
-                      style={{ background: '#1a8a6e' }}>
+                      style={{ background: 'var(--hw-green)' }}>
                       <IconVideo size={16} />{'เข้าห้องปรึกษา'}
                     </Link>
                   )}
@@ -207,3 +207,4 @@ export default function Dashboard() {
     </div>
   )
 }
+

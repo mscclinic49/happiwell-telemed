@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useState } from 'react'
 import { createBrowserClient } from '@supabase/ssr'
@@ -86,7 +86,7 @@ export default function HealthJournalPage() {
         <button
           onClick={() => { setShowForm(v => !v); setError(null) }}
           className="flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold text-white transition-opacity hover:opacity-90"
-          style={{ background: '#1a8a6e' }}
+          style={{ background: 'var(--hw-green)' }}
         >
           {showForm ? <IconX size={16} /> : <IconPlus size={16} />}
           {showForm ? 'ยกเลิก' : 'เพิ่มบันทึก'}
@@ -132,7 +132,7 @@ export default function HealthJournalPage() {
             </div>
           )}
 
-          <button type="submit" disabled={saving} className="w-full py-3 rounded-full font-semibold text-white disabled:opacity-40 hover:opacity-90 transition-opacity" style={{ background: '#1a8a6e' }}>
+          <button type="submit" disabled={saving} className="w-full py-3 rounded-full font-semibold text-white disabled:opacity-40 hover:opacity-90 transition-opacity" style={{ background: 'var(--hw-green)' }}>
             {saving ? 'กำลังบันทึก...' : 'บันทึก'}
           </button>
         </form>
@@ -198,3 +198,4 @@ export default function HealthJournalPage() {
     </div>
   )
 }
+

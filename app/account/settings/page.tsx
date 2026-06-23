@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -162,7 +162,7 @@ export default function AccountSettingsPage() {
                 <a
                   href="/complaint"
                   className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold text-white transition-opacity hover:opacity-90"
-                  style={{ background: '#1a8a6e' }}
+                  style={{ background: 'var(--hw-green)' }}
                 >
                   <IconMessageCircle2 size={16} />
                   {'ส่งเรื่องร้องเรียน'}
@@ -203,3 +203,4 @@ export default function AccountSettingsPage() {
     </div>
   )
 }
+
