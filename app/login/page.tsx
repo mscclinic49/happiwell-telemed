@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 import { createBrowserClient } from '@supabase/ssr'
 
 export default function LoginPage() {
@@ -37,9 +38,9 @@ export default function LoginPage() {
 
   return (
     <main className="min-h-screen p-6 max-w-md mx-auto">
-      <div className="mt-16 mb-8">
-        <h1 className="text-2xl font-bold mb-1">เข้าสู่ระบบ</h1>
-        <p className="text-gray-600 dark:text-gray-400">HappiWell Telemedicine</p>
+      <div className="mt-12 mb-8 flex flex-col items-center">
+        <Image src="/logo.png" alt="HappiWell Clinic" width={220} height={88} className="object-contain mb-6" priority />
+        <h1 className="text-2xl font-bold">เข้าสู่ระบบ</h1>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">

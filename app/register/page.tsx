@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Image from 'next/image'
 import { createBrowserClient } from '@supabase/ssr'
 
 const TITLES = ['นาย', 'นาง', 'น.ส.', 'ด.ช.', 'ด.ญ.']
@@ -66,9 +67,9 @@ export default function RegisterPage() {
 
   return (
     <main className="min-h-screen p-6 max-w-md mx-auto">
-      <div className="mt-16 mb-8">
-        <h1 className="text-2xl font-bold mb-1">สมัครใช้งาน</h1>
-        <p className="text-gray-600 dark:text-gray-400">HappiWell Telemedicine</p>
+      <div className="mt-10 mb-8 flex flex-col items-center">
+        <Image src="/logo.png" alt="HappiWell Clinic" width={220} height={88} className="object-contain mb-6" priority />
+        <h1 className="text-2xl font-bold">สมัครใช้งาน</h1>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">

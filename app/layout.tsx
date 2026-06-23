@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'HappiWell Telemedicine',
-  description: 'ปรึกษาแพทย์ออนไลน์',
+  title: 'HappiWell Clinic คลินิกเวชกรรม',
+  description: 'แฮปปี้เวลล์ คลินิกเวชกรรม — ปรึกษาแพทย์ออนไลน์',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 import { useAuth } from '@/lib/auth-context'
 import { supabase } from '@/lib/supabase'
 
@@ -88,10 +89,7 @@ export default function Dashboard() {
     <main className="min-h-screen max-w-xl mx-auto p-5 pb-24">
       {/* Header */}
       <div className="flex items-center justify-between mb-6 pt-4">
-        <div>
-          <p className="text-sm text-gray-500 dark:text-gray-400">สวัสดี</p>
-          <h1 className="text-xl font-bold">{displayName}</h1>
-        </div>
+        <Image src="/logo.png" alt="HappiWell Clinic" width={160} height={64} className="object-contain" priority />
         <div className="flex gap-2">
           <a href="/account/profile"
             className="p-2 rounded-full border border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-300 text-sm"
@@ -105,22 +103,20 @@ export default function Dashboard() {
           </a>
         </div>
       </div>
+      <div className="mb-1">
+        <p className="text-sm text-gray-500 dark:text-gray-400">สวัสดี</p>
+        <h1 className="text-xl font-bold">{displayName}</h1>
+      </div>
 
       {/* สถานพยาบาล */}
       <section className="mb-5">
         <h2 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">สถานพยาบาล</h2>
         <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
-          <div className="flex items-start gap-3">
-            <div className="w-10 h-10 rounded-lg bg-teal-600 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">HW</div>
-            <div>
-              <div className="font-semibold">HappiWell Telemedicine</div>
-              <div className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">บริการปรึกษาแพทย์ออนไลน์</div>
-              <div className="mt-2 space-y-1 text-xs text-gray-600 dark:text-gray-400">
-                <div>📋 ใบอนุญาตประกอบกิจการสถานพยาบาล: HW-2566-001</div>
-                <div>📞 02-xxx-xxxx · Line: @happiwell</div>
-                <div>🕐 จ–ศ 08:00–20:00 · ส–อา 09:00–17:00</div>
-              </div>
-            </div>
+          <Image src="/logo.png" alt="HappiWell Clinic" width={200} height={80} className="object-contain mb-3" />
+          <div className="space-y-1 text-xs text-gray-600 dark:text-gray-400">
+            <div>📋 ใบอนุญาตประกอบกิจการสถานพยาบาล: HW-2566-001</div>
+            <div>📞 02-xxx-xxxx · Line: @happiwell</div>
+            <div>🕐 จ–ศ 08:00–20:00 · ส–อา 09:00–17:00</div>
           </div>
         </div>
       </section>
