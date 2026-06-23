@@ -96,7 +96,7 @@ function ProfileDropdown({ displayName, email, onSignOut }: {
               key={href}
               href={href}
               onClick={() => setOpen(false)}
-              className="flex items-center gap-2.5 px-4 py-3 text-sm hover:bg-[#e8f7f3] transition-colors"
+              className="flex items-center gap-2.5 px-4 py-3.5 text-base hover:bg-[#e8f7f3] transition-colors"
             >
               <Icon size={16} className="text-[#1a8a6e] flex-shrink-0" />
               {label}
@@ -105,7 +105,7 @@ function ProfileDropdown({ displayName, email, onSignOut }: {
           <div className="border-t border-[var(--border)]" />
           <button
             onClick={() => { setOpen(false); onSignOut() }}
-            className="flex items-center gap-2.5 px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors w-full"
+            className="flex items-center gap-2.5 px-4 py-3.5 text-base text-red-600 hover:bg-red-50 transition-colors w-full"
           >
             <IconLogout size={16} className="flex-shrink-0" />
             {'ออกจากระบบ'}
@@ -143,7 +143,7 @@ function MobileProfileDropdown({ displayName, onSignOut }: {
               key={href}
               href={href}
               onClick={() => setOpen(false)}
-              className="flex items-center gap-2.5 px-4 py-3 text-sm hover:bg-[#e8f7f3] transition-colors"
+              className="flex items-center gap-2.5 px-4 py-3.5 text-base hover:bg-[#e8f7f3] transition-colors"
             >
               <Icon size={16} className="text-[#1a8a6e] flex-shrink-0" />
               {label}
@@ -152,7 +152,7 @@ function MobileProfileDropdown({ displayName, onSignOut }: {
           <div className="border-t border-[var(--border)]" />
           <button
             onClick={() => { setOpen(false); onSignOut() }}
-            className="flex items-center gap-2.5 px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors w-full"
+            className="flex items-center gap-2.5 px-4 py-3.5 text-base text-red-600 hover:bg-red-50 transition-colors w-full"
           >
             <IconLogout size={16} className="flex-shrink-0" />
             {'ออกจากระบบ'}
@@ -184,7 +184,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     <div className="flex h-screen overflow-hidden" style={{ background: 'var(--background)' }}>
 
       {/* Desktop sidebar */}
-      <aside className="hidden md:flex flex-col w-56 flex-shrink-0 bg-[var(--card-bg)] border-r border-[var(--border)]">
+      <aside className="hidden md:flex flex-col w-60 flex-shrink-0 bg-[var(--card-bg)] border-r border-[var(--border)]">
         <div className="px-4 py-3 border-b border-[var(--border)]">
           <Link href="/">
             <Image src="/logo-hc.png" alt="HappiWell Clinic" width={148} height={52} className="object-contain" priority />
@@ -198,14 +198,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               <Link
                 key={href}
                 href={href}
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-[10px] text-sm font-medium transition-colors ${
+                className={`flex items-center gap-3 px-3 py-3 rounded-[10px] text-base font-medium transition-colors ${
                   active
                     ? 'text-[#1a8a6e] font-semibold'
                     : 'text-[var(--muted)] hover:text-[var(--foreground)] hover:bg-[#e8f7f3]'
                 }`}
                 style={active ? { background: '#e8f7f3' } : {}}
               >
-                <Icon size={18} strokeWidth={active ? 2.2 : 1.8} />
+                <Icon size={21} strokeWidth={active ? 2.2 : 1.8} />
                 {label}
               </Link>
             )
@@ -242,11 +242,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               <Link
                 key={href}
                 href={href}
-                className={`flex-1 flex flex-col items-center gap-0.5 py-2.5 text-[10px] font-medium transition-colors ${
+                className={`flex-1 flex flex-col items-center gap-1 py-3 text-xs font-medium transition-colors ${
                   active ? 'text-[#1a8a6e]' : 'text-[var(--muted)]'
                 }`}
               >
-                <Icon size={21} strokeWidth={active ? 2.2 : 1.6} />
+                <Icon size={25} strokeWidth={active ? 2.2 : 1.6} />
                 <span>{label}</span>
               </Link>
             )
