@@ -159,7 +159,7 @@ export default function BookingPage() {
           onChange={(e) => setSymptoms(e.target.value)}
           rows={4}
           placeholder="เช่น ปวดหัวมา 2 วัน มีไข้ต่ำ ไอแห้งๆ"
-          className="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:border-teal-500"
+          className="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:border-teal-500 bg-white text-gray-900"
         />
       </div>
 
