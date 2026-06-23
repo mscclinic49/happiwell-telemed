@@ -186,7 +186,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       {/* Desktop sidebar */}
       <aside className="hidden md:flex flex-col w-56 flex-shrink-0 bg-[var(--card-bg)] border-r border-[var(--border)]">
         <div className="px-4 py-3 border-b border-[var(--border)]">
-          <Image src="/logo-new.png" alt="HappiWell Clinic" width={148} height={52} className="object-contain" priority />
+          <Link href="/">
+            <Image src="/logo-hc.png" alt="HappiWell Clinic" width={148} height={52} className="object-contain" priority />
+          </Link>
         </div>
 
         <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
@@ -222,7 +224,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
         {/* Mobile top bar */}
         <header className="md:hidden flex items-center justify-between px-4 py-3 bg-[var(--card-bg)] border-b border-[var(--border)] flex-shrink-0">
-          <Image src="/logo-new.png" alt="HappiWell Clinic" width={120} height={40} className="object-contain" priority />
+          <Link href="/">
+            <Image src="/logo-hc.png" alt="HappiWell Clinic" width={120} height={42} className="object-contain" priority />
+          </Link>
           {user && <MobileProfileDropdown displayName={displayName} onSignOut={handleSignOut} />}
         </header>
 
