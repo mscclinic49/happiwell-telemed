@@ -10,6 +10,7 @@ import {
   IconHistory, IconBook2, IconHeart, IconShield,
   IconMapPin, IconShieldCheck,
   IconFileText, IconHelp, IconLogout, IconChevronDown,
+  IconSettings2,
 } from '@tabler/icons-react'
 import { useAuth } from '@/lib/auth-context'
 
@@ -71,6 +72,15 @@ const PROFILE_SECTIONS = [
       { href: '/complaint',                label: 'ร้องเรียน / แจ้งปัญหา', Icon: IconMessageCircle2 },
       { href: '/terms',                    label: 'เงื่อนไขการใช้บริการ',   Icon: IconFileText },
       { href: '/help',                     label: 'ศูนย์ช่วยเหลือ',        Icon: IconHelp },
+    ],
+  },
+  {
+    title: 'แอดมิน',
+    items: [
+      { href: '/admin/appointments', label: 'จัดการนัดหมาย',   Icon: IconCalendarClock },
+      { href: '/admin/doctors',      label: 'จัดการข้อมูลแพทย์', Icon: IconStethoscope },
+      { href: '/admin/prescriptions',label: 'อัพโหลดใบสั่งยา',  Icon: IconPill },
+      { href: '/admin/chat',         label: 'กล่องข้อความ',     Icon: IconSettings2 },
     ],
   },
 ]
@@ -259,7 +269,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           {user && <MobileProfileDropdown displayName={displayName} onSignOut={handleSignOut} />}
         </header>
 
-        <main className="flex-1 overflow-y-auto">
+        <main className="flex-1 overflow-y-auto relative">
           {children}
         </main>
 
