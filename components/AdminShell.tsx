@@ -7,14 +7,18 @@ import { createBrowserClient } from '@supabase/ssr'
 import { useAuth } from '@/lib/auth-context'
 import {
   IconMessageCircle2, IconCalendarClock, IconStethoscope,
-  IconPill, IconLogout, IconMenu2, IconX,
+  IconPill, IconLogout, IconMenu2, IconX, IconLayoutDashboard,
+  IconBook2, IconUsers,
 } from '@tabler/icons-react'
 
 const NAV = [
-  { href: '/admin/chat',         label: 'แชท',         Icon: IconMessageCircle2 },
-  { href: '/admin/appointments', label: 'นัดหมาย',     Icon: IconCalendarClock  },
-  { href: '/admin/doctors',      label: 'แพทย์',        Icon: IconStethoscope   },
-  { href: '/admin/prescriptions',label: 'ใบสั่งยา',     Icon: IconPill          },
+  { href: '/admin',              label: 'ภาพรวม',    Icon: IconLayoutDashboard, exact: true },
+  { href: '/admin/chat',         label: 'แชท',        Icon: IconMessageCircle2 },
+  { href: '/admin/appointments', label: 'นัดหมาย',    Icon: IconCalendarClock  },
+  { href: '/admin/doctors',      label: 'แพทย์',      Icon: IconStethoscope   },
+  { href: '/admin/prescriptions',label: 'ใบสั่งยา',   Icon: IconPill          },
+  { href: '/admin/health-book',  label: 'สมุดสุขภาพ', Icon: IconBook2         },
+  { href: '/admin/patients',     label: 'คนไข้',      Icon: IconUsers         },
 ]
 
 export default function AdminShell({ children }: { children: React.ReactNode }) {
@@ -35,7 +39,9 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
     if (!user) { router.replace('/login'); return }
     sb.from('hw_users').select('role, first_name, full_name').eq('id', user.id).single()
       .then(({ data }) => {
-        if (data?.role !== 'admin') { router.replace('/'); return }
+        if (data?.role !== 'admin' && data?.role !== 'superadmin') {
+          router.replace('/'); return
+        }
         setAdminName(data.full_name || data.first_name || 'Admin')
         setChecking(false)
       })
@@ -56,8 +62,8 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
 
   const NavLinks = ({ onClick }: { onClick?: () => void }) => (
     <>
-      {NAV.map(({ href, label, Icon }) => {
-        const active = pathname.startsWith(href)
+      {NAV.map(({ href, label, Icon, exact }) => {
+        const active = exact ? pathname === href : pathname.startsWith(href)
         return (
           <Link key={href} href={href} onClick={onClick}
             className={`flex items-center gap-3 px-4 py-3 rounded-[10px] text-sm font-medium transition-colors
@@ -75,20 +81,15 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
   return (
     <div className="flex h-screen overflow-hidden bg-[var(--background)]">
 
-      {/* ── Desktop sidebar ── */}
+      {/* Desktop sidebar */}
       <aside className="hidden md:flex flex-col w-56 flex-shrink-0 bg-[var(--card-bg)] border-r border-[var(--border)]">
-        {/* Brand */}
         <div className="px-5 py-5 border-b border-[var(--border)]">
           <div className="text-xs font-bold uppercase tracking-widest text-[var(--hw-green)] mb-0.5">{'HappiWell'}</div>
           <div className="text-[11px] text-[var(--muted)]">{'แผงควบคุมแอดมิน'}</div>
         </div>
-
-        {/* Nav */}
         <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
           <NavLinks />
         </nav>
-
-        {/* Footer */}
         <div className="px-4 py-4 border-t border-[var(--border)]">
           <div className="text-xs text-[var(--muted)] mb-3 truncate">{adminName}</div>
           <button onClick={signOut}
@@ -98,7 +99,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
         </div>
       </aside>
 
-      {/* ── Mobile: top bar ── */}
+      {/* Mobile top bar */}
       <div className="md:hidden fixed top-0 inset-x-0 z-30 bg-[var(--card-bg)] border-b border-[var(--border)] flex items-center px-4 h-14">
         <button onClick={() => setSidebarOpen(true)} className="p-1.5 -ml-1.5 mr-3">
           <IconMenu2 size={22} className="text-[var(--muted)]" />
@@ -137,7 +138,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
         </>
       )}
 
-      {/* ── Main content ── */}
+      {/* Main content */}
       <main className="flex-1 overflow-y-auto md:pt-0 pt-14">
         {children}
       </main>
