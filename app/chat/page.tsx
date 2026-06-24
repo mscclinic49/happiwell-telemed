@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, useCallback } from 'react'
 import { createBrowserClient } from '@supabase/ssr'
 import Image from 'next/image'
 import {
-  IconMessageCircle2, IconSend, IconChevronLeft, IconCalendarClock, IconAlertCircle, IconPhoto,
+  IconMessageCircle2, IconSend, IconAlertCircle, IconPhoto,
 } from '@tabler/icons-react'
 import { useAuth } from '@/lib/auth-context'
 
@@ -62,11 +62,8 @@ export default function ChatPage() {
   const [sending, setSending] = useState(false)
   const [uploading, setUploading] = useState(false)
   const [initError, setInitError] = useState<string | null>(null)
-  const [showList, setShowList] = useState(true)
   const bottomRef = useRef<HTMLDivElement>(null)
   const fileRef = useRef<HTMLInputElement>(null)
-
-  const active = convs.find(c => c.id === activeId)
 
   // Init: get or create support conversation
   useEffect(() => {
@@ -94,7 +91,7 @@ export default function ChatPage() {
         .eq('patient_id', user!.id).order('last_message_at', { ascending: false })
       setConvs((list as Conversation[]) || [])
 
-      if (convId) { setActiveId(convId); setShowList(false) }
+      if (convId) { setActiveId(convId) }
     }
     init()
   }, [user])
@@ -177,8 +174,6 @@ export default function ChatPage() {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage() }
   }
 
-  function openConv(id: string) { setActiveId(id); setShowList(false) }
-
   if (initError) {
     return (
       <div className="max-w-lg mx-auto px-5 py-12 text-center">
@@ -189,43 +184,12 @@ export default function ChatPage() {
     )
   }
 
-  const listPanel = (
-    <div className="flex flex-col bg-[var(--card-bg)] border-r border-[var(--border)] w-full md:w-72 md:flex-shrink-0 h-full">
-      <div className="px-5 py-4 border-b border-[var(--border)] flex items-center gap-2 flex-shrink-0">
-        <IconMessageCircle2 size={18} className="text-[#1a8a6e]" />
-        <h1 className="text-base font-bold">{'แชท'}</h1>
-      </div>
-      <div className="flex-1 overflow-y-auto">
-        {convs.length === 0 && (
-          <div className="text-center py-12 text-[var(--muted)] text-sm">{'กำลังโหลด...'}</div>
-        )}
-        {convs.map(c => (
-          <button key={c.id} onClick={() => openConv(c.id)}
-            className={`w-full text-left px-5 py-3.5 border-b border-[var(--border)] hover:bg-[#e8f7f3] transition-colors ${activeId === c.id ? 'bg-[#e8f7f3]' : ''}`}>
-            <div className="flex items-center gap-2 mb-0.5">
-              {c.type === 'appointment'
-                ? <IconCalendarClock size={13} className="text-[#1a8a6e] flex-shrink-0" />
-                : <IconMessageCircle2 size={13} className="text-[#1a8a6e] flex-shrink-0" />}
-              <span className="font-semibold text-sm truncate">{convLabel(c)}</span>
-            </div>
-            <div className="text-xs text-[var(--muted)]">{timeLabel(c.last_message_at)}</div>
-          </button>
-        ))}
-      </div>
-    </div>
-  )
-
   const chatPanel = activeId ? (
     <div className="flex flex-col flex-1 min-w-0 h-full">
       <div className="flex items-center gap-3 px-4 py-3 border-b border-[var(--border)] bg-[var(--card-bg)] flex-shrink-0">
-        <button onClick={() => setShowList(true)} className="md:hidden p-1 text-[var(--muted)] -ml-1">
-          <IconChevronLeft size={20} />
-        </button>
         <div className="flex-1 min-w-0">
-          <div className="font-semibold text-sm">{active ? convLabel(active) : ''}</div>
-          {active?.type === 'support' && (
-            <div className="text-xs text-[var(--muted)]">{'แฮปปี้เวลล์ คลินิกเวชกรรม'}</div>
-          )}
+          <div className="font-semibold text-sm">{'ติดต่อคลินิก'}</div>
+          <div className="text-xs text-[var(--muted)]">{'แฮปปี้เวลล์ คลินิกเวชกรรม'}</div>
         </div>
       </div>
 
@@ -280,19 +244,17 @@ export default function ChatPage() {
       </div>
     </div>
   ) : (
-    <div className="hidden md:flex flex-1 items-center justify-center text-[var(--muted)]">
+    <div className="flex flex-1 items-center justify-center text-[var(--muted)]">
       <div className="text-center">
         <IconMessageCircle2 size={44} className="mx-auto mb-3 opacity-25" />
-        <p className="text-sm">{'เลือกการสนทนา'}</p>
+        <p className="text-sm">{'กำลังโหลด...'}</p>
       </div>
     </div>
   )
 
   return (
     <div className="absolute inset-0 flex overflow-hidden">
-      <div className={`md:hidden w-full h-full ${showList ? 'flex' : 'hidden'}`}>{listPanel}</div>
-      <div className={`md:hidden w-full h-full ${!showList && activeId ? 'flex flex-col' : 'hidden'}`}>{chatPanel}</div>
-      <div className="hidden md:flex w-full h-full">{listPanel}{chatPanel}</div>
+      {chatPanel}
     </div>
   )
 }
