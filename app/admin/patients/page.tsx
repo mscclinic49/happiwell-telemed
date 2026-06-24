@@ -3,7 +3,8 @@
 import { useEffect, useState } from 'react'
 import { createBrowserClient } from '@supabase/ssr'
 import { useAuth } from '@/lib/auth-context'
-import { IconUsers, IconSearch, IconPhone, IconCalendar } from '@tabler/icons-react'
+import Link from 'next/link'
+import { IconUsers, IconSearch, IconPhone, IconChevronRight, IconShieldCheck, IconShieldOff } from '@tabler/icons-react'
 
 const sb = createBrowserClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -19,7 +20,7 @@ type Patient = {
   date_of_birth: string | null
   gender: string | null
   created_at: string
-  role: string
+  identity_verified: boolean
 }
 
 const GENDER: Record<string, string> = { male: 'ชาย', female: 'หญิง', other: 'อื่น' }
@@ -33,7 +34,7 @@ export default function AdminPatientsPage() {
   useEffect(() => {
     if (!user) return
     sb.from('hw_users')
-      .select('id, full_name, first_name, last_name, phone, date_of_birth, gender, created_at, role')
+      .select('id, full_name, first_name, last_name, phone, date_of_birth, gender, created_at, identity_verified')
       .not('role', 'in', '("admin","superadmin")')
       .order('created_at', { ascending: false })
       .then(({ data }) => {
@@ -55,8 +56,7 @@ export default function AdminPatientsPage() {
 
   function calcAge(dob: string | null) {
     if (!dob) return null
-    const diff = Date.now() - new Date(dob).getTime()
-    return Math.floor(diff / (1000 * 60 * 60 * 24 * 365.25))
+    return Math.floor((Date.now() - new Date(dob).getTime()) / (1000 * 60 * 60 * 24 * 365.25))
   }
 
   return (
@@ -66,7 +66,7 @@ export default function AdminPatientsPage() {
         <h1 className="text-lg font-bold">{'รายชื่อคนไข้'}</h1>
         <span className="text-xs text-[var(--muted)] bg-[var(--border)] px-2 py-0.5 rounded-full">{patients.length}</span>
       </div>
-      <p className="text-xs text-[var(--muted)] mb-5">{'คนไข้ที่ลงทะเบียนในระบบ'}</p>
+      <p className="text-xs text-[var(--muted)] mb-5">{'คลิกเพื่อดูและจัดการข้อมูลคนไข้'}</p>
 
       <div className="relative mb-5">
         <IconSearch size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--muted)]" />
@@ -91,10 +91,16 @@ export default function AdminPatientsPage() {
           {filtered.map(p => {
             const age = calcAge(p.date_of_birth)
             return (
-              <div key={p.id} className="bg-[var(--card-bg)] border border-[var(--border)] rounded-[14px] px-4 py-3">
-                <div className="flex items-start justify-between gap-2">
+              <Link key={p.id} href={`/admin/patients/${p.id}`}
+                className="block bg-[var(--card-bg)] border border-[var(--border)] rounded-[14px] px-4 py-3 hover:border-[#1a8a6e] transition-colors">
+                <div className="flex items-center gap-3">
                   <div className="flex-1 min-w-0">
-                    <div className="font-semibold text-sm">{displayName(p)}</div>
+                    <div className="flex items-center gap-2">
+                      <span className="font-semibold text-sm">{displayName(p)}</span>
+                      {p.identity_verified
+                        ? <IconShieldCheck size={14} className="text-[#1a8a6e] flex-shrink-0" />
+                        : <IconShieldOff size={14} className="text-orange-400 flex-shrink-0" />}
+                    </div>
                     <div className="flex flex-wrap gap-x-3 gap-y-0.5 mt-1">
                       {p.phone && (
                         <span className="flex items-center gap-1 text-xs text-[var(--muted)]">
@@ -103,17 +109,14 @@ export default function AdminPatientsPage() {
                       )}
                       {age !== null && (
                         <span className="text-xs text-[var(--muted)]">
-                          {GENDER[p.gender ?? ''] ?? ''}{age ? ` · ${age} ปี` : ''}
+                          {GENDER[p.gender ?? ''] ?? ''}{age > 0 ? ` · ${age} ปี` : ''}
                         </span>
                       )}
                     </div>
                   </div>
-                  <div className="text-[10px] text-[var(--muted)] flex items-center gap-1 flex-shrink-0">
-                    <IconCalendar size={10} />
-                    {new Date(p.created_at).toLocaleDateString('th-TH', { dateStyle: 'short' })}
-                  </div>
+                  <IconChevronRight size={16} className="text-[var(--muted)] flex-shrink-0" />
                 </div>
-              </div>
+              </Link>
             )
           })}
         </div>

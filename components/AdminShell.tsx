@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createBrowserClient } from '@supabase/ssr'
@@ -8,18 +8,45 @@ import { useAuth } from '@/lib/auth-context'
 import {
   IconMessageCircle2, IconCalendarClock, IconStethoscope,
   IconPill, IconLogout, IconMenu2, IconX, IconLayoutDashboard,
-  IconBook2, IconUsers,
+  IconUsers, IconBell,
 } from '@tabler/icons-react'
 
 const NAV = [
-  { href: '/admin',              label: 'ภาพรวม',    Icon: IconLayoutDashboard, exact: true },
-  { href: '/admin/chat',         label: 'แชท',        Icon: IconMessageCircle2 },
-  { href: '/admin/appointments', label: 'นัดหมาย',    Icon: IconCalendarClock  },
-  { href: '/admin/doctors',      label: 'แพทย์',      Icon: IconStethoscope   },
-  { href: '/admin/prescriptions',label: 'ใบสั่งยา',   Icon: IconPill          },
-  { href: '/admin/health-book',  label: 'สมุดสุขภาพ', Icon: IconBook2         },
-  { href: '/admin/patients',     label: 'คนไข้',      Icon: IconUsers         },
+  { href: '/admin',              label: 'ภาพรวม',   Icon: IconLayoutDashboard, exact: true },
+  { href: '/admin/chat',         label: 'แชท',       Icon: IconMessageCircle2 },
+  { href: '/admin/appointments', label: 'นัดหมาย',   Icon: IconCalendarClock  },
+  { href: '/admin/doctors',      label: 'แพทย์',     Icon: IconStethoscope   },
+  { href: '/admin/prescriptions',label: 'ใบสั่งยา',  Icon: IconPill          },
+  { href: '/admin/patients',     label: 'คนไข้',     Icon: IconUsers         },
 ]
+
+const sb = createBrowserClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+)
+
+function usePendingCount() {
+  const [count, setCount] = useState(0)
+
+  const refresh = useCallback(async () => {
+    const [med, vac, lab, hist, id] = await Promise.all([
+      sb.from('hw_medications').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
+      sb.from('hw_vaccines').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
+      sb.from('hw_lab_results').select('id', { count: 'exact', head: true }).eq('approval_status', 'pending'),
+      sb.from('hw_medical_history').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
+      sb.from('hw_users').select('id', { count: 'exact', head: true }).eq('identity_verified', false).not('role', 'in', '("admin","superadmin")'),
+    ])
+    setCount((med.count ?? 0) + (vac.count ?? 0) + (lab.count ?? 0) + (hist.count ?? 0) + (id.count ?? 0))
+  }, [])
+
+  useEffect(() => {
+    refresh()
+    const t = setInterval(refresh, 30000)
+    return () => clearInterval(t)
+  }, [refresh])
+
+  return { count, refresh }
+}
 
 export default function AdminShell({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth()
@@ -28,11 +55,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
   const [checking, setChecking] = useState(true)
   const [adminName, setAdminName] = useState('')
   const [sidebarOpen, setSidebarOpen] = useState(false)
-
-  const sb = createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  )
+  const { count: pendingCount } = usePendingCount()
 
   useEffect(() => {
     if (loading) return
@@ -72,6 +95,11 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
                 : 'text-[var(--muted)] hover:bg-[var(--background)] hover:text-[var(--foreground)]'}`}>
             <Icon size={19} />
             {label}
+            {href === '/admin/patients' && pendingCount > 0 && (
+              <span className="ml-auto text-[10px] bg-red-500 text-white rounded-full px-1.5 py-0.5 min-w-[18px] text-center leading-none">
+                {pendingCount}
+              </span>
+            )}
           </Link>
         )
       })}
@@ -83,9 +111,19 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
 
       {/* Desktop sidebar */}
       <aside className="hidden md:flex flex-col w-56 flex-shrink-0 bg-[var(--card-bg)] border-r border-[var(--border)]">
-        <div className="px-5 py-5 border-b border-[var(--border)]">
-          <div className="text-xs font-bold uppercase tracking-widest text-[var(--hw-green)] mb-0.5">{'HappiWell'}</div>
-          <div className="text-[11px] text-[var(--muted)]">{'แผงควบคุมแอดมิน'}</div>
+        <div className="px-5 py-5 border-b border-[var(--border)] flex items-center justify-between">
+          <div>
+            <div className="text-xs font-bold uppercase tracking-widest text-[var(--hw-green)] mb-0.5">{'HappiWell'}</div>
+            <div className="text-[11px] text-[var(--muted)]">{'แผงควบคุมแอดมิน'}</div>
+          </div>
+          <Link href="/admin/patients" className="relative p-1.5 text-[var(--muted)] hover:text-[var(--hw-green)] transition-colors">
+            <IconBell size={18} />
+            {pendingCount > 0 && (
+              <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-red-500 text-white text-[9px] rounded-full flex items-center justify-center animate-pulse">
+                {pendingCount > 9 ? '9+' : pendingCount}
+              </span>
+            )}
+          </Link>
         </div>
         <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
           <NavLinks />
@@ -105,6 +143,14 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
           <IconMenu2 size={22} className="text-[var(--muted)]" />
         </button>
         <span className="font-bold text-sm flex-1">{'HappiWell'}<span className="text-[var(--muted)] font-normal ml-1.5 text-xs">{'แอดมิน'}</span></span>
+        <Link href="/admin/patients" className="relative p-1.5 mr-2 text-[var(--muted)] hover:text-[var(--hw-green)]">
+          <IconBell size={20} />
+          {pendingCount > 0 && (
+            <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-red-500 text-white text-[9px] rounded-full flex items-center justify-center">
+              {pendingCount > 9 ? '9+' : pendingCount}
+            </span>
+          )}
+        </Link>
         <button onClick={signOut} className="text-[var(--muted)] hover:text-red-500">
           <IconLogout size={18} />
         </button>
