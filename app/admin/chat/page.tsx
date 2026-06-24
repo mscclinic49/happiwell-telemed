@@ -96,15 +96,15 @@ function VField({ label, value, onChange, placeholder, half, unit }: {
   placeholder?: string; half?: boolean; unit?: string
 }) {
   return (
-    <div className={half ? 'flex-1' : 'w-full'}>
-      <label className="block text-[10px] font-semibold text-[var(--muted)] mb-0.5 uppercase tracking-wide">{label}</label>
-      <div className="flex items-center gap-1">
+    <div className={`min-w-0 ${half ? 'flex-1' : 'w-full'}`}>
+      <label className="block text-xs font-semibold text-[var(--muted)] mb-1 uppercase tracking-wide">{label}</label>
+      <div className="flex items-center gap-1.5 min-w-0">
         <input
           type="text" inputMode="decimal" value={value} onChange={e => onChange(e.target.value)}
           placeholder={placeholder ?? '-'}
-          className="w-full px-2 py-1.5 text-sm border border-[var(--border)] rounded-lg bg-[var(--background)] focus:outline-none focus:border-[#1a8a6e]"
+          className="min-w-0 flex-1 px-3 py-2 text-sm border border-[var(--border)] rounded-lg bg-[var(--background)] focus:outline-none focus:border-[#1a8a6e]"
         />
-        {unit && <span className="text-xs text-[var(--muted)] flex-shrink-0">{unit}</span>}
+        {unit && <span className="text-xs text-[var(--muted)] flex-shrink-0 w-7 text-right">{unit}</span>}
       </div>
     </div>
   )
@@ -290,28 +290,28 @@ export default function AdminChatPage() {
   const bmi = calcBmi(vitals.weight_kg, vitals.height_cm)
 
   const vitalsPanel = (
-    <div className="flex flex-col h-full overflow-hidden bg-[var(--card-bg)] border-l border-[var(--border)] w-full lg:w-[340px] xl:w-[380px] flex-shrink-0">
+    <div className="flex flex-col h-full overflow-hidden bg-[var(--card-bg)] border-l border-[var(--border)] w-full">
       {/* Header */}
-      <div className="px-4 py-3 border-b border-[var(--border)] flex-shrink-0" style={{ background: 'var(--hw-green)' }}>
+      <div className="px-5 py-4 border-b border-[var(--border)] flex-shrink-0" style={{ background: 'var(--hw-green)' }}>
         <div className="flex items-center gap-2">
-          <IconHeart size={16} className="text-white" />
+          <IconHeart size={17} className="text-white" />
           <span className="text-sm font-bold text-white">{'ข้อมูลผู้รับบริการ'}</span>
         </div>
         {patInfo && (
-          <div className="mt-1 text-white/90 text-xs">
-            {`${patInfo.title ?? ''}${patInfo.first_name ?? ''} ${patInfo.last_name ?? ''}`.trim()}
-            {calcAge(patInfo.date_of_birth) && <span className="ml-2 opacity-75">{`อายุ ${calcAge(patInfo.date_of_birth)}`}</span>}
-            {patInfo.blood_type && <span className="ml-2 bg-white/20 px-1.5 py-0.5 rounded text-[10px] font-bold">{`หมู่เลือด ${patInfo.blood_type}`}</span>}
+          <div className="mt-1.5 text-white/90 text-sm leading-relaxed">
+            <span className="font-semibold">{`${patInfo.title ?? ''}${patInfo.first_name ?? ''} ${patInfo.last_name ?? ''}`.trim()}</span>
+            {calcAge(patInfo.date_of_birth) && <span className="ml-2 text-white/75 text-xs">{`อายุ ${calcAge(patInfo.date_of_birth)}`}</span>}
+            {patInfo.blood_type && <span className="ml-2 bg-white/25 px-2 py-0.5 rounded text-xs font-bold">{`หมู่เลือด ${patInfo.blood_type}`}</span>}
           </div>
         )}
       </div>
 
       {/* Form */}
-      <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3">
+      <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4 overflow-x-hidden">
 
         {/* Row: weight / height / BMI */}
         <div>
-          <p className="text-[10px] font-bold text-[var(--muted)] uppercase tracking-widest mb-1.5">{'สัญญาณชีพ'}</p>
+          <p className="text-xs font-bold text-[var(--muted)] uppercase tracking-widest mb-2">{'สัญญาณชีพ'}</p>
           <div className="flex gap-2">
             <VField label="น้ำหนัก" unit="kg" half value={vitals.weight_kg} onChange={v => setVitals(p => ({ ...p, weight_kg: v }))} />
             <VField label="ส่วนสูง" unit="cm" half value={vitals.height_cm} onChange={v => setVitals(p => ({ ...p, height_cm: v }))} />
@@ -325,20 +325,20 @@ export default function AdminChatPage() {
         </div>
 
         {/* Blood pressure */}
-        <div className="flex gap-2 items-end">
-          <div className="flex-1">
-            <label className="block text-[10px] font-semibold text-[var(--muted)] mb-0.5 uppercase tracking-wide">{'ความดัน (sys/dia)'}</label>
-            <div className="flex items-center gap-1">
+        <div className="flex gap-3 items-end min-w-0">
+          <div className="flex-1 min-w-0">
+            <label className="block text-xs font-semibold text-[var(--muted)] mb-1 uppercase tracking-wide">{'ความดัน (SYS/DIA)'}</label>
+            <div className="flex items-center gap-1.5 min-w-0">
               <input type="text" inputMode="numeric" value={vitals.bp_systolic}
                 onChange={e => setVitals(p => ({ ...p, bp_systolic: e.target.value }))}
                 placeholder="120"
-                className="w-full px-2 py-1.5 text-sm border border-[var(--border)] rounded-lg bg-[var(--background)] focus:outline-none focus:border-[#1a8a6e] text-center" />
-              <span className="text-[var(--muted)] font-bold">/</span>
+                className="min-w-0 flex-1 px-3 py-2 text-sm border border-[var(--border)] rounded-lg bg-[var(--background)] focus:outline-none focus:border-[#1a8a6e] text-center" />
+              <span className="text-[var(--muted)] font-bold flex-shrink-0">{'/'}</span>
               <input type="text" inputMode="numeric" value={vitals.bp_diastolic}
                 onChange={e => setVitals(p => ({ ...p, bp_diastolic: e.target.value }))}
                 placeholder="80"
-                className="w-full px-2 py-1.5 text-sm border border-[var(--border)] rounded-lg bg-[var(--background)] focus:outline-none focus:border-[#1a8a6e] text-center" />
-              <span className="text-xs text-[var(--muted)] flex-shrink-0">{'mmHg'}</span>
+                className="min-w-0 flex-1 px-3 py-2 text-sm border border-[var(--border)] rounded-lg bg-[var(--background)] focus:outline-none focus:border-[#1a8a6e] text-center" />
+              <span className="text-xs text-[var(--muted)] flex-shrink-0 w-10">{'mmHg'}</span>
             </div>
           </div>
           <VField label="ชีพจร" unit="bpm" value={vitals.pulse} onChange={v => setVitals(p => ({ ...p, pulse: v }))} half />
@@ -352,25 +352,25 @@ export default function AdminChatPage() {
 
         {/* Drug allergy */}
         <div>
-          <label className="block text-[10px] font-semibold text-[var(--muted)] mb-0.5 uppercase tracking-wide">{'การแพ้ยา'}</label>
+          <label className="block text-xs font-semibold text-[var(--muted)] mb-1 uppercase tracking-wide">{'การแพ้ยา'}</label>
           <textarea value={vitals.drug_allergy} onChange={e => setVitals(p => ({ ...p, drug_allergy: e.target.value }))}
             placeholder="ระบุยาที่แพ้ หรือ ไม่มี"
             rows={2}
-            className="w-full px-2 py-1.5 text-sm border border-[var(--border)] rounded-lg bg-[var(--background)] focus:outline-none focus:border-[#1a8a6e] resize-none" />
+            className="w-full px-3 py-2 text-sm border border-[var(--border)] rounded-lg bg-[var(--background)] focus:outline-none focus:border-[#1a8a6e] resize-none" />
         </div>
 
         {/* CC */}
         <div>
-          <label className="block text-[10px] font-semibold text-[var(--muted)] mb-0.5 uppercase tracking-wide">{'CC (อาการสำคัญ)'}</label>
+          <label className="block text-xs font-semibold text-[var(--muted)] mb-1 uppercase tracking-wide">{'CC (อาการสำคัญ)'}</label>
           <textarea value={vitals.cc} onChange={e => setVitals(p => ({ ...p, cc: e.target.value }))}
             placeholder="อาการที่มาพบแพทย์..."
             rows={3}
-            className="w-full px-2 py-1.5 text-sm border border-[var(--border)] rounded-lg bg-[var(--background)] focus:outline-none focus:border-[#1a8a6e] resize-none" />
+            className="w-full px-3 py-2 text-sm border border-[var(--border)] rounded-lg bg-[var(--background)] focus:outline-none focus:border-[#1a8a6e] resize-none" />
         </div>
       </div>
 
       {/* Save */}
-      <div className="px-4 py-3 border-t border-[var(--border)] flex-shrink-0">
+      <div className="px-5 py-4 border-t border-[var(--border)] flex-shrink-0">
         <button onClick={saveVitals} disabled={saving}
           className="w-full py-2 rounded-xl text-sm font-semibold text-white flex items-center justify-center gap-2 disabled:opacity-50 transition-all"
           style={{ background: saved ? '#059669' : 'var(--hw-green)' }}>
@@ -456,7 +456,7 @@ export default function AdminChatPage() {
         </div>
 
         {/* Vitals panel - desktop always visible, mobile via tab */}
-        <div className={`${vitalsTab === 'vitals' ? 'flex' : 'hidden'} lg:flex flex-col h-full`} style={{ width: 'var(--vitals-w, 340px)' }}>
+        <div className={`${vitalsTab === 'vitals' ? 'flex' : 'hidden'} lg:flex flex-col h-full flex-shrink-0`} style={{ width: '420px' }}>
           {vitalsPanel}
         </div>
       </div>
@@ -465,7 +465,7 @@ export default function AdminChatPage() {
 
   // ── Render ─────────────────────────────────────────
   return (
-    <div className="flex h-full overflow-hidden" style={{ '--vitals-w': '340px' } as React.CSSProperties}>
+    <div className="flex h-full overflow-hidden">
 
       {/* Conversation list */}
       <div className={`flex flex-col border-r border-[var(--border)] bg-[var(--card-bg)] flex-shrink-0 w-full md:w-64 ${activeId ? 'hidden md:flex' : 'flex'}`}>
