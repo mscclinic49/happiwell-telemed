@@ -2,12 +2,14 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
+import Image from 'next/image'
 import { createBrowserClient } from '@supabase/ssr'
 import {
   IconArrowLeft, IconShieldCheck, IconShieldOff,
   IconPill, IconVaccine, IconTestPipe, IconNotes,
-  IconCheck, IconX, IconUser,
+  IconCheck, IconX, IconUser, IconId, IconClock,
 } from '@tabler/icons-react'
+import { useAuth } from '@/lib/auth-context'
 
 const sb = createBrowserClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -22,42 +24,59 @@ type Patient = {
   email: string | null
 }
 
-type Medication = { id: string; name: string; dosage: string | null; frequency: string | null; start_date: string | null; hospital: string | null; status: string }
-type Vaccine    = { id: string; vaccine_name: string; dose_number: number | null; vaccinated_date: string | null; hospital: string | null; status: string }
-type LabResult  = { id: string; test_name: string; test_date: string | null; value: number | null; unit: string | null; hospital: string | null; approval_status: string }
-type MedHistory = { id: string; visit_date: string | null; hospital: string | null; chief_complaint: string | null; diagnosis: string | null; status: string }
+type KycRecord = {
+  id: string; id_type: string; id_number: string; storage_path: string
+  status: string; rejection_reason: string | null; submitted_at: string
+}
+
+type Medication   = { id: string; name: string; dosage: string | null; frequency: string | null; start_date: string | null; hospital: string | null; status: string }
+type Vaccine      = { id: string; vaccine_name: string; dose_number: number | null; vaccinated_date: string | null; hospital: string | null; status: string }
+type LabResult    = { id: string; test_name: string; test_date: string | null; value: number | null; unit: string | null; hospital: string | null; approval_status: string }
+type MedHistory   = { id: string; visit_date: string | null; hospital: string | null; chief_complaint: string | null; diagnosis: string | null; status: string }
 
 const TABS = [
+  { key: 'kyc',     label: 'ยืนยันตัวตน',   Icon: IconId },
   { key: 'info',    label: 'ข้อมูลส่วนตัว', Icon: IconUser },
-  { key: 'med',     label: 'ยา',           Icon: IconPill },
-  { key: 'vaccine', label: 'วัคซีน',        Icon: IconVaccine },
-  { key: 'lab',     label: 'ผลตรวจ',        Icon: IconTestPipe },
-  { key: 'history', label: 'ประวัติ',        Icon: IconNotes },
+  { key: 'med',     label: 'ยา',            Icon: IconPill },
+  { key: 'vaccine', label: 'วัคซีน',         Icon: IconVaccine },
+  { key: 'lab',     label: 'ผลตรวจ',         Icon: IconTestPipe },
+  { key: 'history', label: 'ประวัติ',         Icon: IconNotes },
 ]
-
 const GENDER: Record<string, string> = { male: 'ชาย', female: 'หญิง', other: 'อื่น' }
 
 export default function PatientDetailPage() {
   const { id } = useParams<{ id: string }>()
   const router = useRouter()
-  const [tab, setTab] = useState('info')
+  const { user } = useAuth()
+  const [tab, setTab] = useState('kyc')
   const [patient, setPatient] = useState<Patient | null>(null)
+  const [kyc, setKyc] = useState<KycRecord | null | undefined>(undefined)
+  const [idCardUrl, setIdCardUrl] = useState<string | null>(null)
   const [meds, setMeds] = useState<Medication[]>([])
   const [vaccines, setVaccines] = useState<Vaccine[]>([])
   const [labs, setLabs] = useState<LabResult[]>([])
   const [history, setHistory] = useState<MedHistory[]>([])
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState<string | null>(null)
+  const [rejectReason, setRejectReason] = useState('')
+  const [showRejectInput, setShowRejectInput] = useState(false)
 
   const load = useCallback(async () => {
-    const [p, m, v, l, h] = await Promise.all([
+    const [p, k, m, v, l, h] = await Promise.all([
       sb.from('hw_users').select('id,full_name,first_name,last_name,title,phone,date_of_birth,gender,blood_type,weight,height,allergies,identity_verified,email').eq('id', id).single(),
+      sb.from('hw_identity_verifications').select('id,id_type,id_number,storage_path,status,rejection_reason,submitted_at').eq('user_id', id).order('submitted_at', { ascending: false }).limit(1).maybeSingle(),
       sb.from('hw_medications').select('id,name,dosage,frequency,start_date,hospital,status').eq('user_id', id).order('created_at', { ascending: false }),
       sb.from('hw_vaccines').select('id,vaccine_name,dose_number,vaccinated_date,hospital,status').eq('user_id', id).order('created_at', { ascending: false }),
       sb.from('hw_lab_results').select('id,test_name,test_date,value,unit,hospital,approval_status').eq('user_id', id).order('created_at', { ascending: false }),
       sb.from('hw_medical_history').select('id,visit_date,hospital,chief_complaint,diagnosis,status').eq('user_id', id).order('created_at', { ascending: false }),
     ])
     setPatient(p.data as Patient)
+    const kycData = k.data as KycRecord | null
+    setKyc(kycData)
+    if (kycData?.storage_path) {
+      const { data: signed } = await sb.storage.from('identity-docs').createSignedUrl(kycData.storage_path, 3600)
+      setIdCardUrl(signed?.signedUrl ?? null)
+    }
     setMeds((m.data as Medication[]) ?? [])
     setVaccines((v.data as Vaccine[]) ?? [])
     setLabs((l.data as LabResult[]) ?? [])
@@ -67,19 +86,37 @@ export default function PatientDetailPage() {
 
   useEffect(() => { load() }, [load])
 
-  async function approveItem(table: string, itemId: string, approved: boolean) {
-    setSaving(itemId)
-    const statusCol = table === 'hw_lab_results' ? 'approval_status' : 'status'
-    const val = approved ? 'approved' : 'rejected'
-    await sb.from(table).update({ [statusCol]: val }).eq('id', itemId)
+  async function approveKyc() {
+    if (!kyc || !user) return
+    setSaving('kyc')
+    await Promise.all([
+      sb.from('hw_identity_verifications').update({ status: 'verified', reviewed_by: user.id, reviewed_at: new Date().toISOString() }).eq('id', kyc.id),
+      sb.from('hw_users').update({ identity_verified: true }).eq('id', id),
+    ])
     await load()
     setSaving(null)
   }
 
-  async function verifyIdentity(verified: boolean) {
-    setSaving('identity')
-    await sb.from('hw_users').update({ identity_verified: verified }).eq('id', id)
-    setPatient(p => p ? { ...p, identity_verified: verified } : p)
+  async function rejectKyc() {
+    if (!kyc || !user) return
+    setSaving('kyc-reject')
+    await sb.from('hw_identity_verifications').update({
+      status: 'rejected',
+      rejection_reason: rejectReason || 'เอกสารไม่ถูกต้อง',
+      reviewed_by: user.id,
+      reviewed_at: new Date().toISOString(),
+    }).eq('id', kyc.id)
+    await load()
+    setSaving(null)
+    setShowRejectInput(false)
+    setRejectReason('')
+  }
+
+  async function approveItem(table: string, itemId: string, approved: boolean) {
+    setSaving(itemId)
+    const col = table === 'hw_lab_results' ? 'approval_status' : 'status'
+    await sb.from(table).update({ [col]: approved ? 'approved' : 'rejected' }).eq('id', itemId)
+    await load()
     setSaving(null)
   }
 
@@ -88,19 +125,13 @@ export default function PatientDetailPage() {
       <div className="w-8 h-8 border-4 border-[var(--hw-green)] border-t-transparent rounded-full animate-spin" />
     </div>
   )
-
-  if (!patient) return (
-    <div className="p-8 text-center text-[var(--muted)]">{'ไม่พบข้อมูลคนไข้'}</div>
-  )
+  if (!patient) return <div className="p-8 text-center text-[var(--muted)]">{'ไม่พบข้อมูลคนไข้'}</div>
 
   const displayName = patient.full_name || `${patient.title ?? ''}${patient.first_name ?? ''} ${patient.last_name ?? ''}`.trim()
-  const age = patient.date_of_birth
-    ? Math.floor((Date.now() - new Date(patient.date_of_birth).getTime()) / (1000 * 60 * 60 * 24 * 365.25))
-    : null
+  const age = patient.date_of_birth ? Math.floor((Date.now() - new Date(patient.date_of_birth).getTime()) / (1000 * 60 * 60 * 24 * 365.25)) : null
 
   return (
     <div className="max-w-2xl mx-auto px-5 py-6 pb-12">
-
       {/* Header */}
       <div className="flex items-center gap-3 mb-5">
         <button onClick={() => router.back()} className="p-1.5 -ml-1 text-[var(--muted)] hover:text-[var(--foreground)]">
@@ -115,18 +146,6 @@ export default function PatientDetailPage() {
           </div>
           {age !== null && <p className="text-xs text-[var(--muted)]">{GENDER[patient.gender ?? ''] ?? ''} · {age} ปี</p>}
         </div>
-        {/* Identity verification button */}
-        {patient.identity_verified ? (
-          <button onClick={() => verifyIdentity(false)} disabled={saving === 'identity'}
-            className="text-xs px-3 py-1.5 rounded-full border border-[#1a8a6e] text-[#1a8a6e] hover:bg-red-50 hover:border-red-400 hover:text-red-500 transition-colors disabled:opacity-50">
-            {'ยืนยันแล้ว'}
-          </button>
-        ) : (
-          <button onClick={() => verifyIdentity(true)} disabled={saving === 'identity'}
-            className="text-xs px-3 py-1.5 rounded-full bg-[#1a8a6e] text-white hover:opacity-90 transition-opacity disabled:opacity-50">
-            {saving === 'identity' ? '...' : 'ยืนยันตัวตน'}
-          </button>
-        )}
       </div>
 
       {/* Tabs */}
@@ -140,7 +159,113 @@ export default function PatientDetailPage() {
         ))}
       </div>
 
-      {/* Tab content */}
+      {/* KYC Tab */}
+      {tab === 'kyc' && (
+        <div>
+          {kyc === undefined ? (
+            <div className="h-32 rounded-[14px] bg-[var(--card-bg)] border border-[var(--border)] animate-pulse" />
+          ) : !kyc ? (
+            <div className="bg-[var(--card-bg)] border border-[var(--border)] rounded-[14px] p-8 text-center">
+              <IconShieldOff size={36} className="mx-auto text-[var(--muted)] opacity-30 mb-3" />
+              <p className="text-sm font-medium">{'คนไข้ยังไม่ส่งเอกสารยืนยันตัวตน'}</p>
+              <p className="text-xs text-[var(--muted)] mt-1">{'แจ้งคนไข้ให้อัปโหลดบัตรประชาชนผ่านแอป'}</p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {/* Status banner */}
+              <div className={`rounded-[14px] p-4 flex items-center gap-3 ${
+                kyc.status === 'verified' ? 'bg-[#e8f7f3] border border-[#1a8a6e]/30' :
+                kyc.status === 'pending'  ? 'bg-[#fef9ec] border border-[#ef9f27]/30' :
+                                            'bg-red-50 border border-red-200'}`}>
+                {kyc.status === 'verified' ? <IconShieldCheck size={20} className="text-[#1a8a6e]" /> :
+                 kyc.status === 'pending'  ? <IconClock size={20} className="text-[#ef9f27]" /> :
+                                             <IconX size={20} className="text-red-500" />}
+                <div>
+                  <div className="font-semibold text-sm">
+                    {kyc.status === 'verified' ? 'ยืนยันตัวตนแล้ว' : kyc.status === 'pending' ? 'รอตรวจสอบ' : 'ปฏิเสธแล้ว'}
+                  </div>
+                  <div className="text-xs text-[var(--muted)]">
+                    {'ส่งเมื่อ '}{new Date(kyc.submitted_at).toLocaleDateString('th-TH', { dateStyle: 'medium' })}
+                  </div>
+                </div>
+              </div>
+
+              {/* ID info */}
+              <div className="bg-[var(--card-bg)] border border-[var(--border)] rounded-[14px] divide-y divide-[var(--border)]">
+                <div className="flex items-center px-4 py-3 gap-4">
+                  <span className="text-xs text-[var(--muted)] w-28 flex-shrink-0">{'ประเภทเอกสาร'}</span>
+                  <span className="text-sm font-medium">{kyc.id_type === 'national_id' ? 'บัตรประชาชน' : 'พาสปอร์ต'}</span>
+                </div>
+                <div className="flex items-center px-4 py-3 gap-4">
+                  <span className="text-xs text-[var(--muted)] w-28 flex-shrink-0">{'เลขที่'}</span>
+                  <span className="text-sm font-mono">{kyc.id_number}</span>
+                </div>
+                {kyc.rejection_reason && (
+                  <div className="flex items-center px-4 py-3 gap-4">
+                    <span className="text-xs text-[var(--muted)] w-28 flex-shrink-0">{'เหตุผล'}</span>
+                    <span className="text-sm text-red-500">{kyc.rejection_reason}</span>
+                  </div>
+                )}
+              </div>
+
+              {/* ID card image */}
+              <div className="bg-[var(--card-bg)] border border-[var(--border)] rounded-[14px] p-4">
+                <p className="text-xs font-semibold text-[var(--muted)] mb-3 uppercase tracking-wider">{'รูปเอกสาร'}</p>
+                {idCardUrl ? (
+                  <div className="relative w-full aspect-[1.586/1] rounded-[10px] overflow-hidden bg-[var(--background)]">
+                    <Image src={idCardUrl} alt="ID Card" fill className="object-contain" />
+                  </div>
+                ) : (
+                  <div className="w-full aspect-[1.586/1] rounded-[10px] bg-[var(--background)] flex items-center justify-center">
+                    <p className="text-xs text-[var(--muted)]">{'ไม่พบรูปเอกสาร'}</p>
+                  </div>
+                )}
+              </div>
+
+              {/* Approve/Reject — only for pending */}
+              {kyc.status === 'pending' && (
+                <div className="space-y-2">
+                  {!showRejectInput ? (
+                    <div className="flex gap-2">
+                      <button onClick={approveKyc} disabled={saving === 'kyc' || !idCardUrl}
+                        className="flex-1 flex items-center justify-center gap-2 py-3 rounded-[12px] bg-[#1a8a6e] text-white text-sm font-semibold hover:opacity-90 disabled:opacity-40 transition-opacity">
+                        <IconShieldCheck size={16} />
+                        {saving === 'kyc' ? 'กำลังบันทึก...' : 'ยืนยันตัวตน'}
+                      </button>
+                      <button onClick={() => setShowRejectInput(true)}
+                        className="flex-1 flex items-center justify-center gap-2 py-3 rounded-[12px] border border-red-300 text-red-500 text-sm font-semibold hover:bg-red-50 transition-colors">
+                        <IconX size={16} />{'ปฏิเสธ'}
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      <input
+                        type="text" value={rejectReason} onChange={e => setRejectReason(e.target.value)}
+                        placeholder={'ระบุเหตุผล (เช่น รูปไม่ชัด / เลขบัตรไม่ตรง)'}
+                        className="w-full px-4 py-2.5 rounded-[10px] border border-red-300 text-sm focus:outline-none focus:border-red-500"
+                      />
+                      <div className="flex gap-2">
+                        <button onClick={rejectKyc} disabled={saving === 'kyc-reject'}
+                          className="flex-1 py-2.5 rounded-[12px] bg-red-500 text-white text-sm font-semibold hover:opacity-90 disabled:opacity-50 transition-opacity">
+                          {saving === 'kyc-reject' ? 'กำลังบันทึก...' : 'ยืนยันการปฏิเสธ'}
+                        </button>
+                        <button onClick={() => setShowRejectInput(false)}
+                          className="px-4 py-2.5 rounded-[12px] border border-[var(--border)] text-sm text-[var(--muted)] hover:text-[var(--foreground)] transition-colors">
+                          {'ยกเลิก'}
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                  {!idCardUrl && (
+                    <p className="text-xs text-center text-[var(--muted)]">{'ต้องเห็นรูปเอกสารก่อนจึงจะยืนยันได้'}</p>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+
       {tab === 'info' && <InfoTab patient={patient} />}
       {tab === 'med' && <HealthTab items={meds} statusKey="status" renderRow={(m: Medication) => (
         <><span className="font-medium text-sm">{m.name}</span>
@@ -187,38 +312,21 @@ function InfoTab({ patient }: { patient: Patient }) {
 function HealthTab<T extends { id: string; status: string }>({
   items, renderRow, onApprove, saving,
 }: {
-  items: T[]
-  statusKey: string
+  items: T[]; statusKey: string
   renderRow: (item: T) => React.ReactNode
   onApprove: (id: string, approved: boolean) => void
   saving: string | null
 }) {
-  const STATUS_STYLE: Record<string, string> = {
-    approved: 'bg-green-100 text-green-700',
-    rejected: 'bg-red-100 text-red-700',
-    pending:  'bg-yellow-100 text-yellow-700',
-  }
-  const STATUS_LABEL: Record<string, string> = {
-    approved: 'อนุมัติแล้ว', rejected: 'ปฏิเสธ', pending: 'รออนุมัติ',
-  }
-
-  if (items.length === 0) return (
-    <div className="text-center py-12 text-[var(--muted)]">
-      <p className="text-sm">{'ไม่มีข้อมูล'}</p>
-    </div>
-  )
-
+  const S: Record<string, string> = { approved: 'bg-green-100 text-green-700', rejected: 'bg-red-100 text-red-700', pending: 'bg-yellow-100 text-yellow-700' }
+  const L: Record<string, string> = { approved: 'อนุมัติแล้ว', rejected: 'ปฏิเสธ', pending: 'รออนุมัติ' }
+  if (items.length === 0) return <div className="text-center py-12 text-sm text-[var(--muted)]">{'ไม่มีข้อมูล'}</div>
   return (
     <div className="space-y-2">
       {items.map(item => (
         <div key={item.id} className="bg-[var(--card-bg)] border border-[var(--border)] rounded-[14px] p-4">
           <div className="flex items-start gap-3">
-            <div className="flex-1 min-w-0 flex flex-col gap-0.5">
-              {renderRow(item)}
-            </div>
-            <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium flex-shrink-0 ${STATUS_STYLE[item.status] ?? 'bg-gray-100 text-gray-600'}`}>
-              {STATUS_LABEL[item.status] ?? item.status}
-            </span>
+            <div className="flex-1 min-w-0 flex flex-col gap-0.5">{renderRow(item)}</div>
+            <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium flex-shrink-0 ${S[item.status] ?? 'bg-gray-100 text-gray-600'}`}>{L[item.status] ?? item.status}</span>
           </div>
           {item.status === 'pending' && (
             <div className="flex gap-2 mt-3">

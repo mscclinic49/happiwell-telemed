@@ -8,7 +8,7 @@ import {
   IconCalendarClock, IconStethoscope, IconPill, IconMessageCircle2,
   IconUser, IconLock, IconSignature,
   IconHistory, IconBook2, IconHeart, IconShield,
-  IconMapPin, IconShieldCheck,
+  IconMapPin, IconShieldCheck, IconShieldOff,
   IconFileText, IconHelp, IconLogout, IconChevronDown,
   IconSettings2,
 } from '@tabler/icons-react'
@@ -207,11 +207,14 @@ function MobileProfileDropdown({ displayName, onSignOut }: {
   )
 }
 
+const VERIFY_REQUIRED = ['/chat', '/doctors']
+
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const router = useRouter()
-  const { user, role, loading, signOut } = useAuth()
+  const { user, role, identityVerified, loading, signOut } = useAuth()
   const showShell = !NO_SHELL.some(p => pathname.startsWith(p))
+  const needsVerify = !loading && user && role === 'patient' && !identityVerified && VERIFY_REQUIRED.some(p => pathname.startsWith(p))
 
   // redirect admin users away from patient pages
   useEffect(() => {
@@ -231,6 +234,21 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   }
 
   if (!showShell) return <>{children}</>
+
+  if (needsVerify) return (
+    <div className="flex h-screen items-center justify-center p-6 bg-[var(--background)]">
+      <div className="max-w-sm w-full text-center">
+        <div className="w-16 h-16 rounded-full bg-orange-100 flex items-center justify-center mx-auto mb-4">
+          <IconShieldOff size={32} className="text-orange-400" />
+        </div>
+        <h2 className="text-lg font-bold mb-2">{'ยืนยันตัวตนก่อน'}</h2>
+        <p className="text-sm text-[var(--muted)] mb-5">{'กรุณายืนยันตัวตนด้วยบัตรประชาชนก่อนพบแพทย์ ทีมงานจะตรวจสอบภายใน 1–2 วันทำการ'}</p>
+        <a href="/account/profile" className="inline-block px-6 py-3 rounded-full bg-[#1a8a6e] text-white text-sm font-semibold hover:opacity-90 transition-opacity">
+          {'ยืนยันตัวตนตอนนี้'}
+        </a>
+      </div>
+    </div>
+  )
 
   return (
     <div className="flex h-screen overflow-hidden" style={{ background: 'var(--background)' }}>
