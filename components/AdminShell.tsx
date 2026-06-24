@@ -224,7 +224,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
     </div>
   )
 
-  const Bell = () => (
+  const bellJsx = (
     <div className="relative">
       <button onClick={() => setBellOpen(v => !v)}
         className="relative p-2.5 rounded-[10px] text-[var(--muted)] hover:text-[var(--hw-green)] hover:bg-[#1a8a6e]/10 transition-colors flex items-center justify-center">
@@ -296,7 +296,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
           <IconMenu2 size={22} className="text-[var(--muted)]" />
         </button>
         <span className="font-bold text-sm flex-1">{'HappiWell'}<span className="text-[var(--muted)] font-normal ml-1.5 text-xs">{'แอดมิน'}</span></span>
-        <div className="mr-1"><Bell /></div>
+        <div className="mr-1">{bellJsx}</div>
         <button onClick={signOut} className="text-[var(--muted)] hover:text-red-500 ml-1">
           <IconLogout size={18} />
         </button>
@@ -327,7 +327,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
 
       {/* Floating bell — desktop only */}
       <div className="hidden md:block fixed top-4 right-4 z-40">
-        <Bell />
+        {bellJsx}
       </div>
 
       <main className="flex-1 overflow-y-auto pt-14 md:pt-0">{children}</main>
