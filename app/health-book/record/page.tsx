@@ -26,15 +26,15 @@ type Hist = { id: string; hospital: string; visit_date: string; doctor: string |
 const getDtxStatus = (v: number) => {
   if (v < 70)  return { label: 'ต่ำ',   color: 'text-[var(--hw-blue)]',   bg: 'bg-[var(--hw-blue-bg)]'  }
   if (v <= 99) return { label: 'ปกติ',  color: 'text-[var(--hw-green)]',  bg: 'bg-[var(--hw-mint-bg)]'  }
-  if (v <= 125)return { label: 'ระวัง', color: 'text-yellow-600',          bg: 'bg-[var(--hw-yellow-bg)]' }
-  return               { label: 'สูง',   color: 'text-red-600',            bg: 'bg-[var(--hw-red-bg)]'    }
+  if (v <= 125)return { label: 'ระวัง', color: 'text-yellow-600',          bg: 'bg-yellow-100'            }
+  return               { label: 'สูง',   color: 'text-red-600',            bg: 'bg-red-100'               }
 }
 
 const getBpStatus = (s: number) => {
   if (s < 90)  return { label: 'ต่ำ',   color: 'text-[var(--hw-blue)]',   bg: 'bg-[var(--hw-blue-bg)]'  }
   if (s <= 120)return { label: 'ปกติ',  color: 'text-[var(--hw-green)]',  bg: 'bg-[var(--hw-mint-bg)]'  }
-  if (s <= 139)return { label: 'ระวัง', color: 'text-yellow-600',          bg: 'bg-[var(--hw-yellow-bg)]' }
-  return               { label: 'สูง',   color: 'text-red-600',            bg: 'bg-[var(--hw-red-bg)]'    }
+  if (s <= 139)return { label: 'ระวัง', color: 'text-yellow-600',          bg: 'bg-yellow-100'            }
+  return               { label: 'สูง',   color: 'text-red-600',            bg: 'bg-red-100'               }
 }
 
 const getTrend = (cur: number, prev: number) => {
@@ -292,7 +292,7 @@ export default function RecordPage() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
                         <p className="text-sm font-semibold truncate">{rec.hospital}</p>
-                        {rec.status === 'pending' && <span className="text-xs bg-[var(--hw-yellow-bg)] text-yellow-600 px-2 py-0.5 rounded-full flex-shrink-0">{'รอยืนยัน'}</span>}
+                        {rec.status === 'pending' && <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full flex-shrink-0">{'รอยืนยัน'}</span>}
                       </div>
                       <p className="text-xs text-[var(--muted)]">{new Date(rec.visit_date).toLocaleDateString('th-TH', { dateStyle: 'medium' })}</p>
                       {rec.chief_complaint && <p className="text-xs text-[var(--muted)] mt-0.5">{rec.chief_complaint}</p>}

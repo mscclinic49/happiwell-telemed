@@ -24,26 +24,26 @@ type Vitals = {
 }
 
 const APPT_CFG: Record<string, { label: string; color: string; Icon: typeof IconClock }> = {
-  pending:   { label: 'รอยืนยัน',  color: 'text-yellow-600 bg-[var(--hw-yellow-bg)]', Icon: IconClock  },
-  confirmed: { label: 'ยืนยันแล้ว', color: 'text-[var(--hw-blue)] bg-[var(--hw-blue-bg)]',    Icon: IconCheck  },
+  pending:   { label: 'รอยืนยัน',  color: 'text-yellow-600 bg-yellow-50', Icon: IconClock  },
+  confirmed: { label: 'ยืนยันแล้ว', color: 'text-blue-600 bg-blue-50',    Icon: IconCheck  },
   completed: { label: 'เสร็จสิ้น',  color: 'text-[#1a8a6e] bg-[#e8f7f3]', Icon: IconCheck  },
-  cancelled: { label: 'ยกเลิก',    color: 'text-red-600 bg-[var(--hw-red-bg)]',        Icon: IconX      },
+  cancelled: { label: 'ยกเลิก',    color: 'text-red-600 bg-red-50',        Icon: IconX      },
 }
 
 const getBpSt = (s: number) =>
   s <= 120 ? { label:'ปกติ', color:'text-[var(--hw-green)]', bg:'bg-[var(--hw-mint-bg)]', badge:'bg-[var(--hw-mint-bg)] text-[var(--hw-green)]' }
-  : s <= 139 ? { label:'ระวัง', color:'text-yellow-600', bg:'bg-[var(--hw-yellow-bg)]', badge:'bg-[var(--hw-yellow-bg)] text-yellow-600' }
-  : { label:'สูง', color:'text-red-600', bg:'bg-[var(--hw-red-bg)]', badge:'bg-[var(--hw-red-bg)] text-red-600' }
+  : s <= 139 ? { label:'ระวัง', color:'text-yellow-600', bg:'bg-yellow-50', badge:'bg-yellow-100 text-yellow-700' }
+  : { label:'สูง', color:'text-red-600', bg:'bg-red-50', badge:'bg-red-100 text-red-700' }
 
 const getDtxSt = (v: number) =>
   v <= 99  ? { label:'ปกติ', color:'text-[var(--hw-green)]', bg:'bg-[var(--hw-mint-bg)]', badge:'bg-[var(--hw-mint-bg)] text-[var(--hw-green)]' }
-  : v <= 125 ? { label:'ระวัง', color:'text-yellow-600', bg:'bg-[var(--hw-yellow-bg)]', badge:'bg-[var(--hw-yellow-bg)] text-yellow-600' }
-  : { label:'สูง', color:'text-red-600', bg:'bg-[var(--hw-red-bg)]', badge:'bg-[var(--hw-red-bg)] text-red-600' }
+  : v <= 125 ? { label:'ระวัง', color:'text-yellow-600', bg:'bg-yellow-50', badge:'bg-yellow-100 text-yellow-700' }
+  : { label:'สูง', color:'text-red-600', bg:'bg-red-50', badge:'bg-red-100 text-red-700' }
 
 const getBmiSt = (b: number) =>
   b < 23 ? { label:'ปกติ', color:'text-[var(--hw-green)]', badge:'bg-[var(--hw-mint-bg)] text-[var(--hw-green)]' }
-  : b < 25 ? { label:'น้ำหนักเกิน', color:'text-yellow-600', badge:'bg-[var(--hw-yellow-bg)] text-yellow-600' }
-  : { label:'อ้วน', color:'text-red-600', badge:'bg-[var(--hw-red-bg)] text-red-600' }
+  : b < 25 ? { label:'น้ำหนักเกิน', color:'text-yellow-600', badge:'bg-yellow-100 text-yellow-700' }
+  : { label:'อ้วน', color:'text-red-600', badge:'bg-red-100 text-red-700' }
 
 const getTrend = (cur: number, prev: number | null) => {
   if (!prev) return null

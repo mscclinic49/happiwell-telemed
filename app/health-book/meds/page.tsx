@@ -96,7 +96,7 @@ export default function MedsPage() {
                   {medsPending.map(rec => (
                     <div key={rec.id} className="bg-[var(--hw-yellow-bg)] border border-yellow-200 rounded-[14px] px-4 py-3 flex items-center gap-2">
                       <p className="font-medium text-sm flex-1">{rec.name}</p>
-                      <span className="text-xs bg-[var(--hw-yellow-bg)] text-yellow-600 px-2 py-0.5 rounded-full">{'รอยืนยัน'}</span>
+                      <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full">{'รอยืนยัน'}</span>
                     </div>
                   ))}
                 </div>
@@ -140,7 +140,7 @@ export default function MedsPage() {
                   {vacPending.map(rec => (
                     <div key={rec.id} className="bg-[var(--hw-yellow-bg)] border border-yellow-200 rounded-[14px] px-4 py-3 flex items-center gap-2">
                       <p className="font-medium text-sm flex-1">{rec.vaccine_name}</p>
-                      <span className="text-xs bg-[var(--hw-yellow-bg)] text-yellow-600 px-2 py-0.5 rounded-full">{'รอยืนยัน'}</span>
+                      <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full">{'รอยืนยัน'}</span>
                     </div>
                   ))}
                 </div>

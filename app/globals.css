@@ -12,7 +12,6 @@
   --hw-peach-bg:  #faeeda;
   --hw-blue-bg:   #e6f1fb;
   --hw-yellow-bg: #fef9ec;
-  --hw-red-bg:    #fef2f2;
 
   --hw-radius:    14px;
   --hw-radius-sm: 8px;
@@ -37,12 +36,6 @@
     --card-bg:     #132920;
     --border:      #1e3d33;
     --muted:       #94a3b8;
-
-    --hw-mint-bg:   #1a3d2e;
-    --hw-blue-bg:   #162540;
-    --hw-peach-bg:  #3a2210;
-    --hw-yellow-bg: #332810;
-    --hw-red-bg:    #3d1515;
   }
 }
 

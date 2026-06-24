@@ -24,8 +24,8 @@ type LabResult = {
 
 const STATUS_MAP = {
   normal:   { label: 'ปกติ ✓',  color: 'text-[var(--hw-green)]', bg: 'bg-[var(--hw-mint-bg)]', dot: 'bg-[var(--hw-green)]'  },
-  warning:  { label: 'ระวัง ↑', color: 'text-yellow-600',        bg: 'bg-[var(--hw-yellow-bg)]',           dot: 'bg-yellow-500'         },
-  critical: { label: 'สูง ↑',   color: 'text-red-600',           bg: 'bg-[var(--hw-red-bg)]',              dot: 'bg-red-500'            },
+  warning:  { label: 'ระวัง ↑', color: 'text-yellow-600',        bg: 'bg-yellow-100',           dot: 'bg-yellow-500'         },
+  critical: { label: 'สูง ↑',   color: 'text-red-600',           bg: 'bg-red-100',              dot: 'bg-red-500'            },
 }
 
 const CATEGORIES: Record<string, { label: string; emoji: string; tests: string[] }> = {
@@ -151,7 +151,7 @@ export default function LabResultsPage() {
             {pending.map(rec => (
               <div key={rec.id} className="flex items-center justify-between py-1.5 border-b border-yellow-100 last:border-0">
                 <p className="text-sm">{rec.test_name}</p>
-                <span className="text-xs bg-[var(--hw-yellow-bg)] text-yellow-600 px-2 py-0.5 rounded-full">{'รอยืนยัน'}</span>
+                <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full">{'รอยืนยัน'}</span>
               </div>
             ))}
           </div>
