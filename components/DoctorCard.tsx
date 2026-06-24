@@ -92,7 +92,7 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
             <div>
               <h3 className="font-bold text-[15px] leading-snug">{doctor.full_name}</h3>
               {doctor.license_no && (
-                <p className="text-[11px] text-[var(--muted)] mt-0.5">{'ว. '}{doctor.license_no}</p>
+                <p className="text-[11px] text-[var(--muted)] mt-0.5">{doctor.license_no}</p>
               )}
             </div>
             <IconChevronRight size={16} className="text-[var(--muted)] flex-shrink-0 mt-0.5" />
