@@ -6,20 +6,13 @@ import Link from 'next/link'
 import Image from 'next/image'
 import {
   IconCalendarClock, IconStethoscope, IconPill, IconMessageCircle2,
-  IconUser, IconId, IconLock, IconSignature,
+  IconUser, IconLock, IconSignature,
   IconHistory, IconBook2, IconHeart, IconShield,
   IconMapPin, IconShieldCheck,
   IconFileText, IconHelp, IconLogout, IconChevronDown,
-  IconSettings2, IconDroplet, IconMicroscope,
+  IconSettings2,
 } from '@tabler/icons-react'
 import { useAuth } from '@/lib/auth-context'
-
-type NavItem = {
-  href: string
-  label: string
-  Icon: React.ComponentType<{ size?: number; strokeWidth?: number; className?: string }>
-  children?: NavItem[]
-}
 
 const NAV = [
   {
@@ -46,9 +39,15 @@ const NAV = [
     Icon: IconPill,
     match: (p: string) => p.startsWith('/prescriptions'),
   },
+  {
+    href: '/health-book',
+    label: 'สมุดสุขภาพ',
+    Icon: IconBook2,
+    match: (p: string) => p.startsWith('/health-book'),
+  },
 ]
 
-const PROFILE_SECTIONS: { title: string; items: NavItem[] }[] = [
+const PROFILE_SECTIONS = [
   {
     title: 'บัญชี',
     items: [
@@ -60,19 +59,9 @@ const PROFILE_SECTIONS: { title: string; items: NavItem[] }[] = [
   {
     title: 'สุขภาพ',
     items: [
-      { href: '/history', label: 'ประวัติการปรึกษา', Icon: IconHistory },
-      {
-        href: '/health-book',
-        label: 'สมุดสุขภาพ',
-        Icon: IconBook2,
-        children: [
-          { href: '/health-book/record', label: 'บันทึกน้ำตาล/ความดัน', Icon: IconDroplet },
-          { href: '/health-book/lab',    label: 'ผลตรวจเลือด',          Icon: IconMicroscope },
-          { href: '/health-book/meds',   label: 'ยาและวัคซีน',          Icon: IconPill },
-        ],
-      },
-      { href: '/account/favorites', label: 'แพทย์ที่ชื่นชอบ', Icon: IconHeart },
-      { href: '/account/insurance', label: 'สิทธิเบิกจ่าย',   Icon: IconShield },
+      { href: '/history',            label: 'ประวัติการปรึกษา', Icon: IconHistory },
+      { href: '/account/favorites',  label: 'แพทย์ที่ชื่นชอบ', Icon: IconHeart },
+      { href: '/account/insurance',  label: 'สิทธิเบิกจ่าย',   Icon: IconShield },
     ],
   },
   {
@@ -115,82 +104,7 @@ function UserAvatar({ name, size = 32 }: { name: string; size?: number }) {
   )
 }
 
-function AccordionItem({ item, onClose, pathname }: {
-  item: NavItem; onClose: () => void; pathname: string
-}) {
-  const isChildActive = item.children?.some(c => pathname.startsWith(c.href)) ?? false
-  const isParentActive = pathname === item.href || pathname.startsWith(item.href + '/')
-  const [open, setOpen] = useState(isChildActive || isParentActive)
-  const { Icon } = item
-
-  if (!item.children) {
-    return (
-      <Link
-        href={item.href}
-        onClick={onClose}
-        className="flex items-center gap-2.5 px-2 py-2.5 rounded-[10px] text-sm hover:bg-[#e8f7f3] transition-colors"
-      >
-        <Icon size={16} className="text-[#1a8a6e] flex-shrink-0" />
-        {item.label}
-      </Link>
-    )
-  }
-
-  return (
-    <div>
-      <button
-        onClick={() => setOpen(v => !v)}
-        className="flex items-center gap-2.5 px-2 py-2.5 rounded-[10px] text-sm hover:bg-[#e8f7f3] transition-colors w-full text-left"
-      >
-        <Icon size={16} className="text-[#1a8a6e] flex-shrink-0" />
-        <span className="flex-1">{item.label}</span>
-        <IconChevronDown
-          size={14}
-          className={`text-[var(--muted)] transition-transform flex-shrink-0 ${open ? 'rotate-180' : ''}`}
-        />
-      </button>
-
-      {open && (
-        <div className="ml-4 border-l-2 border-[#e8f7f3] pl-2 mt-0.5 mb-1 space-y-0.5">
-          <Link
-            href={item.href}
-            onClick={onClose}
-            className={`flex items-center gap-2 px-2 py-2 rounded-[8px] text-xs transition-colors ${
-              pathname === item.href
-                ? 'bg-[#e8f7f3] text-[#1a8a6e] font-semibold'
-                : 'text-[var(--muted)] hover:bg-[#e8f7f3] hover:text-[#1a8a6e]'
-            }`}
-          >
-            {'ภาพรวมสุขภาพ'}
-          </Link>
-          {item.children.map(child => {
-            const CIcon = child.Icon
-            const active = pathname === child.href || pathname.startsWith(child.href + '/')
-            return (
-              <Link
-                key={child.href}
-                href={child.href}
-                onClick={onClose}
-                className={`flex items-center gap-2 px-2 py-2 rounded-[8px] text-xs transition-colors ${
-                  active
-                    ? 'bg-[#e8f7f3] text-[#1a8a6e] font-semibold'
-                    : 'text-[var(--muted)] hover:bg-[#e8f7f3] hover:text-[#1a8a6e]'
-                }`}
-              >
-                <CIcon size={13} className="flex-shrink-0" />
-                {child.label}
-              </Link>
-            )
-          })}
-        </div>
-      )}
-    </div>
-  )
-}
-
-function MenuItems({ onClose, onSignOut, pathname }: {
-  onClose: () => void; onSignOut: () => void; pathname: string
-}) {
+function MenuItems({ onClose, onSignOut }: { onClose: () => void; onSignOut: () => void }) {
   return (
     <div className="overflow-y-auto max-h-[70vh]">
       {PROFILE_SECTIONS.map((section, si) => (
@@ -200,8 +114,16 @@ function MenuItems({ onClose, onSignOut, pathname }: {
             <div className="text-[10px] font-bold uppercase tracking-widest text-[var(--muted)] mb-1">
               {section.title}
             </div>
-            {section.items.map(item => (
-              <AccordionItem key={item.href} item={item} onClose={onClose} pathname={pathname} />
+            {section.items.map(({ href, label, Icon }) => (
+              <Link
+                key={href}
+                href={href}
+                onClick={onClose}
+                className="flex items-center gap-2.5 px-2 py-2.5 rounded-[10px] text-sm hover:bg-[#e8f7f3] transition-colors"
+              >
+                <Icon size={16} className="text-[#1a8a6e] flex-shrink-0" />
+                {label}
+              </Link>
             ))}
           </div>
         </div>
@@ -220,8 +142,8 @@ function MenuItems({ onClose, onSignOut, pathname }: {
   )
 }
 
-function ProfileDropdown({ displayName, email, onSignOut, pathname }: {
-  displayName: string; email: string; onSignOut: () => void; pathname: string
+function ProfileDropdown({ displayName, email, onSignOut }: {
+  displayName: string; email: string; onSignOut: () => void
 }) {
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
@@ -250,15 +172,15 @@ function ProfileDropdown({ displayName, email, onSignOut, pathname }: {
 
       {open && (
         <div className="absolute bottom-full left-0 right-0 mb-1 bg-[var(--card-bg)] border border-[var(--border)] rounded-[14px] shadow-xl overflow-hidden z-50 w-56">
-          <MenuItems onClose={() => setOpen(false)} onSignOut={() => { setOpen(false); onSignOut() }} pathname={pathname} />
+          <MenuItems onClose={() => setOpen(false)} onSignOut={() => { setOpen(false); onSignOut() }} />
         </div>
       )}
     </div>
   )
 }
 
-function MobileProfileDropdown({ displayName, onSignOut, pathname }: {
-  displayName: string; onSignOut: () => void; pathname: string
+function MobileProfileDropdown({ displayName, onSignOut }: {
+  displayName: string; onSignOut: () => void
 }) {
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
@@ -278,7 +200,7 @@ function MobileProfileDropdown({ displayName, onSignOut, pathname }: {
       </button>
       {open && (
         <div className="absolute top-full right-0 mt-2 bg-[var(--card-bg)] border border-[var(--border)] rounded-[14px] shadow-xl overflow-hidden z-50 w-64">
-          <MenuItems onClose={() => setOpen(false)} onSignOut={() => { setOpen(false); onSignOut() }} pathname={pathname} />
+          <MenuItems onClose={() => setOpen(false)} onSignOut={() => { setOpen(false); onSignOut() }} />
         </div>
       )}
     </div>
@@ -336,7 +258,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
         {user && (
           <div className="p-3 border-t border-[var(--border)]">
-            <ProfileDropdown displayName={displayName} email={user.email ?? ''} onSignOut={handleSignOut} pathname={pathname} />
+            <ProfileDropdown displayName={displayName} email={user.email ?? ''} onSignOut={handleSignOut} />
           </div>
         )}
       </aside>
@@ -349,7 +271,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <Link href="/">
             <Image src="/logo-hc.png" alt="HappiWell Clinic" width={120} height={42} className="object-contain" priority />
           </Link>
-          {user && <MobileProfileDropdown displayName={displayName} onSignOut={handleSignOut} pathname={pathname} />}
+          {user && <MobileProfileDropdown displayName={displayName} onSignOut={handleSignOut} />}
         </header>
 
         <main className="flex-1 overflow-y-auto relative">
@@ -364,11 +286,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               <Link
                 key={href}
                 href={href}
-                className={`flex-1 flex flex-col items-center gap-1 py-3 text-xs font-medium transition-colors ${
+                className={`flex-1 flex flex-col items-center gap-0.5 py-2.5 text-[10px] font-medium transition-colors ${
                   active ? 'text-[#1a8a6e]' : 'text-[var(--muted)]'
                 }`}
               >
-                <Icon size={25} strokeWidth={active ? 2.2 : 1.6} />
+                <Icon size={22} strokeWidth={active ? 2.2 : 1.6} />
                 <span>{label}</span>
               </Link>
             )
