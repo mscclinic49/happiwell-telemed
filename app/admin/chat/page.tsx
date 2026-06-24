@@ -396,11 +396,11 @@ export default function AdminChatPage() {
         {/* Mobile: tab toggle */}
         <div className="flex lg:hidden gap-1 text-xs">
           <button onClick={() => setVitalsTab('chat')}
-            className={`px-2.5 py-1 rounded-lg font-medium transition-colors ${vitalsTab === 'chat' ? 'bg-[#1a8a6e] text-white' : 'text-[var(--muted)] hover:bg-[#e8f7f3]'}`}>
+            className={`px-2.5 py-1 rounded-lg font-medium transition-colors ${vitalsTab === 'chat' ? 'bg-[#1a8a6e] text-white' : 'text-[var(--muted)] hover:bg-[#1a8a6e]/10'}`}>
             {'แชท'}
           </button>
           <button onClick={() => setVitalsTab('vitals')}
-            className={`px-2.5 py-1 rounded-lg font-medium transition-colors ${vitalsTab === 'vitals' ? 'bg-[#1a8a6e] text-white' : 'text-[var(--muted)] hover:bg-[#e8f7f3]'}`}>
+            className={`px-2.5 py-1 rounded-lg font-medium transition-colors ${vitalsTab === 'vitals' ? 'bg-[#1a8a6e] text-white' : 'text-[var(--muted)] hover:bg-[#1a8a6e]/10'}`}>
             {'Vitals'}
           </button>
         </div>
@@ -482,7 +482,7 @@ export default function AdminChatPage() {
           )}
           {convs.map(c => (
             <button key={c.id} onClick={() => setActiveId(c.id)}
-              className={`w-full text-left px-4 py-3.5 border-b border-[var(--border)] hover:bg-[#e8f7f3] transition-colors ${activeId === c.id ? 'bg-[#e8f7f3]' : ''}`}>
+              className={`w-full text-left px-4 py-3.5 border-b border-[var(--border)] hover:bg-[#1a8a6e]/10 transition-colors ${activeId === c.id ? 'bg-[#1a8a6e]/10' : ''}`}>
               <div className="flex items-center gap-2 mb-0.5">
                 <IconUser size={13} className="text-[var(--muted)] flex-shrink-0" />
                 <span className={`text-sm truncate flex-1 ${c.unreadCount > 0 ? 'font-bold' : 'font-semibold'}`}>{patientName(c)}</span>

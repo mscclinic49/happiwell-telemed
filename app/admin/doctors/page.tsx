@@ -188,7 +188,7 @@ export default function AdminDoctorsPage() {
       </div>
 
       {success && (
-        <div className="flex items-center gap-2 p-3 bg-[#e8f7f3] border border-[#1a8a6e]/30 rounded-[10px] text-[#1a8a6e] text-sm mb-4">
+        <div className="flex items-center gap-2 p-3 bg-[#1a8a6e]/10 border border-[#1a8a6e]/30 rounded-[10px] text-[#1a8a6e] text-sm mb-4">
           <IconCheck size={15} />{success}
         </div>
       )}
@@ -205,7 +205,7 @@ export default function AdminDoctorsPage() {
                 <Image src={d.avatar_url} alt={d.full_name} width={48} height={48}
                   className="rounded-full object-cover flex-shrink-0" style={{ width: 48, height: 48 }} />
               ) : (
-                <div className="w-12 h-12 rounded-full bg-[#e8f7f3] flex items-center justify-center flex-shrink-0">
+                <div className="w-12 h-12 rounded-full bg-[#1a8a6e]/10 flex items-center justify-center flex-shrink-0">
                   <IconUser size={22} className="text-[#1a8a6e]" />
                 </div>
               )}
@@ -213,7 +213,7 @@ export default function AdminDoctorsPage() {
                 <div className="font-semibold text-sm">{d.full_name}</div>
                 <div className="text-xs text-[var(--muted)]">{d.specialty || '—'}</div>
                 <div className="flex items-center gap-2 mt-1">
-                  <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${d.is_active ? 'bg-[#e8f7f3] text-[#1a8a6e]' : 'bg-[var(--border)] text-[var(--muted)]'}`}>
+                  <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${d.is_active ? 'bg-[#1a8a6e]/10 text-[#1a8a6e]' : 'bg-[var(--border)] text-[var(--muted)]'}`}>
                     {d.is_active ? 'ใช้งาน' : 'ปิดใช้งาน'}
                   </span>
                   {d.is_online && (
@@ -224,7 +224,7 @@ export default function AdminDoctorsPage() {
                 </div>
               </div>
               <button onClick={() => openEdit(d)}
-                className="p-2 rounded-[8px] border border-[var(--border)] hover:bg-[#e8f7f3] transition-colors flex-shrink-0">
+                className="p-2 rounded-[8px] border border-[var(--border)] hover:bg-[#1a8a6e]/10 transition-colors flex-shrink-0">
                 <IconEdit size={16} className="text-[var(--muted)]" />
               </button>
             </div>
@@ -342,7 +342,7 @@ export default function AdminDoctorsPage() {
           </div>
 
           {error && (
-            <div className="flex items-start gap-2 p-3 bg-red-50 border border-red-200 rounded-[10px] text-red-700 text-sm">
+            <div className="flex items-start gap-2 p-3 bg-red-500/10 border border-red-500/30 rounded-[10px] text-red-400 text-sm">
               <IconAlertCircle size={15} className="flex-shrink-0 mt-0.5" />{error}
             </div>
           )}

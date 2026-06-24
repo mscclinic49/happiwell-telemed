@@ -39,15 +39,6 @@
   }
 }
 
-/* Admin panel always uses light theme regardless of OS dark mode */
-[data-admin] {
-  --background:  #f4f7f6;
-  --foreground:  #0f172a;
-  --card-bg:     #ffffff;
-  --border:      #e2e8f0;
-  --muted:       #64748b;
-  color-scheme:  light;
-}
 
 html {
   font-size: 17px;

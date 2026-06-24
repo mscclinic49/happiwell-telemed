@@ -14,10 +14,10 @@ type Appt = {
 }
 
 const STATUS_CFG: Record<string, { label: string; color: string }> = {
-  pending:   { label: 'รอยืนยัน',  color: 'bg-yellow-100 text-yellow-700' },
-  confirmed: { label: 'ยืนยันแล้ว', color: 'bg-blue-100 text-blue-700' },
-  completed: { label: 'เสร็จสิ้น',  color: 'bg-green-100 text-green-700' },
-  cancelled: { label: 'ยกเลิก',    color: 'bg-red-100 text-red-700' },
+  pending:   { label: 'รอยืนยัน',  color: 'bg-yellow-500/15 text-yellow-500' },
+  confirmed: { label: 'ยืนยันแล้ว', color: 'bg-blue-400/15 text-blue-400' },
+  completed: { label: 'เสร็จสิ้น',  color: 'bg-emerald-500/15 text-emerald-500' },
+  cancelled: { label: 'ยกเลิก',    color: 'bg-red-500/15 text-red-400' },
 }
 
 const inputClass = 'w-full px-4 py-3 rounded-[10px] border border-[var(--border)] bg-[var(--card-bg)] text-sm focus:outline-none focus:border-[#1a8a6e]'
@@ -115,7 +115,7 @@ export default function AdminAppointmentsPage() {
       </div>
 
       {success && (
-        <div className="flex items-center gap-2 p-3 bg-[#e8f7f3] border border-[#1a8a6e]/30 rounded-[10px] text-[#1a8a6e] text-sm mb-4">
+        <div className="flex items-center gap-2 p-3 bg-[#1a8a6e]/10 border border-[#1a8a6e]/30 rounded-[10px] text-[#1a8a6e] text-sm mb-4">
           <IconCheck size={15} />{'สร้างนัดหมายเรียบร้อยแล้ว'}
         </div>
       )}
@@ -184,7 +184,7 @@ export default function AdminAppointmentsPage() {
           </div>
 
           {error && (
-            <div className="flex items-start gap-2 p-3 bg-red-50 border border-red-200 rounded-[10px] text-red-700 text-sm">
+            <div className="flex items-start gap-2 p-3 bg-red-500/10 border border-red-500/30 rounded-[10px] text-red-400 text-sm">
               <IconAlertCircle size={15} className="flex-shrink-0 mt-0.5" />{error}
             </div>
           )}

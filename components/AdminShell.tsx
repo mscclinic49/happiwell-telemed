@@ -149,7 +149,7 @@ function BellDropdown({ count, notifs, onClose }: { count: number; notifs: Notif
           return (
             <Link key={`${n.type}-${n.id}`} href={`/admin/patients/${n.patientId}`} onClick={onClose}
               className="flex items-start gap-3 px-4 py-3 hover:bg-[var(--background)] transition-colors border-b border-[var(--border)] last:border-0">
-              <div className="w-7 h-7 rounded-full bg-orange-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+              <div className="w-7 h-7 rounded-full bg-orange-500/15 flex items-center justify-center flex-shrink-0 mt-0.5">
                 <Icon size={13} className="text-orange-500" />
               </div>
               <div className="flex-1 min-w-0">
@@ -199,17 +199,8 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
 
   async function signOut() { await sb.auth.signOut(); router.replace('/login') }
 
-  const adminTheme = {
-    '--background': '#f4f7f6',
-    '--foreground': '#0f172a',
-    '--card-bg':    '#ffffff',
-    '--border':     '#e2e8f0',
-    '--muted':      '#64748b',
-    colorScheme:    'light',
-  } as React.CSSProperties
-
   if (loading || checking) return (
-    <div style={adminTheme} className="h-screen flex items-center justify-center bg-[var(--background)]">
+    <div className="h-screen flex items-center justify-center bg-[var(--background)]">
       <div className="w-8 h-8 border-4 border-[var(--hw-green)] border-t-transparent rounded-full animate-spin" />
     </div>
   )
@@ -256,7 +247,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
   )
 
   return (
-    <div style={adminTheme} className="flex h-screen overflow-hidden bg-[var(--background)]">
+    <div className="flex h-screen overflow-hidden bg-[var(--background)]">
       {/* Desktop sidebar */}
       <aside className="hidden md:flex flex-col w-56 flex-shrink-0 bg-[var(--card-bg)] border-r border-[var(--border)]">
         <div className="px-5 py-5 border-b border-[var(--border)]">

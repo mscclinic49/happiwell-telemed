@@ -83,7 +83,7 @@ function UploadPanel({
 
   if (done) {
     return (
-      <div className="flex items-center gap-1.5 text-xs text-[#1a8a6e] bg-[#e8f7f3] px-3 py-2 rounded-lg">
+      <div className="flex items-center gap-1.5 text-xs text-[#1a8a6e] bg-[#1a8a6e]/10 px-3 py-2 rounded-lg">
         <IconCheck size={13} />
         {'อัพโหลดใบสั่งยาสำเร็จ'}
       </div>
@@ -95,7 +95,7 @@ function UploadPanel({
       <div
         onClick={() => fileRef.current?.click()}
         className={`flex items-center gap-3 p-3 rounded-[10px] border-2 border-dashed cursor-pointer transition-colors ${
-          file ? 'border-[#1a8a6e] bg-[#e8f7f3]' : 'border-[var(--border)] hover:border-[#1a8a6e]'
+          file ? 'border-[#1a8a6e] bg-[#1a8a6e]/10' : 'border-[var(--border)] hover:border-[#1a8a6e]'
         }`}
       >
         <input
@@ -130,7 +130,7 @@ function UploadPanel({
       </div>
 
       {error && (
-        <div className="flex items-center gap-1.5 text-xs text-red-600 bg-red-50 px-3 py-2 rounded-lg">
+        <div className="flex items-center gap-1.5 text-xs text-red-400 bg-red-500/10 px-3 py-2 rounded-lg">
           <IconAlertCircle size={13} />
           {error}
         </div>
@@ -246,8 +246,8 @@ export default function AdminPrescriptionsPage() {
                       {new Date(appt.scheduled_at).toLocaleString('th-TH', { dateStyle: 'medium', timeStyle: 'short' })}
                     </span>
                     <span className={`px-1.5 py-0.5 rounded text-[10px] font-medium ${
-                      appt.status === 'completed' ? 'bg-[#e8f7f3] text-[#1a8a6e]'
-                      : appt.status === 'pending'   ? 'bg-[#faeeda] text-[#c47f00]'
+                      appt.status === 'completed' ? 'bg-[#1a8a6e]/10 text-[#1a8a6e]'
+                      : appt.status === 'pending'   ? 'bg-[#ef9f27]/15 text-[#ef9f27]'
                       : 'bg-[var(--border)] text-[var(--muted)]'
                     }`}>
                       {appt.status}
@@ -256,7 +256,7 @@ export default function AdminPrescriptionsPage() {
                 </div>
 
                 {hasPrescription && (
-                  <span className="flex items-center gap-1 text-xs font-medium text-[#1a8a6e] bg-[#e8f7f3] px-2.5 py-1 rounded-full flex-shrink-0">
+                  <span className="flex items-center gap-1 text-xs font-medium text-[#1a8a6e] bg-[#1a8a6e]/10 px-2.5 py-1 rounded-full flex-shrink-0">
                     <IconCheck size={12} />
                     {'มีใบสั่งยาแล้ว'}
                   </span>

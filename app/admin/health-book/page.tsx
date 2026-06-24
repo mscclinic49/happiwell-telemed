@@ -131,7 +131,7 @@ export default function AdminHealthBookPage() {
             <span>{t.emoji}</span>{t.label}
             {counts[t.key] > 0 && (
               <span className={'text-[10px] font-bold px-1.5 rounded-full ' +
-                (tab === t.key ? 'bg-white/30 text-white' : 'bg-red-100 text-red-600')}>
+                (tab === t.key ? 'bg-white/30 text-white' : 'bg-red-500/15 text-red-400')}>
                 {counts[t.key]}
               </span>
             )}
@@ -224,7 +224,7 @@ function PendingCard({ patient, date, children, onApprove, onReject }: {
   return (
     <div className="bg-[var(--card-bg)] border border-[var(--border)] rounded-[14px] p-4">
       <div className="flex items-center gap-1.5 mb-2">
-        <span className="text-xs font-semibold text-[var(--hw-green)] bg-[#e8f7f3] px-2 py-0.5 rounded-full">{patient}</span>
+        <span className="text-xs font-semibold text-[var(--hw-green)] bg-[#1a8a6e]/10 px-2 py-0.5 rounded-full">{patient}</span>
         <span className="flex items-center gap-1 text-[10px] text-[var(--muted)]">
           <IconClock size={10} />{new Date(date).toLocaleDateString('th-TH', { dateStyle: 'short' })}
         </span>
@@ -238,7 +238,7 @@ function PendingCard({ patient, date, children, onApprove, onReject }: {
         </button>
         <button disabled={busy}
           onClick={async () => { setBusy(true); await onReject() }}
-          className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-full text-xs font-semibold text-red-600 border border-red-200 hover:bg-red-50 disabled:opacity-40 transition-colors">
+          className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-full text-xs font-semibold text-red-400 border border-red-500/40 hover:bg-red-500/10 disabled:opacity-40 transition-colors">
           <IconX size={13} />{'ปฏิเสธ'}
         </button>
       </div>

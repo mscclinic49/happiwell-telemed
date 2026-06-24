@@ -173,9 +173,9 @@ export default function PatientDetailPage() {
             <div className="space-y-4">
               {/* Status banner */}
               <div className={`rounded-[14px] p-4 flex items-center gap-3 ${
-                kyc.status === 'verified' ? 'bg-[#e8f7f3] border border-[#1a8a6e]/30' :
-                kyc.status === 'pending'  ? 'bg-[#fef9ec] border border-[#ef9f27]/30' :
-                                            'bg-red-50 border border-red-200'}`}>
+                kyc.status === 'verified' ? 'bg-[#1a8a6e]/10 border border-[#1a8a6e]/30' :
+                kyc.status === 'pending'  ? 'bg-[#ef9f27]/10 border border-[#ef9f27]/30' :
+                                            'bg-red-500/10 border border-red-500/30'}`}>
                 {kyc.status === 'verified' ? <IconShieldCheck size={20} className="text-[#1a8a6e]" /> :
                  kyc.status === 'pending'  ? <IconClock size={20} className="text-[#ef9f27]" /> :
                                              <IconX size={20} className="text-red-500" />}
@@ -234,7 +234,7 @@ export default function PatientDetailPage() {
                         {saving === 'kyc' ? 'กำลังบันทึก...' : 'ยืนยันตัวตน'}
                       </button>
                       <button onClick={() => setShowRejectInput(true)}
-                        className="flex-1 flex items-center justify-center gap-2 py-3 rounded-[12px] border border-red-300 text-red-500 text-sm font-semibold hover:bg-red-50 transition-colors">
+                        className="flex-1 flex items-center justify-center gap-2 py-3 rounded-[12px] border border-red-500/40 text-red-400 text-sm font-semibold hover:bg-red-500/10 transition-colors">
                         <IconX size={16} />{'ปฏิเสธ'}
                       </button>
                     </div>
@@ -318,7 +318,7 @@ function HealthTab<T extends { id: string; status: string }>({
   onApprove: (id: string, approved: boolean) => void
   saving: string | null
 }) {
-  const S: Record<string, string> = { approved: 'bg-green-100 text-green-700', rejected: 'bg-red-100 text-red-700', pending: 'bg-yellow-100 text-yellow-700' }
+  const S: Record<string, string> = { approved: 'bg-emerald-500/15 text-emerald-500', rejected: 'bg-red-500/15 text-red-400', pending: 'bg-yellow-500/15 text-yellow-500' }
   const L: Record<string, string> = { approved: 'อนุมัติแล้ว', rejected: 'ปฏิเสธ', pending: 'รออนุมัติ' }
   if (items.length === 0) return <div className="text-center py-12 text-sm text-[var(--muted)]">{'ไม่มีข้อมูล'}</div>
   return (
@@ -336,7 +336,7 @@ function HealthTab<T extends { id: string; status: string }>({
                 <IconCheck size={13} />{'อนุมัติ'}
               </button>
               <button onClick={() => onApprove(item.id, false)} disabled={saving === item.id}
-                className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-[8px] border border-red-300 text-red-500 text-xs font-medium hover:bg-red-50 disabled:opacity-50 transition-colors">
+                className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-[8px] border border-red-500/40 text-red-400 text-xs font-medium hover:bg-red-500/10 disabled:opacity-50 transition-colors">
                 <IconX size={13} />{'ปฏิเสธ'}
               </button>
             </div>

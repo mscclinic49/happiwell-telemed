@@ -29,10 +29,10 @@ type Stats = {
 }
 
 const STATUS_COLOR: Record<string, string> = {
-  pending:   'bg-yellow-100 text-yellow-700',
-  confirmed: 'bg-blue-100 text-blue-700',
-  completed: 'bg-green-100 text-green-700',
-  cancelled: 'bg-red-100 text-red-700',
+  pending:   'bg-yellow-500/15 text-yellow-500',
+  confirmed: 'bg-blue-400/15 text-blue-400',
+  completed: 'bg-emerald-500/15 text-emerald-500',
+  cancelled: 'bg-red-500/15 text-red-400',
 }
 const STATUS_LABEL: Record<string, string> = {
   pending: 'รอยืนยัน', confirmed: 'ยืนยันแล้ว', completed: 'เสร็จสิ้น', cancelled: 'ยกเลิก',
@@ -95,17 +95,17 @@ export default function AdminDashboard() {
       <div className="grid grid-cols-2 gap-3 mb-6">
         <StatCard icon={<IconCalendarClock size={20} className="text-[#1a8a6e]" />}
           label={'นัดหมายวันนี้'} value={s.todayCount}
-          bg="bg-[#e8f7f3]" href="/admin/appointments" />
+          bg="bg-[#1a8a6e]/10" href="/admin/appointments" />
         <StatCard icon={<IconClock size={20} className="text-[#ef9f27]" />}
           label={'รอยืนยัน'} value={s.pendingAppt}
-          bg="bg-[#faeeda]" href="/admin/appointments"
+          bg="bg-[#ef9f27]/15" href="/admin/appointments"
           urgent={s.pendingAppt > 0} />
         <StatCard icon={<IconUsers size={20} className="text-[#378add]" />}
           label={'คนไข้ทั้งหมด'} value={s.totalPatients}
-          bg="bg-[#e6f1fb]" href="/admin/patients" />
-        <StatCard icon={<IconBook2 size={20} className="text-purple-500" />}
+          bg="bg-[#378add]/10" href="/admin/patients" />
+        <StatCard icon={<IconBook2 size={20} className="text-purple-400" />}
           label={'รออนุมัติสุขภาพ'} value={s.pendingHealth}
-          bg="bg-purple-50" href="/admin/health-book"
+          bg="bg-purple-500/10" href="/admin/health-book"
           urgent={s.pendingHealth > 0} />
       </div>
 
