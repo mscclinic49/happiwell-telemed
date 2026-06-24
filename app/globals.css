@@ -1,44 +1,87 @@
 @import "tailwindcss";
 
-/* ── HappiWell Design Tokens ──────────────────────────── */
+/* Dark mode via .dark class on <html> */
+@custom-variant dark (&:is(.dark, .dark *));
+
+/* ── HappiWell Design Tokens · Light Mode ─────────────── */
 :root {
-  --hw-green:     #1a8a6e;
-  --hw-green-dk:  #14705a;
-  --hw-orange:    #ef9f27;
-  --hw-blue:      #378add;
-  --hw-blue-dk:   #185fa5;
+  /* Brand */
+  --hw-green:     #10B981;
+  --hw-green-dk:  #059669;
+  --hw-teal:      #14B8A6;
+  --hw-orange:    #F59E0B;
+  --hw-blue:      #3B82F6;
+  --hw-blue-dk:   #1D4ED8;
 
-  --hw-mint-bg:   #e8f7f3;
-  --hw-peach-bg:  #faeeda;
-  --hw-blue-bg:   #e6f1fb;
-  --hw-yellow-bg: #fef9ec;
+  /* Status backgrounds (light — solid tint) */
+  --hw-mint-bg:   #DCFCE7;
+  --hw-peach-bg:  #FEF3C7;
+  --hw-blue-bg:   #EFF6FF;
+  --hw-yellow-bg: #FEF9C3;
+  --hw-red-bg:    #FEE2E2;
 
+  /* Radius */
   --hw-radius:    14px;
   --hw-radius-sm: 8px;
   --hw-radius-xs: 6px;
 
-  --background:   #f4f7f6;
-  --foreground:   #0a0a0a;
-  --card-bg:      #ffffff;
-  --border:       #e2e8f0;
-  --muted:        #4a5568;
+  /* Semantic */
+  --background:    #F9FAFB;
+  --foreground:    #1F2937;
+  --card-bg:       #FFFFFF;
+  --card-elevated: #FFFFFF;
+  --border:        #F3F4F6;
+  --muted:         #6B7280;
 }
+
+/* ── Dark Mode ─────────────────────────────────────────── */
+.dark {
+  /* Brand (brighter for dark bg) */
+  --hw-green:     #34D399;
+  --hw-green-dk:  #6EE7B7;
+  --hw-teal:      #2DD4BF;
+
+  /* Status backgrounds (dark — semi-transparent) */
+  --hw-mint-bg:   rgb(20 83 45 / 0.20);
+  --hw-peach-bg:  rgb(113 67 5 / 0.20);
+  --hw-blue-bg:   rgb(30 58 138 / 0.20);
+  --hw-yellow-bg: rgb(113 67 5 / 0.20);
+  --hw-red-bg:    rgb(127 29 29 / 0.20);
+
+  /* Semantic */
+  --background:    #0F1115;
+  --foreground:    #F3F4F6;
+  --card-bg:       #1A1D23;
+  --card-elevated: #23272F;
+  --border:        #2D3139;
+  --muted:         #9CA3AF;
+}
+
+/* ── Dark mode: override hardcoded status colors ─────────── */
+/* text */
+.dark .text-yellow-600,
+.dark .text-yellow-700 { color: #FACC15; }
+.dark .text-red-600,
+.dark .text-red-700    { color: #F87171; }
+.dark .text-blue-600,
+.dark .text-blue-700   { color: #60A5FA; }
+.dark .text-green-600,
+.dark .text-green-700  { color: #4ADE80; }
+
+/* badge / card backgrounds */
+.dark .bg-yellow-50,
+.dark .bg-yellow-100   { background-color: rgb(113 67 5 / 0.20); }
+.dark .bg-red-50,
+.dark .bg-red-100      { background-color: rgb(127 29 29 / 0.20); }
+.dark .bg-blue-50,
+.dark .bg-blue-100     { background-color: rgb(30 58 138 / 0.20); }
+.dark .bg-green-50,
+.dark .bg-green-100    { background-color: rgb(20 83 45 / 0.20); }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
 }
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background:  #0d1f1a;
-    --foreground:  #e8f5f1;
-    --card-bg:     #132920;
-    --border:      #1e3d33;
-    --muted:       #94a3b8;
-  }
-}
-
 
 html {
   font-size: 17px;
@@ -50,7 +93,6 @@ body {
   line-height: 1.6;
 }
 
-/* Ensure all elements inherit the theme foreground color */
 *, *::before, *::after {
   color: inherit;
 }
