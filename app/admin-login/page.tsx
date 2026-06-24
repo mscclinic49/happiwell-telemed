@@ -27,7 +27,6 @@ export default function AdminLoginPage() {
     const input = username.trim()
     let email = input
 
-    // If not email → lookup by username
     if (!input.includes('@')) {
       const { data, error: rpcErr } = await sb.rpc('get_email_by_username', { p_username: input.toLowerCase() })
       if (rpcErr || !data) {
@@ -54,8 +53,6 @@ export default function AdminLoginPage() {
   return (
     <main className="min-h-screen bg-[var(--hw-mint-bg)] flex items-center justify-center p-5">
       <div className="w-full max-w-sm">
-
-        {/* Logo */}
         <div className="flex flex-col items-center mb-8">
           <Image src="/logo-hc.png" alt="HappiWell Clinic" width={180} height={60} className="object-contain mb-4" priority />
           <span className="text-xs font-semibold uppercase tracking-widest text-[#1a8a6e] bg-[#1a8a6e]/10 px-3 py-1 rounded-full">
@@ -63,7 +60,6 @@ export default function AdminLoginPage() {
           </span>
         </div>
 
-        {/* Card */}
         <div className="bg-[var(--card-bg)] rounded-[20px] shadow-sm border border-[var(--border)] p-6">
           <h1 className="text-lg font-bold mb-1">{'เข้าสู่ระบบแอดมิน'}</h1>
           <p className="text-xs text-[var(--muted)] mb-6">{'สำหรับเจ้าหน้าที่คลินิกเท่านั้น'}</p>
@@ -72,12 +68,8 @@ export default function AdminLoginPage() {
             <div className="relative">
               <IconUser size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--muted)]" />
               <input
-                type="text"
-                required
-                autoCapitalize="none"
-                autoComplete="username"
-                value={username}
-                onChange={e => setUsername(e.target.value)}
+                type="text" required autoCapitalize="none" autoComplete="username"
+                value={username} onChange={e => setUsername(e.target.value)}
                 placeholder={'username หรือ email'}
                 className={inputBase}
               />
@@ -86,11 +78,8 @@ export default function AdminLoginPage() {
             <div className="relative">
               <IconLock size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--muted)]" />
               <input
-                type={showPw ? 'text' : 'password'}
-                required
-                autoComplete="current-password"
-                value={password}
-                onChange={e => setPassword(e.target.value)}
+                type={showPw ? 'text' : 'password'} required autoComplete="current-password"
+                value={password} onChange={e => setPassword(e.target.value)}
                 placeholder={'รหัสผ่าน'}
                 className={inputBase + ' pr-10'}
               />
@@ -106,9 +95,7 @@ export default function AdminLoginPage() {
               </div>
             )}
 
-            <button
-              type="submit"
-              disabled={loading}
+            <button type="submit" disabled={loading}
               className="w-full py-3 rounded-full font-semibold text-white text-sm hover:opacity-90 disabled:opacity-50 transition-opacity"
               style={{ background: '#1a8a6e' }}>
               {loading ? 'กำลังเข้าสู่ระบบ...' : 'เข้าสู่ระบบ'}
@@ -116,9 +103,7 @@ export default function AdminLoginPage() {
           </form>
         </div>
 
-        <p className="text-center text-xs text-[var(--muted)] mt-5">
-          {'HappiWell Telemed · Admin Portal'}
-        </p>
+        <p className="text-center text-xs text-[var(--muted)] mt-5">{'HappiWell Telemed · Admin Portal'}</p>
       </div>
     </main>
   )
