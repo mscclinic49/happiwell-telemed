@@ -120,7 +120,7 @@ const PROFILE_SECTIONS = [
   },
 ]
 
-const NO_SHELL = ['/login', '/register', '/consent', '/auth', '/consult', '/admin', '/admin-login', '/forgot-password', '/doctor']
+const NO_SHELL = ['/login', '/register', '/consent', '/auth', '/consult', '/admin', '/admin-login', '/forgot-password', '/doctor/']
 
 function UserAvatar({ name, size = 32 }: { name: string; size?: number }) {
   const initial = name.replace(/^(นาย|นาง|น\.ส\.|ด\.ช\.|ด\.ญ\.)\s*/, '').slice(0, 1) || '?'
