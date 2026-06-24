@@ -144,22 +144,12 @@ function usePending() {
 }
 
 function BellDropdown({
-  count, notifs, onClose, onDismiss,
+  count, notifs, onNavigate,
 }: {
-  count: number; notifs: Notif[]; onClose: () => void; onDismiss: (key: string) => void
+  count: number; notifs: Notif[]; onNavigate: (key: string, href: string) => void
 }) {
-  const ref = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    function handler(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) onClose()
-    }
-    document.addEventListener('mousedown', handler)
-    return () => document.removeEventListener('mousedown', handler)
-  }, [onClose])
-
   return (
-    <div ref={ref} className="absolute right-0 top-full mt-2 w-80 bg-[var(--card-bg)] border border-[var(--border)] rounded-[16px] shadow-xl z-50 overflow-hidden">
+    <div className="absolute right-0 top-full mt-2 w-80 bg-[var(--card-bg)] border border-[var(--border)] rounded-[16px] shadow-xl z-50 overflow-hidden">
       <div className="px-4 py-3 border-b border-[var(--border)] flex items-center justify-between">
         <span className="font-bold text-sm">{'การแจ้งเตือน'}</span>
         {count > 0 && <span className="text-xs bg-red-500 text-white px-2 py-0.5 rounded-full">{count} รายการ</span>}
@@ -170,9 +160,9 @@ function BellDropdown({
         ) : notifs.map(n => {
           const Icon = NOTIF_ICON[n.type]
           return (
-            <Link key={n.key} href={n.href}
-              onClick={() => { onDismiss(n.key); onClose() }}
-              className="flex items-start gap-3 px-4 py-3 hover:bg-[var(--background)] transition-colors border-b border-[var(--border)] last:border-0">
+            <button key={n.key} type="button"
+              onClick={() => onNavigate(n.key, n.href)}
+              className="w-full flex items-start gap-3 px-4 py-3 hover:bg-[var(--background)] transition-colors border-b border-[var(--border)] last:border-0 text-left">
               <div className="w-7 h-7 rounded-full bg-orange-500/15 flex items-center justify-center flex-shrink-0 mt-0.5">
                 <Icon size={13} className="text-orange-500" />
               </div>
@@ -186,7 +176,7 @@ function BellDropdown({
                 </div>
               </div>
               <IconChevronRight size={13} className="text-[var(--muted)] mt-1 flex-shrink-0" />
-            </Link>
+            </button>
           )
         })}
       </div>
@@ -202,8 +192,19 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
   const [adminName, setAdminName] = useState('')
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [bellOpen, setBellOpen] = useState(false)
+  const bellRef = useRef<HTMLDivElement>(null)
   const { count: pendingCount, notifs, dismiss } = usePending()
   const unreadChat = useUnreadChat(user?.id)
+
+  useEffect(() => {
+    function handleOutside(e: MouseEvent) {
+      if (bellOpen && bellRef.current && !bellRef.current.contains(e.target as Node)) {
+        setBellOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleOutside)
+    return () => document.removeEventListener('mousedown', handleOutside)
+  }, [bellOpen])
 
   useEffect(() => {
     if (loading) return
@@ -225,7 +226,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
   )
 
   const bellJsx = (
-    <div className="relative">
+    <div ref={bellRef} className="relative">
       <button onClick={() => setBellOpen(v => !v)}
         className="relative p-2.5 rounded-[10px] text-[var(--muted)] hover:text-[var(--hw-green)] hover:bg-[#1a8a6e]/10 transition-colors flex items-center justify-center">
         <IconBell size={24} />
@@ -238,8 +239,11 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
       {bellOpen && (
         <BellDropdown
           count={pendingCount} notifs={notifs}
-          onClose={() => setBellOpen(false)}
-          onDismiss={dismiss}
+          onNavigate={(key, href) => {
+            dismiss(key)
+            setBellOpen(false)
+            router.push(href)
+          }}
         />
       )}
     </div>
