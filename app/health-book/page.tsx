@@ -20,18 +20,17 @@ type Pending  = { id: string }
 type AForm = 'dtx' | 'bp' | 'med' | 'vaccine' | 'lab' | 'visit' | null
 
 const MEAL: Record<string, string> = { fasting: 'อดอาหาร', before_meal: 'ก่อนอาหาร', after_meal: 'หลังอาหาร', bedtime: 'ก่อนนอน' }
-const CARD = 'bg-[var(--card-bg)] border border-[var(--border)]'
-const dtxSt = (v: number) => v < 70 ? { l:'ต่ำ',   c:'text-blue-400',   bd:'bg-blue-500/15 text-blue-400'   }
-  : v <= 99  ? { l:'ปกติ',  c:'text-[#1a8a6e]',  bd:'bg-[#1a8a6e]/15 text-[#1a8a6e]'  }
-  : v <= 125 ? { l:'ระวัง', c:'text-yellow-400',  bd:'bg-yellow-500/15 text-yellow-400' }
-  :            { l:'สูง',   c:'text-red-400',     bd:'bg-red-500/15 text-red-400'       }
-const bpSt  = (s: number) => s < 90 ? { l:'ต่ำ',   c:'text-blue-400',   bd:'bg-blue-500/15 text-blue-400'   }
-  : s <= 120 ? { l:'ปกติ',  c:'text-[#1a8a6e]',  bd:'bg-[#1a8a6e]/15 text-[#1a8a6e]'  }
-  : s <= 139 ? { l:'ระวัง', c:'text-yellow-400',  bd:'bg-yellow-500/15 text-yellow-400' }
-  :            { l:'สูง',   c:'text-red-400',     bd:'bg-red-500/15 text-red-400'       }
-const labSt = { normal: { l:'ปกติ',    c:'text-[#1a8a6e]',  dot:'bg-[#1a8a6e]',  bd:'bg-[#1a8a6e]/15 text-[#1a8a6e]'  },
-                warning: { l:'ระวัง',   c:'text-yellow-400', dot:'bg-yellow-400',  bd:'bg-yellow-500/15 text-yellow-400' },
-                critical:{ l:'ผิดปกติ', c:'text-red-400',    dot:'bg-red-400',     bd:'bg-red-500/15 text-red-400'       } }
+const dtxSt = (v: number) => v < 70 ? { l:'ต่ำ',   c:'text-[var(--hw-blue)]',    b:'bg-[var(--hw-blue-bg)]',   bd:'bg-[var(--hw-blue-bg)] text-[var(--hw-blue)]'    }
+  : v <= 99  ? { l:'ปกติ',  c:'text-[var(--hw-green)]',  b:'bg-[var(--hw-mint-bg)]',   bd:'bg-[var(--hw-mint-bg)] text-[var(--hw-green)]'  }
+  : v <= 125 ? { l:'ระวัง', c:'text-yellow-600',          b:'bg-[var(--hw-yellow-bg)]', bd:'bg-[var(--hw-yellow-bg)] text-yellow-700'        }
+  :            { l:'สูง',   c:'text-red-600',             b:'bg-red-500/15',            bd:'bg-red-500/15 text-red-500'                      }
+const bpSt  = (s: number) => s < 90 ? { l:'ต่ำ',   c:'text-[var(--hw-blue)]',    b:'bg-[var(--hw-blue-bg)]',   bd:'bg-[var(--hw-blue-bg)] text-[var(--hw-blue)]'    }
+  : s <= 120 ? { l:'ปกติ',  c:'text-[var(--hw-green)]',  b:'bg-[var(--hw-mint-bg)]',   bd:'bg-[var(--hw-mint-bg)] text-[var(--hw-green)]'  }
+  : s <= 139 ? { l:'ระวัง', c:'text-yellow-600',          b:'bg-[var(--hw-yellow-bg)]', bd:'bg-[var(--hw-yellow-bg)] text-yellow-700'        }
+  :            { l:'สูง',   c:'text-red-600',             b:'bg-red-500/15',            bd:'bg-red-500/15 text-red-500'                      }
+const labSt = { normal: { l:'ปกติ',    c:'text-[var(--hw-green)]', dot:'bg-[var(--hw-green)]', bd:'bg-[var(--hw-mint-bg)] text-[var(--hw-green)]'   },
+                warning: { l:'ระวัง',   c:'text-yellow-600',        dot:'bg-yellow-400',        bd:'bg-[var(--hw-yellow-bg)] text-yellow-700'         },
+                critical:{ l:'ผิดปกติ', c:'text-red-600',           dot:'bg-red-400',           bd:'bg-red-500/15 text-red-500'                       } }
 const trend = (cur: number, prev: number) => {
   const d = cur - prev
   if (Math.abs(d) < 1) return { Icon: IconMinus, c: 'text-[var(--muted)]', t: '' }
@@ -51,7 +50,7 @@ function SectionHead({ title, href, fKey, label, color, pendingN = 0, active, to
     <div className="flex items-center justify-between mb-3">
       <div className="flex items-center gap-2">
         <h2 className="font-semibold text-sm">{title}</h2>
-        {pendingN > 0 && <span className="text-xs bg-yellow-500/15 text-yellow-400 px-1.5 py-0.5 rounded-full flex items-center gap-1"><IconClock size={10}/>{pendingN}</span>}
+        {pendingN > 0 && <span className="text-xs bg-[var(--hw-yellow-bg)] text-yellow-600 px-1.5 py-0.5 rounded-full flex items-center gap-1"><IconClock size={10}/>{pendingN}</span>}
       </div>
       <div className="flex items-center gap-2">
         <button onClick={() => toggle(fKey)}
@@ -235,7 +234,7 @@ export default function HealthBookDashboard() {
           </div>
         )}
         {d0 && ds ? (
-          <div className={"rounded-[14px] p-4 " + CARD}>
+          <div className={"rounded-[14px] p-4 " + ds.b}>
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs text-[var(--muted)] mb-1">{MEAL[d0.meal_status] ?? ''} · {new Date(d0.measured_at).toLocaleString('th-TH', { dateStyle: 'short', timeStyle: 'short' })}</p>
@@ -264,7 +263,7 @@ export default function HealthBookDashboard() {
           </div>
         )}
         {b0 && bs ? (
-          <div className={"rounded-[14px] p-4 " + CARD}>
+          <div className={"rounded-[14px] p-4 " + bs.b}>
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs text-[var(--muted)] mb-1">{new Date(b0.measured_at).toLocaleString('th-TH', { dateStyle: 'short', timeStyle: 'short' })}</p>
@@ -446,7 +445,7 @@ export default function HealthBookDashboard() {
                 <div className="flex items-center justify-between gap-2">
                   <p className="text-sm font-semibold truncate">{v.hospital}</p>
                   <div className="flex items-center gap-2 flex-shrink-0">
-                    {v.status === 'pending' && <span className="text-xs bg-yellow-500/15 text-yellow-400 px-2 py-0.5 rounded-full">รอยืนยัน</span>}
+                    {v.status === 'pending' && <span className="text-xs bg-[var(--hw-yellow-bg)] text-yellow-600 px-2 py-0.5 rounded-full">รอยืนยัน</span>}
                     <span className="text-xs text-[var(--muted)]">{new Date(v.visit_date).toLocaleDateString('th-TH', { dateStyle: 'medium' })}</span>
                   </div>
                 </div>
