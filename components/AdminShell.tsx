@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useCallback, useRef } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createBrowserClient } from '@supabase/ssr'
@@ -8,8 +8,7 @@ import { useAuth } from '@/lib/auth-context'
 import {
   IconMessageCircle2, IconCalendarClock, IconStethoscope,
   IconPill, IconLogout, IconMenu2, IconX, IconLayoutDashboard,
-  IconUsers, IconBell, IconShieldOff, IconPill as IconMed,
-  IconVaccine, IconTestPipe, IconNotes, IconChevronRight,
+  IconUsers, IconBell,
 } from '@tabler/icons-react'
 
 const NAV = [
@@ -26,25 +25,6 @@ const sb = createBrowserClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 )
 
-type Notif = {
-  id: string
-  patientId: string
-  patientName: string
-  type: 'kyc' | 'med' | 'vaccine' | 'lab' | 'history'
-  detail: string
-  createdAt: string
-}
-
-const NOTIF_ICON: Record<Notif['type'], React.ElementType> = {
-  kyc:     IconShieldOff,
-  med:     IconMed,
-  vaccine: IconVaccine,
-  lab:     IconTestPipe,
-  history: IconNotes,
-}
-const NOTIF_LABEL: Record<Notif['type'], string> = {
-  kyc: 'ยืนยันตัวตน', med: 'ยา', vaccine: 'วัคซีน', lab: 'ผลตรวจ', history: 'ประวัติ',
-}
 
 function useUnreadChat(userId: string | undefined) {
   const [unread, setUnread] = useState(0)
@@ -72,48 +52,16 @@ function useUnreadChat(userId: string | undefined) {
 
 function usePending() {
   const [count, setCount] = useState(0)
-  const [notifs, setNotifs] = useState<Notif[]>([])
 
   const refresh = useCallback(async () => {
     const [kyc, med, vac, lab, hist] = await Promise.all([
-      sb.from('hw_identity_verifications').select('id, submitted_at, user_id').eq('status', 'pending').order('submitted_at', { ascending: false }).limit(10),
-      sb.from('hw_medications').select('id, name, created_at, user_id').eq('status', 'pending').order('created_at', { ascending: false }).limit(10),
-      sb.from('hw_vaccines').select('id, vaccine_name, created_at, user_id').eq('status', 'pending').order('created_at', { ascending: false }).limit(10),
-      sb.from('hw_lab_results').select('id, test_name, created_at, user_id').eq('approval_status', 'pending').order('created_at', { ascending: false }).limit(10),
-      sb.from('hw_medical_history').select('id, chief_complaint, created_at, user_id').eq('status', 'pending').order('created_at', { ascending: false }).limit(10),
+      sb.from('hw_identity_verifications').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
+      sb.from('hw_medications').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
+      sb.from('hw_vaccines').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
+      sb.from('hw_lab_results').select('id', { count: 'exact', head: true }).eq('approval_status', 'pending'),
+      sb.from('hw_medical_history').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
     ])
-
-    // collect unique user IDs
-    const allItems = [
-      ...(kyc.data ?? []).map(r => ({ ...r, type: 'kyc' as Notif['type'], detail: 'ยืนยันบัตรประชาชน', createdAt: r.submitted_at })),
-      ...(med.data ?? []).map(r => ({ ...r, type: 'med' as Notif['type'], detail: (r as { name: string }).name, createdAt: r.created_at })),
-      ...(vac.data ?? []).map(r => ({ ...r, type: 'vaccine' as Notif['type'], detail: (r as { vaccine_name: string }).vaccine_name, createdAt: r.created_at })),
-      ...(lab.data ?? []).map(r => ({ ...r, type: 'lab' as Notif['type'], detail: (r as { test_name: string }).test_name, createdAt: r.created_at })),
-      ...(hist.data ?? []).map(r => ({ ...r, type: 'history' as Notif['type'], detail: (r as { chief_complaint: string | null }).chief_complaint ?? 'ประวัติการรักษา', createdAt: r.created_at })),
-    ]
-
-    const total = allItems.length
-    setCount(total)
-
-    if (total === 0) { setNotifs([]); return }
-
-    const uniqueIds = [...new Set(allItems.map(r => r.user_id))]
-    const { data: users } = await sb.from('hw_users').select('id, full_name, first_name').in('id', uniqueIds)
-    const userMap = Object.fromEntries((users ?? []).map(u => [u.id, u.full_name || u.first_name || '—']))
-
-    const sorted = allItems
-      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-      .slice(0, 15)
-      .map(r => ({
-        id: r.id,
-        patientId: r.user_id,
-        patientName: userMap[r.user_id] ?? '—',
-        type: r.type,
-        detail: r.detail ?? '—',
-        createdAt: r.createdAt,
-      }))
-
-    setNotifs(sorted)
+    setCount((kyc.count ?? 0) + (med.count ?? 0) + (vac.count ?? 0) + (lab.count ?? 0) + (hist.count ?? 0))
   }, [])
 
   useEffect(() => {
@@ -122,58 +70,9 @@ function usePending() {
     return () => clearInterval(t)
   }, [refresh])
 
-  return { count, notifs, refresh }
+  return { count, refresh }
 }
 
-function BellDropdown({ count, notifs, onClose }: { count: number; notifs: Notif[]; onClose: () => void }) {
-  const ref = useRef<HTMLDivElement>(null)
-  useEffect(() => {
-    function handler(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) onClose()
-    }
-    document.addEventListener('mousedown', handler)
-    return () => document.removeEventListener('mousedown', handler)
-  }, [onClose])
-
-  return (
-    <div ref={ref} className="absolute right-0 top-full mt-2 w-80 bg-[var(--card-bg)] border border-[var(--border)] rounded-[16px] shadow-xl z-50 overflow-hidden">
-      <div className="px-4 py-3 border-b border-[var(--border)] flex items-center justify-between">
-        <span className="font-bold text-sm">{'การแจ้งเตือน'}</span>
-        {count > 0 && <span className="text-xs bg-red-500 text-white px-2 py-0.5 rounded-full">{count} รายการ</span>}
-      </div>
-      <div className="overflow-y-auto max-h-80">
-        {notifs.length === 0 ? (
-          <div className="px-4 py-8 text-center text-xs text-[var(--muted)]">{'ไม่มีการแจ้งเตือน'}</div>
-        ) : notifs.map(n => {
-          const Icon = NOTIF_ICON[n.type]
-          return (
-            <Link key={`${n.type}-${n.id}`} href={`/admin/patients/${n.patientId}`} onClick={onClose}
-              className="flex items-start gap-3 px-4 py-3 hover:bg-[var(--background)] transition-colors border-b border-[var(--border)] last:border-0">
-              <div className="w-7 h-7 rounded-full bg-orange-500/15 flex items-center justify-center flex-shrink-0 mt-0.5">
-                <Icon size={13} className="text-orange-500" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="text-xs font-semibold truncate">{n.patientName}</div>
-                <div className="text-xs text-[var(--muted)] truncate">
-                  <span className="text-orange-500 font-medium">{NOTIF_LABEL[n.type]}</span>{' · '}{n.detail}
-                </div>
-                <div className="text-[10px] text-[var(--muted)] mt-0.5">
-                  {new Date(n.createdAt).toLocaleString('th-TH', { dateStyle: 'short', timeStyle: 'short' })}
-                </div>
-              </div>
-              <IconChevronRight size={13} className="text-[var(--muted)] mt-1 flex-shrink-0" />
-            </Link>
-          )
-        })}
-      </div>
-      {count > 0 && (
-        <div className="px-4 py-2 border-t border-[var(--border)] text-center">
-          <Link href="/admin/patients" onClick={onClose} className="text-xs text-[var(--hw-green)] font-medium">{'ดูคนไข้ทั้งหมด'}</Link>
-        </div>
-      )}
-    </div>
-  )
-}
 
 export default function AdminShell({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth()
@@ -182,8 +81,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
   const [checking, setChecking] = useState(true)
   const [adminName, setAdminName] = useState('')
   const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [bellOpen, setBellOpen] = useState(false)
-  const { count: pendingCount, notifs } = usePending()
+  const { count: pendingCount } = usePending()
   const { unread: unreadChat } = useUnreadChat(user?.id)
 
   useEffect(() => {
@@ -206,18 +104,15 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
   )
 
   const Bell = () => (
-    <div className="relative">
-      <button onClick={() => setBellOpen(v => !v)}
-        className="relative p-1.5 text-[var(--muted)] hover:text-[var(--hw-green)] transition-colors">
-        <IconBell size={18} />
-        {pendingCount > 0 && (
-          <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-red-500 text-white text-[9px] rounded-full flex items-center justify-center animate-pulse">
-            {pendingCount > 9 ? '9+' : pendingCount}
-          </span>
-        )}
-      </button>
-      {bellOpen && <BellDropdown count={pendingCount} notifs={notifs} onClose={() => setBellOpen(false)} />}
-    </div>
+    <Link href="/admin/patients"
+      className="relative p-2.5 rounded-[10px] text-[var(--muted)] hover:text-[var(--hw-green)] hover:bg-[#1a8a6e]/10 transition-colors flex items-center justify-center">
+      <IconBell size={24} />
+      {pendingCount > 0 && (
+        <span className="absolute top-1 right-1 w-5 h-5 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center animate-pulse">
+          {pendingCount > 9 ? '9+' : pendingCount}
+        </span>
+      )}
+    </Link>
   )
 
   const NavLinks = ({ onClick }: { onClick?: () => void }) => (

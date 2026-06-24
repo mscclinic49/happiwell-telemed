@@ -1,13 +1,13 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createBrowserClient } from '@supabase/ssr'
 import { useAuth } from '@/lib/auth-context'
 import {
   IconLayoutDashboard, IconCalendarClock,
-  IconLogout, IconMenu2, IconX, IconPill,
+  IconLogout, IconMenu2, IconX, IconPill, IconBell,
 } from '@tabler/icons-react'
 
 const NAV = [
@@ -28,6 +28,8 @@ export default function DoctorShell({ children }: { children: React.ReactNode })
   const [checking, setChecking] = useState(true)
   const [doctorName, setDoctorName] = useState('')
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [queueCount, setQueueCount] = useState(0)
+  const [doctorId, setDoctorId] = useState<string | null>(null)
 
   useEffect(() => {
     if (loading) return
@@ -38,7 +40,26 @@ export default function DoctorShell({ children }: { children: React.ReactNode })
         setDoctorName(data.full_name || data.first_name || 'แพทย์')
         setChecking(false)
       })
+    sb.from('hw_doctors').select('id').eq('user_id', user.id).single()
+      .then(({ data }) => { if (data) setDoctorId(data.id) })
   }, [user, loading])
+
+  const refreshQueue = useCallback(async () => {
+    if (!doctorId) return
+    const { count } = await sb.from('hw_appointments')
+      .select('id', { count: 'exact', head: true })
+      .eq('doctor_id', doctorId)
+      .in('status', ['pending', 'confirmed'])
+      .gte('scheduled_at', new Date().toISOString())
+    setQueueCount(count ?? 0)
+  }, [doctorId])
+
+  useEffect(() => {
+    if (!doctorId) return
+    refreshQueue()
+    const t = setInterval(refreshQueue, 30000)
+    return () => clearInterval(t)
+  }, [doctorId, refreshQueue])
 
   async function signOut() { await sb.auth.signOut(); router.replace('/login') }
 
@@ -76,8 +97,20 @@ export default function DoctorShell({ children }: { children: React.ReactNode })
           <NavLinks />
         </nav>
         <div className="px-4 py-4 border-t border-[var(--border)]">
-          <div className="text-xs font-semibold text-[var(--foreground)] mb-0.5 truncate">{doctorName}</div>
-          <button onClick={signOut} className="flex items-center gap-2 text-xs text-[var(--muted)] hover:text-red-500 transition-colors mt-2">
+          <div className="text-xs font-semibold text-[var(--foreground)] mb-2 truncate">{doctorName}</div>
+          <Link href="/doctor/appointments"
+            className="flex items-center gap-2 text-xs text-[var(--muted)] hover:text-[#1a8a6e] transition-colors mb-2">
+            <span className="relative">
+              <IconBell size={15} />
+              {queueCount > 0 && (
+                <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-red-500 text-white text-[8px] font-bold rounded-full flex items-center justify-center animate-pulse">
+                  {queueCount > 9 ? '9+' : queueCount}
+                </span>
+              )}
+            </span>
+            {'คิวนัดหมาย'}{queueCount > 0 && <span className="ml-auto text-[10px] bg-red-500 text-white px-1.5 py-0.5 rounded-full">{queueCount}</span>}
+          </Link>
+          <button onClick={signOut} className="flex items-center gap-2 text-xs text-[var(--muted)] hover:text-red-500 transition-colors">
             <IconLogout size={15} />{'ออกจากระบบ'}
           </button>
         </div>
@@ -91,6 +124,15 @@ export default function DoctorShell({ children }: { children: React.ReactNode })
         <span className="font-bold text-sm flex-1">
           {'HappiWell'}<span className="text-[var(--muted)] font-normal ml-1.5 text-xs">{'แพทย์'}</span>
         </span>
+        <Link href="/doctor/appointments"
+          className="relative p-2 rounded-[10px] text-[var(--muted)] hover:text-[#1a8a6e] hover:bg-[#1a8a6e]/10 transition-colors mr-1">
+          <IconBell size={22} />
+          {queueCount > 0 && (
+            <span className="absolute top-1 right-1 w-4 h-4 bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center animate-pulse">
+              {queueCount > 9 ? '9+' : queueCount}
+            </span>
+          )}
+        </Link>
         <button onClick={signOut} className="text-[var(--muted)] hover:text-red-500">
           <IconLogout size={18} />
         </button>
