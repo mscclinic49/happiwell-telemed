@@ -2,7 +2,6 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import Image from 'next/image'
 import { createBrowserClient } from '@supabase/ssr'
 import {
   IconArrowLeft, IconShieldCheck, IconShieldOff,
@@ -212,9 +211,11 @@ export default function PatientDetailPage() {
               <div className="bg-[var(--card-bg)] border border-[var(--border)] rounded-[14px] p-4">
                 <p className="text-xs font-semibold text-[var(--muted)] mb-3 uppercase tracking-wider">{'รูปเอกสาร'}</p>
                 {idCardUrl ? (
-                  <div className="relative w-full aspect-[1.586/1] rounded-[10px] overflow-hidden bg-[var(--background)]">
-                    <Image src={idCardUrl} alt="ID Card" fill className="object-contain" />
-                  </div>
+                  <a href={idCardUrl} target="_blank" rel="noopener noreferrer">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={idCardUrl} alt="บัตรประชาชน"
+                      className="w-full rounded-[10px] object-contain border border-[var(--border)] hover:opacity-95 transition-opacity cursor-zoom-in" />
+                  </a>
                 ) : (
                   <div className="w-full aspect-[1.586/1] rounded-[10px] bg-[var(--background)] flex items-center justify-center">
                     <p className="text-xs text-[var(--muted)]">{'ไม่พบรูปเอกสาร'}</p>

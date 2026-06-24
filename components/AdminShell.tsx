@@ -199,8 +199,17 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
 
   async function signOut() { await sb.auth.signOut(); router.replace('/login') }
 
+  const adminTheme = {
+    '--background': '#f4f7f6',
+    '--foreground': '#0f172a',
+    '--card-bg':    '#ffffff',
+    '--border':     '#e2e8f0',
+    '--muted':      '#64748b',
+    colorScheme:    'light',
+  } as React.CSSProperties
+
   if (loading || checking) return (
-    <div data-admin className="h-screen flex items-center justify-center bg-[var(--background)]">
+    <div style={adminTheme} className="h-screen flex items-center justify-center bg-[var(--background)]">
       <div className="w-8 h-8 border-4 border-[var(--hw-green)] border-t-transparent rounded-full animate-spin" />
     </div>
   )
@@ -247,7 +256,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
   )
 
   return (
-    <div data-admin className="flex h-screen overflow-hidden bg-[var(--background)]">
+    <div style={adminTheme} className="flex h-screen overflow-hidden bg-[var(--background)]">
       {/* Desktop sidebar */}
       <aside className="hidden md:flex flex-col w-56 flex-shrink-0 bg-[var(--card-bg)] border-r border-[var(--border)]">
         <div className="px-5 py-5 border-b border-[var(--border)]">
