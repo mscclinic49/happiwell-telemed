@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Image from 'next/image'
 import { createBrowserClient } from '@supabase/ssr'
@@ -11,12 +11,12 @@ const sb = createBrowserClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 )
 
-export default function ResetPasswordPage() {
+function ResetPasswordContent() {
   const router       = useRouter()
   const searchParams = useSearchParams()
 
-  const [ready, setReady]       = useState(false)  // session exchanged
-  const [invalid, setInvalid]   = useState(false)  // bad/expired token
+  const [ready, setReady]       = useState(false)
+  const [invalid, setInvalid]   = useState(false)
   const [password, setPassword] = useState('')
   const [confirm, setConfirm]   = useState('')
   const [showPw, setShowPw]     = useState(false)
@@ -25,11 +25,9 @@ export default function ResetPasswordPage() {
   const [done, setDone]         = useState(false)
   const [error, setError]       = useState<string | null>(null)
 
-  // Exchange PKCE code for session on mount
   useEffect(() => {
     const code = searchParams.get('code')
     if (!code) {
-      // Check if session already set (e.g. from hash-based flow)
       sb.auth.getSession().then(({ data }) => {
         if (data.session) setReady(true)
         else setInvalid(true)
@@ -47,7 +45,6 @@ export default function ResetPasswordPage() {
     setError(null)
     if (password.length < 8) { setError('รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร'); return }
     if (password !== confirm) { setError('รหัสผ่านทั้งสองไม่ตรงกัน'); return }
-
     setSaving(true)
     const { error: updateErr } = await sb.auth.updateUser({ password })
     if (updateErr) {
@@ -68,10 +65,9 @@ export default function ResetPasswordPage() {
           <Image src="/logo-hc.png" alt="HappiWell Clinic" width={200} height={70} className="object-contain mb-2" priority />
         </div>
 
-        {/* Success */}
         {done && (
           <div className="text-center">
-            <div className="w-16 h-16 rounded-full bg-[#e8f7f3] flex items-center justify-center mx-auto mb-4">
+            <div className="w-16 h-16 rounded-full bg-[#1a8a6e]/15 flex items-center justify-center mx-auto mb-4">
               <IconCircleCheck size={36} className="text-[#1a8a6e]" />
             </div>
             <h2 className="text-lg font-bold mb-2">{'เปลี่ยนรหัสผ่านสำเร็จ'}</h2>
@@ -79,10 +75,9 @@ export default function ResetPasswordPage() {
           </div>
         )}
 
-        {/* Invalid/expired token */}
         {!done && invalid && (
           <div className="text-center">
-            <div className="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-4">
+            <div className="w-16 h-16 rounded-full bg-red-500/15 flex items-center justify-center mx-auto mb-4">
               <IconAlertCircle size={36} className="text-red-400" />
             </div>
             <h2 className="text-lg font-bold mb-2">{'ลิงก์หมดอายุหรือไม่ถูกต้อง'}</h2>
@@ -95,7 +90,6 @@ export default function ResetPasswordPage() {
           </div>
         )}
 
-        {/* Loading */}
         {!done && !invalid && !ready && (
           <div className="text-center py-12">
             <div className="w-8 h-8 border-2 border-[#1a8a6e] border-t-transparent rounded-full animate-spin mx-auto mb-3" />
@@ -103,12 +97,10 @@ export default function ResetPasswordPage() {
           </div>
         )}
 
-        {/* Form */}
         {!done && !invalid && ready && (
           <>
             <h1 className="text-xl font-bold mb-2 text-center">{'ตั้งรหัสผ่านใหม่'}</h1>
             <p className="text-sm text-[var(--muted)] text-center mb-6">{'รหัสผ่านใหม่ต้องมีอย่างน้อย 8 ตัวอักษร'}</p>
-
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium mb-1.5">{'รหัสผ่านใหม่'}</label>
@@ -123,7 +115,6 @@ export default function ResetPasswordPage() {
                   </button>
                 </div>
               </div>
-
               <div>
                 <label className="block text-sm font-medium mb-1.5">{'ยืนยันรหัสผ่านใหม่'}</label>
                 <div className="relative">
@@ -140,13 +131,11 @@ export default function ResetPasswordPage() {
                   <p className="text-xs text-red-500 mt-1">{'รหัสผ่านไม่ตรงกัน'}</p>
                 )}
               </div>
-
               {error && (
-                <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-[10px] px-4 py-3">
+                <div className="text-sm text-red-400 bg-red-500/10 border border-red-500/30 rounded-[10px] px-4 py-3">
                   {error}
                 </div>
               )}
-
               <button type="submit" disabled={saving || password !== confirm || password.length < 8}
                 className="w-full py-3 rounded-full font-semibold text-white text-sm hover:opacity-90 disabled:opacity-50 transition-opacity"
                 style={{ background: '#1a8a6e' }}>
@@ -157,5 +146,17 @@ export default function ResetPasswordPage() {
         )}
       </div>
     </main>
+  )
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={
+      <main className="min-h-screen flex items-center justify-center bg-[var(--background)]">
+        <div className="w-8 h-8 border-2 border-[#1a8a6e] border-t-transparent rounded-full animate-spin" />
+      </main>
+    }>
+      <ResetPasswordContent />
+    </Suspense>
   )
 }
