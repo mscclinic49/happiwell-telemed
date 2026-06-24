@@ -20,17 +20,18 @@ type Pending  = { id: string }
 type AForm = 'dtx' | 'bp' | 'med' | 'vaccine' | 'lab' | 'visit' | null
 
 const MEAL: Record<string, string> = { fasting: 'อดอาหาร', before_meal: 'ก่อนอาหาร', after_meal: 'หลังอาหาร', bedtime: 'ก่อนนอน' }
-const dtxSt = (v: number) => v < 70 ? { l:'ต่ำ',   c:'text-blue-400',    b:'bg-blue-500/10',    bd:'bg-blue-500/15 text-blue-400'    }
-  : v <= 99  ? { l:'ปกติ',  c:'text-[#1a8a6e]',   b:'bg-[#1a8a6e]/10',  bd:'bg-[#1a8a6e]/15 text-[#1a8a6e]'  }
-  : v <= 125 ? { l:'ระวัง', c:'text-yellow-400',   b:'bg-yellow-500/10', bd:'bg-yellow-500/15 text-yellow-400' }
-  :            { l:'สูง',   c:'text-red-400',      b:'bg-red-500/10',    bd:'bg-red-500/15 text-red-400'       }
-const bpSt  = (s: number) => s < 90 ? { l:'ต่ำ',   c:'text-blue-400',    b:'bg-blue-500/10',    bd:'bg-blue-500/15 text-blue-400'    }
-  : s <= 120 ? { l:'ปกติ',  c:'text-[#1a8a6e]',   b:'bg-[#1a8a6e]/10',  bd:'bg-[#1a8a6e]/15 text-[#1a8a6e]'  }
-  : s <= 139 ? { l:'ระวัง', c:'text-yellow-400',   b:'bg-yellow-500/10', bd:'bg-yellow-500/15 text-yellow-400' }
-  :            { l:'สูง',   c:'text-red-400',      b:'bg-red-500/10',    bd:'bg-red-500/15 text-red-400'       }
-const labSt = { normal: { l:'ปกติ',    c:'text-[#1a8a6e]',  dot:'bg-[#1a8a6e]',  bd:'bg-[#1a8a6e]/15 text-[#1a8a6e]'   },
-                warning: { l:'ระวัง',   c:'text-yellow-400', dot:'bg-yellow-400',  bd:'bg-yellow-500/15 text-yellow-400'  },
-                critical:{ l:'ผิดปกติ', c:'text-red-400',    dot:'bg-red-400',     bd:'bg-red-500/15 text-red-400'        } }
+const CARD = 'bg-[var(--card-bg)] border border-[var(--border)]'
+const dtxSt = (v: number) => v < 70 ? { l:'ต่ำ',   c:'text-blue-400',   bd:'bg-blue-500/15 text-blue-400'   }
+  : v <= 99  ? { l:'ปกติ',  c:'text-[#1a8a6e]',  bd:'bg-[#1a8a6e]/15 text-[#1a8a6e]'  }
+  : v <= 125 ? { l:'ระวัง', c:'text-yellow-400',  bd:'bg-yellow-500/15 text-yellow-400' }
+  :            { l:'สูง',   c:'text-red-400',     bd:'bg-red-500/15 text-red-400'       }
+const bpSt  = (s: number) => s < 90 ? { l:'ต่ำ',   c:'text-blue-400',   bd:'bg-blue-500/15 text-blue-400'   }
+  : s <= 120 ? { l:'ปกติ',  c:'text-[#1a8a6e]',  bd:'bg-[#1a8a6e]/15 text-[#1a8a6e]'  }
+  : s <= 139 ? { l:'ระวัง', c:'text-yellow-400',  bd:'bg-yellow-500/15 text-yellow-400' }
+  :            { l:'สูง',   c:'text-red-400',     bd:'bg-red-500/15 text-red-400'       }
+const labSt = { normal: { l:'ปกติ',    c:'text-[#1a8a6e]',  dot:'bg-[#1a8a6e]',  bd:'bg-[#1a8a6e]/15 text-[#1a8a6e]'  },
+                warning: { l:'ระวัง',   c:'text-yellow-400', dot:'bg-yellow-400',  bd:'bg-yellow-500/15 text-yellow-400' },
+                critical:{ l:'ผิดปกติ', c:'text-red-400',    dot:'bg-red-400',     bd:'bg-red-500/15 text-red-400'       } }
 const trend = (cur: number, prev: number) => {
   const d = cur - prev
   if (Math.abs(d) < 1) return { Icon: IconMinus, c: 'text-[var(--muted)]', t: '' }
@@ -234,7 +235,7 @@ export default function HealthBookDashboard() {
           </div>
         )}
         {d0 && ds ? (
-          <div className={"rounded-[14px] p-4 " + ds.b}>
+          <div className={"rounded-[14px] p-4 " + CARD}>
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs text-[var(--muted)] mb-1">{MEAL[d0.meal_status] ?? ''} · {new Date(d0.measured_at).toLocaleString('th-TH', { dateStyle: 'short', timeStyle: 'short' })}</p>
@@ -263,7 +264,7 @@ export default function HealthBookDashboard() {
           </div>
         )}
         {b0 && bs ? (
-          <div className={"rounded-[14px] p-4 " + bs.b}>
+          <div className={"rounded-[14px] p-4 " + CARD}>
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs text-[var(--muted)] mb-1">{new Date(b0.measured_at).toLocaleString('th-TH', { dateStyle: 'short', timeStyle: 'short' })}</p>
