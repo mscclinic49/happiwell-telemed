@@ -214,9 +214,11 @@ const sbChat = typeof window !== 'undefined'
   ? createBrowserClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!)
   : null
 
-function useUnreadChat(userId: string | undefined) {
+function useUnreadChat(userId: string | undefined, isViewingChat: boolean) {
   const [unread, setUnread] = useState(0)
+
   useEffect(() => {
+    if (isViewingChat) { setUnread(0); return }
     if (!userId || !sbChat) return
     const check = async () => {
       const { count } = await sbChat
@@ -231,7 +233,7 @@ function useUnreadChat(userId: string | undefined) {
       .on('postgres_changes', { event: '*', schema: 'public', table: 'hw_messages' }, check)
       .subscribe()
     return () => { sbChat.removeChannel(ch) }
-  }, [userId])
+  }, [userId, isViewingChat])
   return unread
 }
 
@@ -241,7 +243,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const { user, role, identityVerified, loading, signOut } = useAuth()
   const showShell = !NO_SHELL.some(p => pathname.startsWith(p))
   const needsVerify = !loading && user && role === 'patient' && !identityVerified && VERIFY_REQUIRED.some(p => pathname.startsWith(p))
-  const unreadChat = useUnreadChat(showShell ? user?.id : undefined)
+  const unreadChat = useUnreadChat(showShell ? user?.id : undefined, pathname.startsWith('/chat'))
 
   // redirect admin users away from patient pages
   useEffect(() => {

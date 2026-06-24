@@ -1,9 +1,10 @@
-﻿'use client'
+'use client'
 
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { createBrowserClient } from '@supabase/ssr'
+import Image from 'next/image'
 import {
-  IconMessageCircle2, IconSend, IconChevronLeft, IconCalendarClock, IconAlertCircle,
+  IconMessageCircle2, IconSend, IconChevronLeft, IconCalendarClock, IconAlertCircle, IconPhoto,
 } from '@tabler/icons-react'
 import { useAuth } from '@/lib/auth-context'
 
@@ -29,6 +30,25 @@ function convLabel(c: Conversation) {
   return c.type === 'support' ? 'ติดต่อคลินิก' : (c.title || 'แชทนัดหมาย')
 }
 
+function MsgContent({ content, mine }: { content: string; mine: boolean }) {
+  if (content.startsWith('__img__:')) {
+    const url = content.slice(8)
+    return (
+      <a href={url} target="_blank" rel="noopener noreferrer">
+        <Image src={url} alt="รูปภาพ" width={240} height={180}
+          className="rounded-xl object-cover cursor-pointer hover:opacity-90 transition-opacity" />
+      </a>
+    )
+  }
+  return (
+    <div className={`px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed whitespace-pre-wrap break-words ${
+      mine ? 'text-white rounded-br-sm' : 'bg-[var(--card-bg)] border border-[var(--border)] rounded-bl-sm'
+    }`} style={mine ? { background: 'var(--hw-green)' } : {}}>
+      {content}
+    </div>
+  )
+}
+
 export default function ChatPage() {
   const { user } = useAuth()
   const sb = createBrowserClient(
@@ -40,9 +60,11 @@ export default function ChatPage() {
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
   const [sending, setSending] = useState(false)
+  const [uploading, setUploading] = useState(false)
   const [initError, setInitError] = useState<string | null>(null)
   const [showList, setShowList] = useState(true)
   const bottomRef = useRef<HTMLDivElement>(null)
+  const fileRef = useRef<HTMLInputElement>(null)
 
   const active = convs.find(c => c.id === activeId)
 
@@ -50,7 +72,6 @@ export default function ChatPage() {
   useEffect(() => {
     if (!user) return
     async function init() {
-      // Check existing support conversation
       const { data: existing, error: selErr } = await sb
         .from('hw_conversations').select('id')
         .eq('patient_id', user!.id).eq('type', 'support').maybeSingle()
@@ -68,16 +89,12 @@ export default function ChatPage() {
         convId = created?.id ?? null
       }
 
-      // Load all conversations
       const { data: list } = await sb
         .from('hw_conversations').select('id, type, title, appointment_id, last_message_at')
         .eq('patient_id', user!.id).order('last_message_at', { ascending: false })
       setConvs((list as Conversation[]) || [])
 
-      if (convId) {
-        setActiveId(convId)
-        setShowList(false)
-      }
+      if (convId) { setActiveId(convId); setShowList(false) }
     }
     init()
   }, [user])
@@ -98,7 +115,7 @@ export default function ChatPage() {
       })
   }, [activeId, user])
 
-  // Realtime — also mark incoming admin messages as read immediately
+  // Realtime — mark incoming admin messages as read immediately
   useEffect(() => {
     if (!activeId || !user) return
     const ch = sb.channel(`chat:${activeId}`)
@@ -111,7 +128,6 @@ export default function ChatPage() {
           if (prev.some(m => m.id === msg.id)) return prev
           return [...prev, msg]
         })
-        // mark incoming admin message as read right away
         if (msg.sender_id !== user.id) {
           sb.from('hw_messages').update({ read_at: new Date().toISOString() }).eq('id', msg.id).then(() => {})
         }
@@ -120,10 +136,7 @@ export default function ChatPage() {
     return () => { sb.removeChannel(ch) }
   }, [activeId, user])
 
-  // Auto-scroll
-  useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages])
+  useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: 'smooth' }) }, [messages])
 
   const sendMessage = useCallback(async () => {
     const text = input.trim()
@@ -143,6 +156,23 @@ export default function ChatPage() {
     setSending(false)
   }, [input, activeId, user, sending])
 
+  async function uploadImage(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file || !activeId || !user) return
+    setUploading(true)
+    const ext = file.name.split('.').pop() ?? 'jpg'
+    const path = `${user.id}/${Date.now()}.${ext}`
+    const { data, error } = await sb.storage.from('chat-images').upload(path, file, { contentType: file.type })
+    if (!error && data) {
+      const { data: { publicUrl } } = sb.storage.from('chat-images').getPublicUrl(data.path)
+      await sb.from('hw_messages').insert({ conversation_id: activeId, sender_id: user.id, content: `__img__:${publicUrl}` })
+      await sb.from('hw_conversations').update({ last_message_at: new Date().toISOString() }).eq('id', activeId)
+      setConvs(prev => prev.map(c => c.id === activeId ? { ...c, last_message_at: new Date().toISOString() } : c))
+    }
+    if (fileRef.current) fileRef.current.value = ''
+    setUploading(false)
+  }
+
   function handleKey(e: React.KeyboardEvent) {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage() }
   }
@@ -159,7 +189,6 @@ export default function ChatPage() {
     )
   }
 
-  // ── Shared panel styles ──
   const listPanel = (
     <div className="flex flex-col bg-[var(--card-bg)] border-r border-[var(--border)] w-full md:w-72 md:flex-shrink-0 h-full">
       <div className="px-5 py-4 border-b border-[var(--border)] flex items-center gap-2 flex-shrink-0">
@@ -188,7 +217,6 @@ export default function ChatPage() {
 
   const chatPanel = activeId ? (
     <div className="flex flex-col flex-1 min-w-0 h-full">
-      {/* Header */}
       <div className="flex items-center gap-3 px-4 py-3 border-b border-[var(--border)] bg-[var(--card-bg)] flex-shrink-0">
         <button onClick={() => setShowList(true)} className="md:hidden p-1 text-[var(--muted)] -ml-1">
           <IconChevronLeft size={20} />
@@ -201,15 +229,13 @@ export default function ChatPage() {
         </div>
       </div>
 
-      {/* Messages */}
       <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3 min-h-0">
         {messages.length === 0 && (
-          <div className="text-center text-sm text-[var(--muted)] pt-10">
-            {'ส่งข้อความเพื่อเริ่มการสนทนา'}
-          </div>
+          <div className="text-center text-sm text-[var(--muted)] pt-10">{'ส่งข้อความเพื่อเริ่มการสนทนา'}</div>
         )}
         {messages.map(msg => {
           const mine = msg.sender_id === user?.id
+          const isImg = msg.content.startsWith('__img__:')
           return (
             <div key={msg.id} className={`flex ${mine ? 'justify-end' : 'justify-start'}`}>
               {!mine && (
@@ -217,12 +243,8 @@ export default function ChatPage() {
                   HC
                 </div>
               )}
-              <div className="max-w-[72%]">
-                <div className={`px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed whitespace-pre-wrap break-words ${
-                  mine ? 'text-white rounded-br-sm' : 'bg-[var(--card-bg)] border border-[var(--border)] rounded-bl-sm'
-                }`} style={mine ? { background: 'var(--hw-green)' } : {}}>
-                  {msg.content}
-                </div>
+              <div className={isImg ? 'max-w-[72%]' : 'max-w-[72%]'}>
+                <MsgContent content={msg.content} mine={mine} />
                 <div className={`text-[10px] text-[var(--muted)] mt-0.5 ${mine ? 'text-right' : ''}`}>
                   {timeLabel(msg.created_at)}
                 </div>
@@ -233,8 +255,17 @@ export default function ChatPage() {
         <div ref={bottomRef} />
       </div>
 
-      {/* Input */}
       <div className="flex items-end gap-2 px-4 py-3 border-t border-[var(--border)] bg-[var(--card-bg)] flex-shrink-0">
+        <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={uploadImage} />
+        <button
+          onClick={() => fileRef.current?.click()}
+          disabled={uploading}
+          className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 border border-[var(--border)] bg-[var(--background)] text-[var(--muted)] hover:text-[#1a8a6e] hover:border-[#1a8a6e] transition-colors disabled:opacity-40"
+        >
+          {uploading
+            ? <span className="w-4 h-4 border-2 border-[#1a8a6e] border-t-transparent rounded-full animate-spin" />
+            : <IconPhoto size={17} />}
+        </button>
         <textarea value={input} onChange={e => setInput(e.target.value)} onKeyDown={handleKey}
           placeholder={'พิมพ์ข้อความ... (Enter ส่ง)'}
           rows={1}
@@ -258,22 +289,10 @@ export default function ChatPage() {
   )
 
   return (
-    // Use absolute fill so we don't fight with the outer overflow-y-auto
     <div className="absolute inset-0 flex overflow-hidden">
-      {/* Mobile: show list OR chat */}
-      <div className={`md:hidden w-full h-full ${showList ? 'flex' : 'hidden'}`}>
-        {listPanel}
-      </div>
-      <div className={`md:hidden w-full h-full ${!showList && activeId ? 'flex flex-col' : 'hidden'}`}>
-        {chatPanel}
-      </div>
-
-      {/* Desktop: side-by-side */}
-      <div className="hidden md:flex w-full h-full">
-        {listPanel}
-        {chatPanel}
-      </div>
+      <div className={`md:hidden w-full h-full ${showList ? 'flex' : 'hidden'}`}>{listPanel}</div>
+      <div className={`md:hidden w-full h-full ${!showList && activeId ? 'flex flex-col' : 'hidden'}`}>{chatPanel}</div>
+      <div className="hidden md:flex w-full h-full">{listPanel}{chatPanel}</div>
     </div>
   )
 }
-

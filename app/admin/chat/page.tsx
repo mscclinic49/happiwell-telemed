@@ -1,8 +1,9 @@
-﻿'use client'
+'use client'
 
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { createBrowserClient } from '@supabase/ssr'
-import { IconMessageCircle2, IconSend, IconChevronLeft, IconCalendarClock, IconUser } from '@tabler/icons-react'
+import Image from 'next/image'
+import { IconMessageCircle2, IconSend, IconChevronLeft, IconCalendarClock, IconUser, IconPhoto } from '@tabler/icons-react'
 import { useAuth } from '@/lib/auth-context'
 
 type Conversation = {
@@ -41,6 +42,28 @@ function patientName(c: Conversation) {
   return 'ผู้ป่วย'
 }
 
+function MsgContent({ content, isAdmin }: { content: string; isAdmin: boolean }) {
+  if (content.startsWith('__img__:')) {
+    const url = content.slice(8)
+    return (
+      <a href={url} target="_blank" rel="noopener noreferrer">
+        <Image src={url} alt="รูปภาพ" width={240} height={180}
+          className="rounded-xl object-cover cursor-pointer hover:opacity-90 transition-opacity" />
+      </a>
+    )
+  }
+  return (
+    <div
+      className={`px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed whitespace-pre-wrap break-words ${
+        isAdmin ? 'text-white rounded-br-sm' : 'bg-[var(--card-bg)] border border-[var(--border)] rounded-bl-sm'
+      }`}
+      style={isAdmin ? { background: 'var(--hw-green)' } : {}}
+    >
+      {content}
+    </div>
+  )
+}
+
 export default function AdminChatPage() {
   const { user } = useAuth()
   const sb = createBrowserClient(
@@ -52,7 +75,9 @@ export default function AdminChatPage() {
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
   const [sending, setSending] = useState(false)
+  const [uploading, setUploading] = useState(false)
   const bottomRef = useRef<HTMLDivElement>(null)
+  const fileRef = useRef<HTMLInputElement>(null)
 
   const active = convs.find(c => c.id === activeId)
 
@@ -70,7 +95,6 @@ export default function AdminChatPage() {
     ])
     const userMap = Object.fromEntries((usersRes.data ?? []).map(u => [u.id, u]))
 
-    // per-conv stats: has patient message? unread count?
     const patientSent = new Set<string>()
     const unreadMap: Record<string, number> = {}
     for (const msg of msgsRes.data ?? []) {
@@ -106,7 +130,7 @@ export default function AdminChatPage() {
           .eq('conversation_id', activeId)
           .neq('sender_id', user.id)
           .is('read_at', null)
-          .then(() => loadConvs()) // refresh badge counts
+          .then(() => loadConvs())
       })
   }, [activeId, user])
 
@@ -138,6 +162,22 @@ export default function AdminChatPage() {
     await sb.from('hw_messages').insert({ conversation_id: activeId, sender_id: user.id, content })
     await sb.from('hw_conversations').update({ last_message_at: new Date().toISOString() }).eq('id', activeId)
     setSending(false)
+  }
+
+  async function uploadImage(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file || !activeId || !user) return
+    setUploading(true)
+    const ext = file.name.split('.').pop() ?? 'jpg'
+    const path = `admin/${user.id}/${Date.now()}.${ext}`
+    const { data, error } = await sb.storage.from('chat-images').upload(path, file, { contentType: file.type })
+    if (!error && data) {
+      const { data: { publicUrl } } = sb.storage.from('chat-images').getPublicUrl(data.path)
+      await sb.from('hw_messages').insert({ conversation_id: activeId, sender_id: user.id, content: `__img__:${publicUrl}` })
+      await sb.from('hw_conversations').update({ last_message_at: new Date().toISOString() }).eq('id', activeId)
+    }
+    if (fileRef.current) fileRef.current.value = ''
+    setUploading(false)
   }
 
   function handleKey(e: React.KeyboardEvent) {
@@ -217,16 +257,7 @@ export default function AdminChatPage() {
                     </div>
                   )}
                   <div className="max-w-[72%]">
-                    <div
-                      className={`px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed whitespace-pre-wrap break-words ${
-                        isAdmin
-                          ? 'text-white rounded-br-sm'
-                          : 'bg-[var(--card-bg)] border border-[var(--border)] rounded-bl-sm'
-                      }`}
-                      style={isAdmin ? { background: 'var(--hw-green)' } : {}}
-                    >
-                      {msg.content}
-                    </div>
+                    <MsgContent content={msg.content} isAdmin={isAdmin} />
                     <div className={`text-[10px] text-[var(--muted)] mt-0.5 ${isAdmin ? 'text-right' : 'text-left'}`}>
                       {timeLabel(msg.created_at)}
                     </div>
@@ -238,6 +269,16 @@ export default function AdminChatPage() {
           </div>
 
           <div className="flex items-end gap-2 px-4 py-3 border-t border-[var(--border)] bg-[var(--card-bg)] flex-shrink-0">
+            <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={uploadImage} />
+            <button
+              onClick={() => fileRef.current?.click()}
+              disabled={uploading}
+              className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 border border-[var(--border)] bg-[var(--background)] text-[var(--muted)] hover:text-[#1a8a6e] hover:border-[#1a8a6e] transition-colors disabled:opacity-40"
+            >
+              {uploading
+                ? <span className="w-4 h-4 border-2 border-[#1a8a6e] border-t-transparent rounded-full animate-spin" />
+                : <IconPhoto size={17} />}
+            </button>
             <textarea
               value={input}
               onChange={e => setInput(e.target.value)}
@@ -267,4 +308,3 @@ export default function AdminChatPage() {
     </div>
   )
 }
-
