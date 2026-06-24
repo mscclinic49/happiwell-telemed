@@ -127,7 +127,7 @@ function UserAvatar({ name, size = 32 }: { name: string; size?: number }) {
   return (
     <div
       className="rounded-full flex items-center justify-center font-bold text-white flex-shrink-0"
-      style={{ width: size, height: size, background: '#1a8a6e', fontSize: size * 0.42 }}
+      style={{ width: size, height: size, background: 'var(--hw-green)', fontSize: size * 0.42 }}
     >
       {initial}
     </div>
@@ -149,9 +149,9 @@ function MenuItems({ onClose, onSignOut }: { onClose: () => void; onSignOut: () 
                 key={href}
                 href={href}
                 onClick={onClose}
-                className="flex items-center gap-2.5 px-2 py-2.5 rounded-[10px] text-sm hover:bg-[#e8f7f3] transition-colors"
+                className="flex items-center gap-2.5 px-2 py-2.5 rounded-[10px] text-sm hover:bg-[var(--hw-mint-bg)] transition-colors"
               >
-                <Icon size={16} className="text-[#1a8a6e] flex-shrink-0" />
+                <Icon size={16} className="text-[var(--hw-green)] flex-shrink-0" />
                 {label}
               </Link>
             ))}
@@ -190,7 +190,7 @@ function ProfileDropdown({ displayName, email, onSignOut }: {
     <div ref={ref} className="relative">
       <button
         onClick={() => setOpen(v => !v)}
-        className="flex items-center gap-2 w-full px-3 py-2 rounded-xl hover:bg-[#e8f7f3] transition-colors"
+        className="flex items-center gap-2 w-full px-3 py-2 rounded-xl hover:bg-[var(--hw-mint-bg)] transition-colors"
       >
         <UserAvatar name={displayName} size={32} />
         <div className="flex-1 min-w-0 text-left">
@@ -300,7 +300,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </div>
         <h2 className="text-lg font-bold mb-2">{'ยืนยันตัวตนก่อน'}</h2>
         <p className="text-sm text-[var(--muted)] mb-5">{'กรุณายืนยันตัวตนด้วยบัตรประชาชนก่อนพบแพทย์ ทีมงานจะตรวจสอบภายใน 1–2 วันทำการ'}</p>
-        <a href="/account/profile" className="inline-block px-6 py-3 rounded-full bg-[#1a8a6e] text-white text-sm font-semibold hover:opacity-90 transition-opacity">
+        <a href="/account/profile" className="inline-block px-6 py-3 rounded-full bg-[var(--hw-green)] text-white text-sm font-semibold hover:opacity-90 transition-opacity">
           {'ยืนยันตัวตนตอนนี้'}
         </a>
       </div>
@@ -373,7 +373,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             return (
               <Link key={href} href={href}
                 className={`flex-1 flex flex-col items-center gap-0.5 py-2.5 text-[10px] font-medium transition-colors ${
-                  active ? 'text-[#1a8a6e]' : 'text-[var(--muted)]'
+                  active ? 'text-[var(--hw-green)]' : 'text-[var(--muted)]'
                 }`}>
                 <div className="relative">
                   <Icon size={22} strokeWidth={active ? 2.2 : 1.6} />

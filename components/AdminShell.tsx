@@ -228,7 +228,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
   const bellJsx = (
     <div ref={bellRef} className="relative">
       <button onClick={() => setBellOpen(v => !v)}
-        className="relative p-2.5 rounded-[10px] text-[var(--muted)] hover:text-[var(--hw-green)] hover:bg-[#1a8a6e]/10 transition-colors flex items-center justify-center">
+        className="relative p-2.5 rounded-[10px] text-[var(--muted)] hover:text-[var(--hw-green)] hover:bg-[var(--hw-mint-bg)] transition-colors flex items-center justify-center">
         <IconBell size={24} />
         {pendingCount > 0 && (
           <span className="absolute top-1 right-1 w-5 h-5 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center animate-pulse">
@@ -256,7 +256,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
         return (
           <Link key={href} href={href} onClick={onClick}
             className={`flex items-center gap-3 px-4 py-3 rounded-[10px] text-sm font-medium transition-colors
-              ${active ? 'bg-[#1a8a6e]/15 text-[#1a8a6e]' : 'text-[var(--muted)] hover:bg-[#1a8a6e]/10 hover:text-[var(--foreground)]'}`}>
+              ${active ? 'bg-[var(--hw-mint-bg)] text-[var(--hw-green)]' : 'text-[var(--muted)] hover:bg-[var(--hw-mint-bg)] hover:text-[var(--foreground)]'}`}>
             <Icon size={19} />
             {label}
             {href === '/admin/patients' && pendingCount > 0 && (
