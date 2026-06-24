@@ -110,7 +110,7 @@ function usePending() {
         type: r.type,
         detail: r.detail ?? '—',
         createdAt: r.createdAt,
-        href: `/admin/patients/${r.user_id}`,
+        href: `/admin/patients/${r.user_id}?tab=${r.type}`,
       }))
 
     setAllNotifs(notifs)
@@ -149,7 +149,6 @@ function BellDropdown({
   count: number; notifs: Notif[]; onClose: () => void; onDismiss: (key: string) => void
 }) {
   const ref = useRef<HTMLDivElement>(null)
-  const router = useRouter()
 
   useEffect(() => {
     function handler(e: MouseEvent) {
@@ -158,12 +157,6 @@ function BellDropdown({
     document.addEventListener('mousedown', handler)
     return () => document.removeEventListener('mousedown', handler)
   }, [onClose])
-
-  function handleClick(n: Notif) {
-    onDismiss(n.key)
-    onClose()
-    router.push(n.href)
-  }
 
   return (
     <div ref={ref} className="absolute right-0 top-full mt-2 w-80 bg-[var(--card-bg)] border border-[var(--border)] rounded-[16px] shadow-xl z-50 overflow-hidden">
@@ -177,8 +170,9 @@ function BellDropdown({
         ) : notifs.map(n => {
           const Icon = NOTIF_ICON[n.type]
           return (
-            <button key={n.key} onClick={() => handleClick(n)}
-              className="w-full flex items-start gap-3 px-4 py-3 hover:bg-[var(--background)] transition-colors border-b border-[var(--border)] last:border-0 text-left">
+            <Link key={n.key} href={n.href}
+              onClick={() => { onDismiss(n.key); onClose() }}
+              className="flex items-start gap-3 px-4 py-3 hover:bg-[var(--background)] transition-colors border-b border-[var(--border)] last:border-0">
               <div className="w-7 h-7 rounded-full bg-orange-500/15 flex items-center justify-center flex-shrink-0 mt-0.5">
                 <Icon size={13} className="text-orange-500" />
               </div>
@@ -192,7 +186,7 @@ function BellDropdown({
                 </div>
               </div>
               <IconChevronRight size={13} className="text-[var(--muted)] mt-1 flex-shrink-0" />
-            </button>
+            </Link>
           )
         })}
       </div>

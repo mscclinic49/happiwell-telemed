@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState, useCallback } from 'react'
-import { useParams, useRouter } from 'next/navigation'
+import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import { createBrowserClient } from '@supabase/ssr'
 import {
   IconArrowLeft, IconShieldCheck, IconShieldOff,
@@ -43,11 +43,15 @@ const TABS = [
 ]
 const GENDER: Record<string, string> = { male: 'ชาย', female: 'หญิง', other: 'อื่น' }
 
+const VALID_TABS = new Set(['kyc', 'info', 'med', 'vaccine', 'lab', 'history'])
+
 export default function PatientDetailPage() {
   const { id } = useParams<{ id: string }>()
   const router = useRouter()
+  const searchParams = useSearchParams()
   const { user } = useAuth()
-  const [tab, setTab] = useState('kyc')
+  const initialTab = searchParams.get('tab') ?? 'kyc'
+  const [tab, setTab] = useState(VALID_TABS.has(initialTab) ? initialTab : 'kyc')
   const [patient, setPatient] = useState<Patient | null>(null)
   const [kyc, setKyc] = useState<KycRecord | null | undefined>(undefined)
   const [idCardUrl, setIdCardUrl] = useState<string | null>(null)
