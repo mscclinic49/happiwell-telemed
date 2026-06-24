@@ -6,24 +6,24 @@ import { IconStethoscope, IconChevronRight, IconClock } from '@tabler/icons-reac
 import type { Doctor, DoctorSchedule } from '@/lib/supabase'
 
 const SPECIALTY_COLORS: Record<string, { bg: string; text: string }> = {
-  'อายุรกรรม':           { bg: '#e8f7f3', text: '#1a8a6e' },
-  'กุมารเวชกรรม':        { bg: '#faeeda', text: '#b97320' },
-  'ผิวหนัง':             { bg: '#e6f1fb', text: '#185fa5' },
-  'จิตเวช':              { bg: '#f0ebff', text: '#6d28d9' },
-  'ออร์โธปีดิกส์':       { bg: '#fff0f0', text: '#b91c1c' },
-  'สูตินรีเวช':          { bg: '#fdf2f8', text: '#9d174d' },
-  'ตา':                  { bg: '#fef9ec', text: '#92400e' },
-  'หู คอ จมูก':          { bg: '#e8f7f3', text: '#065f46' },
-  'เวชกรรม':             { bg: '#e8f7f3', text: '#1a8a6e' },
-  'เวชปฏิบัติทั่วไป':    { bg: '#e6f1fb', text: '#185fa5' },
+  'อายุรกรรม':           { bg: 'var(--hw-mint-bg)',  text: 'var(--hw-green)' },
+  'กุมารเวชกรรม':        { bg: 'var(--hw-peach-bg)', text: 'var(--hw-orange)' },
+  'ผิวหนัง':             { bg: 'var(--hw-blue-bg)',  text: 'var(--hw-blue)' },
+  'จิตเวช':              { bg: 'var(--hw-blue-bg)',  text: 'var(--hw-blue)' },
+  'ออร์โธปีดิกส์':       { bg: 'var(--hw-red-bg)',   text: '#F87171' },
+  'สูตินรีเวช':          { bg: 'var(--hw-red-bg)',   text: '#F87171' },
+  'ตา':                  { bg: 'var(--hw-peach-bg)', text: 'var(--hw-orange)' },
+  'หู คอ จมูก':          { bg: 'var(--hw-mint-bg)',  text: 'var(--hw-green)' },
+  'เวชกรรม':             { bg: 'var(--hw-mint-bg)',  text: 'var(--hw-green)' },
+  'เวชปฏิบัติทั่วไป':    { bg: 'var(--hw-blue-bg)',  text: 'var(--hw-blue)' },
 }
 
 const DAY_SHORT = ['อา', 'จ', 'อ', 'พ', 'พฤ', 'ศ', 'ส']
 const DAY_ORDER = [1, 2, 3, 4, 5, 6, 0]
 
 function getSpecialtyColor(s: string | null) {
-  if (!s) return { bg: '#f1f5f9', text: '#475569' }
-  return SPECIALTY_COLORS[s] ?? { bg: '#e8f7f3', text: '#1a8a6e' }
+  if (!s) return { bg: 'var(--hw-mint-bg)', text: 'var(--hw-green)' }
+  return SPECIALTY_COLORS[s] ?? { bg: 'var(--hw-mint-bg)', text: 'var(--hw-green)' }
 }
 
 function ScheduleBadges({ schedules }: { schedules: DoctorSchedule[] }) {
@@ -45,7 +45,7 @@ function ScheduleBadges({ schedules }: { schedules: DoctorSchedule[] }) {
           <IconClock size={12} className="text-[var(--muted)] flex-shrink-0" />
           <div className="flex gap-1">
             {DAY_ORDER.filter(d => g.days.includes(d)).map(d => (
-              <span key={d} className="text-[10px] font-semibold px-1.5 py-0.5 rounded-md bg-[#e8f7f3] text-[#1a8a6e]">
+              <span key={d} className="text-[10px] font-semibold px-1.5 py-0.5 rounded-md bg-[var(--hw-mint-bg)] text-[var(--hw-green)]">
                 {DAY_SHORT[d]}
               </span>
             ))}
@@ -66,7 +66,7 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
       className="flex gap-0 rounded-[16px] bg-[var(--card-bg)] border border-[var(--border)] overflow-hidden hover:shadow-md hover:border-[#1a8a6e]/40 transition-all">
 
       {/* Photo */}
-      <div className="w-[110px] flex-shrink-0 relative bg-[#e8f7f3]">
+      <div className="w-[110px] flex-shrink-0 relative bg-[var(--hw-mint-bg)]">
         {doctor.avatar_url ? (
           <Image
             src={doctor.avatar_url}
@@ -76,7 +76,7 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
             sizes="110px"
           />
         ) : (
-          <div className="absolute inset-0 flex items-center justify-center text-[#1a8a6e] font-bold text-2xl">
+          <div className="absolute inset-0 flex items-center justify-center text-[var(--hw-green)] font-bold text-2xl">
             {initials}
           </div>
         )}
