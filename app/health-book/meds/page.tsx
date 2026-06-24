@@ -2,7 +2,8 @@
 import { useEffect, useState } from 'react'
 import { createBrowserClient } from '@supabase/ssr'
 import { useAuth } from '@/lib/auth-context'
-import { IconPlus, IconTrash, IconBell, IconBellOff, IconClock } from '@tabler/icons-react'
+import Link from 'next/link'
+import { IconArrowLeft, IconTrash, IconBell, IconBellOff, IconClock } from '@tabler/icons-react'
 
 const sb = createBrowserClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -34,12 +35,6 @@ export default function MedsPage() {
   const [medsPending, setMedsPending] = useState<Medication[]>([])
   const [vaccines, setVaccines] = useState<Vaccine[]>([])
   const [vacPending, setVacPending] = useState<Vaccine[]>([])
-  const [showForm, setShowForm] = useState(false)
-  const [saving, setSaving] = useState(false)
-
-  const [medForm, setMedForm] = useState({ name: '', dosage: '', frequency: '', times: '', prescribed_by: '', hospital: '', reminder_enabled: false })
-  const [vacForm, setVacForm] = useState({ vaccine_name: '', dose_number: '1', vaccinated_date: new Date().toISOString().slice(0, 10), hospital: '', next_due_date: '' })
-
   useEffect(() => {
     if (!user) return
     Promise.all([
@@ -56,60 +51,24 @@ export default function MedsPage() {
     })
   }, [user])
 
-  async function saveMed() {
-    if (!medForm.name || !user) return
-    setSaving(true)
-    const { data } = await sb.from('hw_medications').insert({
-      user_id: user.id, name: medForm.name, dosage: medForm.dosage || null,
-      frequency: medForm.frequency || null,
-      times: medForm.times ? medForm.times.split(',').map(t => t.trim()) : null,
-      prescribed_by: medForm.prescribed_by || null, hospital: medForm.hospital || null,
-      note: null, reminder_enabled: medForm.reminder_enabled,
-      is_active: true, start_date: null, end_date: null,
-      status: 'pending', source: 'patient',
-    }).select('id,name,status').single()
-    if (data) setMedsPending(p => [data as Medication, ...p])
-    setMedForm({ name: '', dosage: '', frequency: '', times: '', prescribed_by: '', hospital: '', reminder_enabled: false })
-    setShowForm(false); setSaving(false)
-  }
-
-  async function saveVac() {
-    if (!vacForm.vaccine_name || !user) return
-    setSaving(true)
-    const { data } = await sb.from('hw_vaccines').insert({
-      user_id: user.id, vaccine_name: vacForm.vaccine_name,
-      dose_number: parseInt(vacForm.dose_number),
-      vaccinated_date: vacForm.vaccinated_date,
-      hospital: vacForm.hospital || null,
-      next_due_date: vacForm.next_due_date || null,
-      lot_number: null, note: null, status: 'pending', source: 'patient',
-    }).select('id,vaccine_name,status').single()
-    if (data) setVacPending(p => [data as Vaccine, ...p])
-    setVacForm({ vaccine_name: '', dose_number: '1', vaccinated_date: new Date().toISOString().slice(0, 10), hospital: '', next_due_date: '' })
-    setShowForm(false); setSaving(false)
-  }
-
   return (
     <div className="max-w-lg mx-auto px-5 py-6 pb-10">
 
       {/* Header */}
-      <div className="flex items-start justify-between mb-5">
+      <div className="flex items-center gap-3 mb-5">
+        <Link href="/health-book" className="p-2 rounded-full hover:bg-[var(--border)] transition-colors flex-shrink-0">
+          <IconArrowLeft size={20}/>
+        </Link>
         <div>
           <p className="text-sm text-[var(--muted)]">{'สมุดสุขภาพ'}</p>
-          <h1 className="text-xl font-bold">{'ยาและวัคซีน'}</h1>
+          <h1 className="text-xl font-bold">{'ประวัติยาและวัคซีน'}</h1>
         </div>
-        <button onClick={() => setShowForm(v => !v)}
-          className="flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold text-white flex-shrink-0"
-          style={{ background: 'var(--hw-orange)' }}>
-          <IconPlus size={15}/>
-          {tab === 'meds' ? 'เพิ่มยา' : 'เพิ่มวัคซีน'}
-        </button>
       </div>
 
       {/* Tabs */}
       <div className="flex gap-2 mb-5">
         {([['meds', 'ยา'], ['vaccines', 'วัคซีน']] as [Tab, string][]).map(([k, l]) => (
-          <button key={k} onClick={() => { setTab(k); setShowForm(false) }}
+          <button key={k} onClick={() => setTab(k)}
             className={'px-4 py-2 rounded-full text-sm font-medium border transition-colors ' +
               (tab === k
                 ? 'bg-[var(--hw-green)] text-white border-transparent'
@@ -120,44 +79,6 @@ export default function MedsPage() {
       </div>
 
       <div className="space-y-4">
-
-        {/* Med form */}
-        {showForm && tab === 'meds' && (
-          <div className="bg-[var(--card-bg)] border border-[var(--border)] rounded-[14px] p-4 mb-4 space-y-4">
-            <p className="text-xs text-[var(--hw-orange)]">{'⏳ รอการยืนยันจากคลินิกก่อนแสดงผล'}</p>
-            <div><label className={labelClass}>{'ชื่อยา *'}</label><input value={medForm.name} onChange={e => setMedForm({...medForm, name: e.target.value})} placeholder="เช่น Metformin" className={inputClass}/></div>
-            <div><label className={labelClass}>{'ขนาดยา'}</label><input value={medForm.dosage} onChange={e => setMedForm({...medForm, dosage: e.target.value})} placeholder="เช่น 500mg" className={inputClass}/></div>
-            <div><label className={labelClass}>{'ความถี่'}</label><input value={medForm.frequency} onChange={e => setMedForm({...medForm, frequency: e.target.value})} placeholder="เช่น วันละ 2 ครั้ง" className={inputClass}/></div>
-            <div><label className={labelClass}>{'เวลากินยา'}</label><input value={medForm.times} onChange={e => setMedForm({...medForm, times: e.target.value})} placeholder="เช่น 08:00, 20:00" className={inputClass}/></div>
-            <div><label className={labelClass}>{'แพทย์ผู้สั่งยา'}</label><input value={medForm.prescribed_by} onChange={e => setMedForm({...medForm, prescribed_by: e.target.value})} placeholder="เช่น นพ.สมชาย" className={inputClass}/></div>
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input type="checkbox" checked={medForm.reminder_enabled} onChange={e => setMedForm({...medForm, reminder_enabled: e.target.checked})} className="w-4 h-4 accent-[var(--hw-green)]"/>
-              <span className="text-sm text-[var(--muted)]">{'เปิดแจ้งเตือน'}</span>
-            </label>
-            <div className="flex gap-3">
-              <button onClick={() => setShowForm(false)} className="flex-1 border border-[var(--border)] rounded-full py-2.5 text-sm text-[var(--muted)]">{'ยกเลิก'}</button>
-              <button onClick={saveMed} disabled={saving} className="flex-1 text-white rounded-full py-2.5 text-sm font-semibold disabled:opacity-50" style={{ background: 'var(--hw-orange)' }}>
-                {saving ? 'กำลังบันทึก...' : 'ส่งเพื่อยืนยัน'}</button>
-            </div>
-          </div>
-        )}
-
-        {/* Vaccine form */}
-        {showForm && tab === 'vaccines' && (
-          <div className="bg-[var(--card-bg)] border border-[var(--border)] rounded-[14px] p-4 mb-4 space-y-4">
-            <p className="text-xs text-[var(--hw-green)]">{'⏳ รอการยืนยันจากคลินิกก่อนแสดงผล'}</p>
-            <div><label className={labelClass}>{'ชื่อวัคซีน *'}</label><input value={vacForm.vaccine_name} onChange={e => setVacForm({...vacForm, vaccine_name: e.target.value})} placeholder="เช่น COVID-19" className={inputClass}/></div>
-            <div><label className={labelClass}>{'เข็มที่'}</label><input type="number" value={vacForm.dose_number} onChange={e => setVacForm({...vacForm, dose_number: e.target.value})} className={inputClass}/></div>
-            <div><label className={labelClass}>{'วันที่ฉีด *'}</label><input type="date" value={vacForm.vaccinated_date} onChange={e => setVacForm({...vacForm, vaccinated_date: e.target.value})} className={inputClass}/></div>
-            <div><label className={labelClass}>{'สถานที่ฉีด'}</label><input value={vacForm.hospital} onChange={e => setVacForm({...vacForm, hospital: e.target.value})} placeholder="เช่น HappiWell Clinic" className={inputClass}/></div>
-            <div><label className={labelClass}>{'กำหนดฉีดครั้งถัดไป'}</label><input type="date" value={vacForm.next_due_date} onChange={e => setVacForm({...vacForm, next_due_date: e.target.value})} className={inputClass}/></div>
-            <div className="flex gap-3">
-              <button onClick={() => setShowForm(false)} className="flex-1 border border-[var(--border)] rounded-full py-2.5 text-sm text-[var(--muted)]">{'ยกเลิก'}</button>
-              <button onClick={saveVac} disabled={saving} className="flex-1 text-white rounded-full py-2.5 text-sm font-semibold disabled:opacity-50" style={{ background: 'var(--hw-green)' }}>
-                {saving ? 'กำลังบันทึก...' : 'ส่งเพื่อยืนยัน'}</button>
-            </div>
-          </div>
-        )}
 
         {loading ? (
           <div className="flex items-center justify-center py-16">

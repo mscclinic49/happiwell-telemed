@@ -2,8 +2,9 @@
 import { useEffect, useState, useMemo } from 'react'
 import { createBrowserClient } from '@supabase/ssr'
 import { useAuth } from '@/lib/auth-context'
+import Link from 'next/link'
 import {
-  IconPlus, IconClock, IconTrendingUp, IconTrendingDown, IconMinus,
+  IconArrowLeft, IconClock, IconTrendingUp, IconTrendingDown, IconMinus,
   IconChevronDown, IconChevronUp, IconInfoCircle,
 } from '@tabler/icons-react'
 import { LineChart, Line, XAxis, YAxis, Tooltip, ReferenceLine, ResponsiveContainer, CartesianGrid } from 'recharts'
@@ -62,17 +63,9 @@ export default function LabResultsPage() {
   const [records, setRecords] = useState<LabResult[]>([])
   const [pending, setPending] = useState<LabResult[]>([])
   const [loading, setLoading] = useState(true)
-  const [showForm, setShowForm] = useState(false)
-  const [saving, setSaving] = useState(false)
   const [selectedChart, setSelectedChart] = useState<string | null>(null)
   const [expandedDates, setExpandedDates] = useState<Record<string, boolean>>({})
   const [expandedInfo, setExpandedInfo] = useState<string | null>(null)
-  const [form, setForm] = useState({
-    test_date: new Date().toISOString().slice(0, 10),
-    hospital: '', test_name: '', value: '', unit: '', ref_min: '', ref_max: '',
-    status: 'normal' as 'normal' | 'warning' | 'critical',
-  })
-
   useEffect(() => {
     if (!user) return
     Promise.all([
@@ -89,22 +82,6 @@ export default function LabResultsPage() {
       setLoading(false)
     })
   }, [user])
-
-  async function handleSave() {
-    if (!form.test_name || !user) return
-    setSaving(true)
-    const { data } = await sb.from('hw_lab_results').insert({
-      user_id: user.id, test_date: form.test_date, hospital: form.hospital || null,
-      test_name: form.test_name, value: form.value ? parseFloat(form.value) : null,
-      unit: form.unit || null,
-      ref_min: form.ref_min ? parseFloat(form.ref_min) : null,
-      ref_max: form.ref_max ? parseFloat(form.ref_max) : null,
-      status: form.status, note: null, approval_status: 'pending', source: 'patient',
-    }).select('id,test_name,test_date').single()
-    if (data) setPending(p => [data as LabResult, ...p])
-    setForm({ test_date: new Date().toISOString().slice(0, 10), hospital: '', test_name: '', value: '', unit: '', ref_min: '', ref_max: '', status: 'normal' })
-    setShowForm(false); setSaving(false)
-  }
 
   const grouped = useMemo(() =>
     records.reduce((acc: Record<string, LabResult[]>, rec) => {
@@ -156,39 +133,17 @@ export default function LabResultsPage() {
     <div className="max-w-lg mx-auto px-5 py-6 pb-10">
 
       {/* Header */}
-      <div className="flex items-start justify-between mb-5">
+      <div className="flex items-center gap-3 mb-5">
+        <Link href="/health-book" className="p-2 rounded-full hover:bg-[var(--border)] transition-colors flex-shrink-0">
+          <IconArrowLeft size={20}/>
+        </Link>
         <div>
           <p className="text-sm text-[var(--muted)]">{'สมุดสุขภาพ'}</p>
-          <h1 className="text-xl font-bold">{'ผลตรวจเลือด'}</h1>
+          <h1 className="text-xl font-bold">{'ประวัติผลตรวจ'}</h1>
         </div>
-        <button onClick={() => setShowForm(!showForm)}
-          className="flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold text-white flex-shrink-0"
-          style={{ background: 'var(--hw-green)' }}>
-          <IconPlus size={15}/>{'เพิ่มผลตรวจ'}
-        </button>
       </div>
 
       <div className="space-y-4">
-
-        {showForm && (
-          <div className="bg-[var(--card-bg)] border border-[var(--border)] rounded-[14px] p-4 space-y-4">
-            <p className="text-xs text-[var(--hw-green)]">{'⏳ รอการยืนยันจากคลินิกก่อนแสดงผล'}</p>
-            <div><label className={labelClass}>{'วันที่ตรวจ *'}</label><input type="date" value={form.test_date} onChange={e => setForm({...form, test_date: e.target.value})} className={inputClass}/></div>
-            <div><label className={labelClass}>{'สถานที่ตรวจ'}</label><input value={form.hospital} onChange={e => setForm({...form, hospital: e.target.value})} placeholder="เช่น HappiWell Clinic" className={inputClass}/></div>
-            <div><label className={labelClass}>{'รายการตรวจ *'}</label><input value={form.test_name} onChange={e => setForm({...form, test_name: e.target.value})} placeholder="เช่น FBS, HbA1c" className={inputClass}/></div>
-            <div><label className={labelClass}>{'ค่าที่ได้'}</label><input type="number" value={form.value} onChange={e => setForm({...form, value: e.target.value})} className={inputClass}/></div>
-            <div><label className={labelClass}>{'หน่วย'}</label><input value={form.unit} onChange={e => setForm({...form, unit: e.target.value})} placeholder="เช่น mg/dL" className={inputClass}/></div>
-            <div><label className={labelClass}>{'ผลการตรวจ'}</label>
-              <select value={form.status} onChange={e => setForm({...form, status: e.target.value as 'normal' | 'warning' | 'critical'})} className={inputClass}>
-                <option value="normal">{'ปกติ'}</option><option value="warning">{'ระวัง'}</option><option value="critical">{'ผิดปกติ'}</option>
-              </select></div>
-            <div className="flex gap-3">
-              <button onClick={() => setShowForm(false)} className="flex-1 border border-[var(--border)] rounded-full py-2.5 text-sm text-[var(--muted)]">{'ยกเลิก'}</button>
-              <button onClick={handleSave} disabled={saving} className="flex-1 text-white rounded-full py-2.5 text-sm font-semibold disabled:opacity-50" style={{ background: 'var(--hw-green)' }}>
-                {saving ? 'กำลังบันทึก...' : 'ส่งเพื่อยืนยัน'}</button>
-            </div>
-          </div>
-        )}
 
         {pending.length > 0 && (
           <div className="bg-[var(--hw-yellow-bg)] border border-yellow-200 rounded-[14px] p-4">

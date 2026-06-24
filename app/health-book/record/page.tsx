@@ -2,8 +2,9 @@
 import { useEffect, useState, useMemo } from 'react'
 import { createBrowserClient } from '@supabase/ssr'
 import { useAuth } from '@/lib/auth-context'
+import Link from 'next/link'
 import {
-  IconPlus, IconTrash, IconChevronDown, IconChevronUp,
+  IconArrowLeft, IconTrash, IconChevronDown, IconChevronUp,
   IconTrendingUp, IconTrendingDown, IconMinus,
 } from '@tabler/icons-react'
 import { LineChart, Line, XAxis, YAxis, Tooltip, ReferenceLine, ResponsiveContainer, CartesianGrid } from 'recharts'
@@ -53,16 +54,7 @@ export default function RecordPage() {
   const [dtxRecords, setDtxRecords] = useState<Dtx[]>([])
   const [bpRecords, setBpRecords] = useState<Bp[]>([])
   const [histRecords, setHistRecords] = useState<Hist[]>([])
-  const [showForm, setShowForm] = useState(false)
-  const [saving, setSaving] = useState(false)
   const [expandedId, setExpandedId] = useState<string | null>(null)
-
-  const now16 = () => new Date().toISOString().slice(0, 16)
-  const today = () => new Date().toISOString().slice(0, 10)
-
-  const [dtxForm, setDtxForm] = useState({ value: '', mealStatus: 'fasting', measuredAt: now16(), note: '' })
-  const [bpForm, setBpForm] = useState({ systolic: '', diastolic: '', pulse: '', measuredAt: now16() })
-  const [histForm, setHistForm] = useState({ visit_date: today(), hospital: '', doctor: '', chief_complaint: '', diagnosis: '', treatment: '', follow_up_date: '' })
 
   useEffect(() => {
     if (!user) return
@@ -93,50 +85,6 @@ export default function RecordPage() {
   const dtxTrend = dtxRecords.length >= 2 ? getTrend(dtxRecords[0].value, dtxRecords[1].value) : null
   const bpTrend  = bpRecords.length >= 2  ? getTrend(bpRecords[0].systolic, bpRecords[1].systolic) : null
 
-  async function saveDtx() {
-    if (!dtxForm.value || !user) return
-    setSaving(true)
-    const { data } = await sb.from('hw_dtx_records').insert({
-      user_id: user.id, value: parseFloat(dtxForm.value),
-      meal_status: dtxForm.mealStatus, measured_at: dtxForm.measuredAt,
-      note: dtxForm.note || null,
-    }).select('id,value,meal_status,measured_at,note').single()
-    if (data) setDtxRecords(p => [data as Dtx, ...p])
-    setDtxForm({ value: '', mealStatus: 'fasting', measuredAt: now16(), note: '' })
-    setShowForm(false); setSaving(false)
-  }
-
-  async function saveBp() {
-    if (!bpForm.systolic || !bpForm.diastolic || !user) return
-    setSaving(true)
-    const { data } = await sb.from('hw_bp_records').insert({
-      user_id: user.id, systolic: parseInt(bpForm.systolic),
-      diastolic: parseInt(bpForm.diastolic),
-      pulse: bpForm.pulse ? parseInt(bpForm.pulse) : null,
-      measured_at: bpForm.measuredAt,
-    }).select('id,systolic,diastolic,pulse,measured_at').single()
-    if (data) setBpRecords(p => [data as Bp, ...p])
-    setBpForm({ systolic: '', diastolic: '', pulse: '', measuredAt: now16() })
-    setShowForm(false); setSaving(false)
-  }
-
-  async function saveHist() {
-    if (!histForm.hospital || !user) return
-    setSaving(true)
-    const { data } = await sb.from('hw_medical_history').insert({
-      user_id: user.id, visit_date: histForm.visit_date,
-      hospital: histForm.hospital, doctor: histForm.doctor || null,
-      chief_complaint: histForm.chief_complaint || null,
-      diagnosis: histForm.diagnosis || null,
-      treatment: histForm.treatment || null,
-      follow_up_date: histForm.follow_up_date || null,
-      note: null, status: 'pending', source: 'patient',
-    }).select('id,hospital,visit_date,doctor,chief_complaint,diagnosis,treatment,follow_up_date,status').single()
-    if (data) setHistRecords(p => [data as Hist, ...p])
-    setHistForm({ visit_date: today(), hospital: '', doctor: '', chief_complaint: '', diagnosis: '', treatment: '', follow_up_date: '' })
-    setShowForm(false); setSaving(false)
-  }
-
   const TAB_COLOR: Record<Tab, string> = {
     dtx: 'var(--hw-orange)', bp: 'var(--hw-blue)', history: '#7c3aed',
   }
@@ -145,23 +93,20 @@ export default function RecordPage() {
     <div className="max-w-lg mx-auto px-5 py-6 pb-10">
 
       {/* Header */}
-      <div className="flex items-start justify-between mb-5">
+      <div className="flex items-center gap-3 mb-5">
+        <Link href="/health-book" className="p-2 rounded-full hover:bg-[var(--border)] transition-colors flex-shrink-0">
+          <IconArrowLeft size={20}/>
+        </Link>
         <div>
           <p className="text-sm text-[var(--muted)]">{'สมุดสุขภาพ'}</p>
-          <h1 className="text-xl font-bold">{'บันทึกสุขภาพ'}</h1>
+          <h1 className="text-xl font-bold">{'ประวัติค่าสุขภาพ'}</h1>
         </div>
-        <button onClick={() => setShowForm(v => !v)}
-          className="flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold text-white flex-shrink-0"
-          style={{ background: TAB_COLOR[tab] }}>
-          <IconPlus size={15}/>
-          {tab === 'dtx' ? 'น้ำตาล' : tab === 'bp' ? 'ความดัน' : 'ประวัติ'}
-        </button>
       </div>
 
       {/* Tabs */}
       <div className="flex gap-2 mb-5">
         {([['dtx', 'น้ำตาล'], ['bp', 'ความดัน'], ['history', 'ประวัติการรักษา']] as [Tab, string][]).map(([k, l]) => (
-          <button key={k} onClick={() => { setTab(k); setShowForm(false) }}
+          <button key={k} onClick={() => setTab(k)}
             className={'px-4 py-2 rounded-full text-sm font-medium border transition-colors ' +
               (tab === k
                 ? 'text-white border-transparent'
@@ -173,70 +118,6 @@ export default function RecordPage() {
       </div>
 
       <div className="space-y-4">
-
-        {/* DTX Form */}
-        {showForm && tab === 'dtx' && (
-          <div className="bg-[var(--card-bg)] border border-[var(--border)] rounded-[14px] p-4 mb-4 space-y-4">
-            <div><label className={labelClass}>{'ค่าน้ำตาล (mg/dL) *'}</label>
-              <input type="number" value={dtxForm.value} onChange={e => setDtxForm({...dtxForm, value: e.target.value})} placeholder="เช่น 95" className={inputClass}/></div>
-            <div><label className={labelClass}>{'ช่วงเวลา'}</label>
-              <select value={dtxForm.mealStatus} onChange={e => setDtxForm({...dtxForm, mealStatus: e.target.value})} className={inputClass}>
-                {Object.entries(MEAL_STATUS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
-              </select></div>
-            <div><label className={labelClass}>{'วันและเวลา'}</label>
-              <input type="datetime-local" value={dtxForm.measuredAt} onChange={e => setDtxForm({...dtxForm, measuredAt: e.target.value})} className={inputClass}/></div>
-            <div><label className={labelClass}>{'หมายเหตุ'}</label>
-              <input value={dtxForm.note} onChange={e => setDtxForm({...dtxForm, note: e.target.value})} placeholder="เช่น หลังออกกำลังกาย" className={inputClass}/></div>
-            <div className="flex gap-3">
-              <button onClick={() => setShowForm(false)} className="flex-1 border border-[var(--border)] rounded-full py-2.5 text-sm text-[var(--muted)]">{'ยกเลิก'}</button>
-              <button onClick={saveDtx} disabled={saving} className="flex-1 text-white rounded-full py-2.5 text-sm font-semibold disabled:opacity-50" style={{ background: TAB_COLOR.dtx }}>
-                {saving ? 'กำลังบันทึก...' : 'บันทึก'}</button>
-            </div>
-          </div>
-        )}
-
-        {/* BP Form */}
-        {showForm && tab === 'bp' && (
-          <div className="bg-[var(--card-bg)] border border-[var(--border)] rounded-[14px] p-4 mb-4 space-y-4">
-            <div><label className={labelClass}>{'ค่าบน (mmHg) *'}</label>
-              <input type="number" value={bpForm.systolic} onChange={e => setBpForm({...bpForm, systolic: e.target.value})} placeholder="เช่น 120" className={inputClass}/></div>
-            <div><label className={labelClass}>{'ค่าล่าง (mmHg) *'}</label>
-              <input type="number" value={bpForm.diastolic} onChange={e => setBpForm({...bpForm, diastolic: e.target.value})} placeholder="เช่น 80" className={inputClass}/></div>
-            <div><label className={labelClass}>{'ชีพจร (bpm)'}</label>
-              <input type="number" value={bpForm.pulse} onChange={e => setBpForm({...bpForm, pulse: e.target.value})} placeholder="เช่น 72" className={inputClass}/></div>
-            <div><label className={labelClass}>{'วันและเวลา'}</label>
-              <input type="datetime-local" value={bpForm.measuredAt} onChange={e => setBpForm({...bpForm, measuredAt: e.target.value})} className={inputClass}/></div>
-            <div className="flex gap-3">
-              <button onClick={() => setShowForm(false)} className="flex-1 border border-[var(--border)] rounded-full py-2.5 text-sm text-[var(--muted)]">{'ยกเลิก'}</button>
-              <button onClick={saveBp} disabled={saving} className="flex-1 text-white rounded-full py-2.5 text-sm font-semibold disabled:opacity-50" style={{ background: TAB_COLOR.bp }}>
-                {saving ? 'กำลังบันทึก...' : 'บันทึก'}</button>
-            </div>
-          </div>
-        )}
-
-        {/* History Form */}
-        {showForm && tab === 'history' && (
-          <div className="bg-[var(--card-bg)] border border-[var(--border)] rounded-[14px] p-4 mb-4 space-y-4">
-            <p className="text-xs text-purple-600">{'⏳ รอการยืนยันจากคลินิกก่อนแสดงผล'}</p>
-            <div><label className={labelClass}>{'วันที่พบแพทย์ *'}</label>
-              <input type="date" value={histForm.visit_date} onChange={e => setHistForm({...histForm, visit_date: e.target.value})} className={inputClass}/></div>
-            <div><label className={labelClass}>{'โรงพยาบาล/คลินิก *'}</label>
-              <input value={histForm.hospital} onChange={e => setHistForm({...histForm, hospital: e.target.value})} placeholder="เช่น HappiWell Clinic" className={inputClass}/></div>
-            <div><label className={labelClass}>{'แพทย์ผู้รักษา'}</label>
-              <input value={histForm.doctor} onChange={e => setHistForm({...histForm, doctor: e.target.value})} placeholder="เช่น นพ.สมชาย" className={inputClass}/></div>
-            <div><label className={labelClass}>{'อาการที่มา'}</label>
-              <input value={histForm.chief_complaint} onChange={e => setHistForm({...histForm, chief_complaint: e.target.value})} placeholder="เช่น ปวดหัว มีไข้" className={inputClass}/></div>
-            <div><label className={labelClass}>{'การวินิจฉัย'}</label>
-              <input value={histForm.diagnosis} onChange={e => setHistForm({...histForm, diagnosis: e.target.value})} className={inputClass}/></div>
-            <div><label className={labelClass}>{'การรักษา'}</label>
-              <textarea value={histForm.treatment} onChange={e => setHistForm({...histForm, treatment: e.target.value})} rows={3} className={inputClass + ' resize-none'}/></div>
-            <div className="flex gap-3">
-              <button onClick={() => setShowForm(false)} className="flex-1 border border-[var(--border)] rounded-full py-2.5 text-sm text-[var(--muted)]">{'ยกเลิก'}</button>
-              <button onClick={saveHist} disabled={saving} className="flex-1 text-white rounded-full py-2.5 text-sm font-semibold disabled:opacity-50" style={{ background: TAB_COLOR.history }}>
-                {saving ? 'กำลังบันทึก...' : 'ส่งเพื่อยืนยัน'}</button>
-            </div>
-          </div>
-        )}
 
         {loading ? (
           <div className="flex items-center justify-center py-16">
