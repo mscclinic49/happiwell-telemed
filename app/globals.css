@@ -18,10 +18,10 @@
   --hw-radius-xs: 6px;
 
   --background:   #f4f7f6;
-  --foreground:   #0f172a;
+  --foreground:   #0a0a0a;
   --card-bg:      #ffffff;
   --border:       #e2e8f0;
-  --muted:        #64748b;
+  --muted:        #4a5568;
 }
 
 @theme inline {
@@ -32,10 +32,10 @@
 @media (prefers-color-scheme: dark) {
   :root {
     --background:  #0d1f1a;
-    --foreground:  #f5fdf9;
+    --foreground:  #e8f5f1;
     --card-bg:     #132920;
     --border:      #1e3d33;
-    --muted:       #b0c8c2;
+    --muted:       #94a3b8;
   }
 }
 
