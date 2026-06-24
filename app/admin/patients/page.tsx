@@ -35,7 +35,7 @@ export default function AdminPatientsPage() {
     if (!user) return
     sb.from('hw_users')
       .select('id, full_name, first_name, last_name, phone, date_of_birth, gender, created_at, identity_verified')
-      .not('role', 'in', '("admin","superadmin")')
+      .eq('role', 'patient')
       .order('created_at', { ascending: false })
       .then(({ data }) => {
         setPatients((data as Patient[]) ?? [])

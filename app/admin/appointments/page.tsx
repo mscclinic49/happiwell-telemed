@@ -44,7 +44,7 @@ export default function AdminAppointmentsPage() {
   useEffect(() => {
     if (!user) return
     Promise.all([
-      sb.from('hw_users').select('id, full_name, first_name, last_name, phone').order('first_name'),
+      sb.from('hw_users').select('id, full_name, first_name, last_name, phone').eq('role', 'patient').order('first_name'),
       sb.from('hw_doctors').select('id, full_name, specialty').eq('is_active', true).order('full_name'),
       sb.from('hw_appointments')
         .select('id, scheduled_at, status, symptoms, hw_users(full_name, first_name), hw_doctors(full_name, specialty)')

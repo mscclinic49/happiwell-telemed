@@ -52,7 +52,7 @@ export default function AdminDashboard() {
       sb.from('hw_appointments').select('id', { count: 'exact', head: true })
         .gte('scheduled_at', todayStart.toISOString()).lte('scheduled_at', todayEnd.toISOString()),
       sb.from('hw_appointments').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
-      sb.from('hw_users').select('id', { count: 'exact', head: true }),
+      sb.from('hw_users').select('id', { count: 'exact', head: true }).eq('role', 'patient'),
       // pending health items
       sb.from('hw_medications').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
       sb.from('hw_vaccines').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
