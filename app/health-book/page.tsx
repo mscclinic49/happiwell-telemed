@@ -2,8 +2,8 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { createBrowserClient } from '@supabase/ssr'
 import { useAuth } from '@/lib/auth-context'
-import { supabase } from '@/lib/supabase'
 import {
   IconPlus, IconTrash, IconChevronRight, IconClock,
   IconTrendingUp, IconTrendingDown, IconMinus, IconBell, IconBellOff,
@@ -73,6 +73,11 @@ function EmptyCard({ emoji, text }: { emoji: string; text: string }) {
   )
 }
 
+const sb = createBrowserClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+)
+
 export default function HealthBookDashboard() {
   const { user, loading: authLoading } = useAuth()
   const router = useRouter()
@@ -105,15 +110,15 @@ export default function HealthBookDashboard() {
     ;(async () => {
       const uid = user.id
       const [d, b, m, mp, v, vp, l, lp, vis] = await Promise.all([
-        supabase.from('hw_dtx_records').select('id,value,meal_status,measured_at').eq('user_id', uid).order('measured_at', { ascending: false }).limit(2),
-        supabase.from('hw_bp_records').select('id,systolic,diastolic,pulse,measured_at').eq('user_id', uid).order('measured_at', { ascending: false }).limit(2),
-        supabase.from('hw_medications').select('id,name,dosage,frequency,times,reminder_enabled,source').eq('user_id', uid).eq('is_active', true).eq('status', 'approved'),
-        supabase.from('hw_medications').select('id').eq('user_id', uid).eq('status', 'pending'),
-        supabase.from('hw_vaccines').select('id,vaccine_name,dose_number,vaccinated_date,hospital,next_due_date').eq('user_id', uid).eq('status', 'approved').order('vaccinated_date', { ascending: false }).limit(5),
-        supabase.from('hw_vaccines').select('id').eq('user_id', uid).eq('status', 'pending'),
-        supabase.from('hw_lab_results').select('id,test_name,value,unit,status,test_date').eq('user_id', uid).eq('approval_status', 'approved').order('test_date', { ascending: false }).limit(20),
-        supabase.from('hw_lab_results').select('id').eq('user_id', uid).eq('approval_status', 'pending'),
-        supabase.from('hw_medical_history').select('id,hospital,visit_date,doctor,chief_complaint,diagnosis,status').eq('user_id', uid).order('visit_date', { ascending: false }).limit(3),
+        sb.from('hw_dtx_records').select('id,value,meal_status,measured_at').eq('user_id', uid).order('measured_at', { ascending: false }).limit(2),
+        sb.from('hw_bp_records').select('id,systolic,diastolic,pulse,measured_at').eq('user_id', uid).order('measured_at', { ascending: false }).limit(2),
+        sb.from('hw_medications').select('id,name,dosage,frequency,times,reminder_enabled,source').eq('user_id', uid).eq('is_active', true).eq('status', 'approved'),
+        sb.from('hw_medications').select('id').eq('user_id', uid).eq('status', 'pending'),
+        sb.from('hw_vaccines').select('id,vaccine_name,dose_number,vaccinated_date,hospital,next_due_date').eq('user_id', uid).eq('status', 'approved').order('vaccinated_date', { ascending: false }).limit(5),
+        sb.from('hw_vaccines').select('id').eq('user_id', uid).eq('status', 'pending'),
+        sb.from('hw_lab_results').select('id,test_name,value,unit,status,test_date').eq('user_id', uid).eq('approval_status', 'approved').order('test_date', { ascending: false }).limit(20),
+        sb.from('hw_lab_results').select('id').eq('user_id', uid).eq('approval_status', 'pending'),
+        sb.from('hw_medical_history').select('id,hospital,visit_date,doctor,chief_complaint,diagnosis,status').eq('user_id', uid).order('visit_date', { ascending: false }).limit(3),
       ])
       setDtxList((d.data ?? []) as Dtx[])
       setBpList((b.data ?? []) as Bp[])
@@ -133,37 +138,37 @@ export default function HealthBookDashboard() {
 
   async function sdtx() {
     if (!dtxF.value || !user) return; setSaving(true)
-    const { data } = await supabase.from('hw_dtx_records').insert({ user_id: user.id, value: parseFloat(dtxF.value), meal_status: dtxF.meal, measured_at: dtxF.at }).select('id,value,meal_status,measured_at').single()
+    const { data } = await sb.from('hw_dtx_records').insert({ user_id: user.id, value: parseFloat(dtxF.value), meal_status: dtxF.meal, measured_at: dtxF.at }).select('id,value,meal_status,measured_at').single()
     if (data) setDtxList(p => [data as Dtx, ...p].slice(0, 2))
     setDtxF({ value: '', meal: 'fasting', at: now16() }); setAForm(null); setSaving(false)
   }
   async function sbp() {
     if (!bpF.sys || !bpF.dia || !user) return; setSaving(true)
-    const { data } = await supabase.from('hw_bp_records').insert({ user_id: user.id, systolic: +bpF.sys, diastolic: +bpF.dia, pulse: bpF.pulse ? +bpF.pulse : null, measured_at: bpF.at }).select('id,systolic,diastolic,pulse,measured_at').single()
+    const { data } = await sb.from('hw_bp_records').insert({ user_id: user.id, systolic: +bpF.sys, diastolic: +bpF.dia, pulse: bpF.pulse ? +bpF.pulse : null, measured_at: bpF.at }).select('id,systolic,diastolic,pulse,measured_at').single()
     if (data) setBpList(p => [data as Bp, ...p].slice(0, 2))
     setBpF({ sys: '', dia: '', pulse: '', at: now16() }); setAForm(null); setSaving(false)
   }
   async function smed() {
     if (!medF.name || !user) return; setSaving(true)
-    await supabase.from('hw_medications').insert({ user_id: user.id, name: medF.name, dosage: medF.dosage || null, frequency: medF.freq || null, reminder_enabled: medF.reminder, is_active: true, status: 'pending', source: 'patient' })
+    await sb.from('hw_medications').insert({ user_id: user.id, name: medF.name, dosage: medF.dosage || null, frequency: medF.freq || null, reminder_enabled: medF.reminder, is_active: true, status: 'pending', source: 'patient' })
     setMedPend(p => [...p, { id: Date.now().toString() }])
     setMedF({ name: '', dosage: '', freq: '', reminder: false }); setAForm(null); setSaving(false)
   }
   async function svac() {
     if (!vacF.name || !user) return; setSaving(true)
-    await supabase.from('hw_vaccines').insert({ user_id: user.id, vaccine_name: vacF.name, dose_number: +vacF.dose, vaccinated_date: vacF.date, hospital: vacF.hospital || null, next_due_date: vacF.next || null, status: 'pending', source: 'patient' })
+    await sb.from('hw_vaccines').insert({ user_id: user.id, vaccine_name: vacF.name, dose_number: +vacF.dose, vaccinated_date: vacF.date, hospital: vacF.hospital || null, next_due_date: vacF.next || null, status: 'pending', source: 'patient' })
     setVacPend(p => [...p, { id: Date.now().toString() }])
     setVacF({ name: '', dose: '1', date: today0(), hospital: '', next: '' }); setAForm(null); setSaving(false)
   }
   async function slab() {
     if (!labF.test || !user) return; setSaving(true)
-    await supabase.from('hw_lab_results').insert({ user_id: user.id, test_date: labF.date, hospital: labF.hospital || null, test_name: labF.test, value: labF.value ? +labF.value : null, unit: labF.unit || null, status: labF.status, approval_status: 'pending', source: 'patient' })
+    await sb.from('hw_lab_results').insert({ user_id: user.id, test_date: labF.date, hospital: labF.hospital || null, test_name: labF.test, value: labF.value ? +labF.value : null, unit: labF.unit || null, status: labF.status, approval_status: 'pending', source: 'patient' })
     setLabPend(c => c + 1)
     setLabF({ date: today0(), hospital: '', test: '', value: '', unit: '', status: 'normal' }); setAForm(null); setSaving(false)
   }
   async function svis() {
     if (!visF.hospital || !user) return; setSaving(true)
-    const { data } = await supabase.from('hw_medical_history').insert({ user_id: user.id, visit_date: visF.date, hospital: visF.hospital, doctor: visF.doctor || null, chief_complaint: visF.complaint || null, diagnosis: visF.diagnosis || null, treatment: visF.treatment || null, status: 'pending', source: 'patient' }).select('id,hospital,visit_date,doctor,chief_complaint,diagnosis,status').single()
+    const { data } = await sb.from('hw_medical_history').insert({ user_id: user.id, visit_date: visF.date, hospital: visF.hospital, doctor: visF.doctor || null, chief_complaint: visF.complaint || null, diagnosis: visF.diagnosis || null, treatment: visF.treatment || null, status: 'pending', source: 'patient' }).select('id,hospital,visit_date,doctor,chief_complaint,diagnosis,status').single()
     if (data) setVisitList(p => [data as Visit, ...p])
     setVisF({ date: today0(), hospital: '', doctor: '', complaint: '', diagnosis: '', treatment: '' }); setAForm(null); setSaving(false)
   }
@@ -278,7 +283,7 @@ export default function HealthBookDashboard() {
                   </div>
                   <p className="text-xs text-[var(--muted)]">{[m.dosage, m.frequency].filter(Boolean).join(' · ')}</p>
                 </div>
-                <button onClick={async () => { await supabase.from('hw_medications').delete().eq('id', m.id); setMedList(p => p.filter(r => r.id !== m.id)) }} className="p-1.5 text-[var(--muted)] hover:text-red-400"><IconTrash size={15}/></button>
+                <button onClick={async () => { await sb.from('hw_medications').delete().eq('id', m.id); setMedList(p => p.filter(r => r.id !== m.id)) }} className="p-1.5 text-[var(--muted)] hover:text-red-400"><IconTrash size={15}/></button>
               </div>
             ))}
           </div>
