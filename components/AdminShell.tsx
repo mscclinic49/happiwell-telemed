@@ -200,7 +200,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
   async function signOut() { await sb.auth.signOut(); router.replace('/login') }
 
   if (loading || checking) return (
-    <div className="h-screen flex items-center justify-center bg-[var(--background)]">
+    <div data-admin className="h-screen flex items-center justify-center bg-[var(--background)]">
       <div className="w-8 h-8 border-4 border-[var(--hw-green)] border-t-transparent rounded-full animate-spin" />
     </div>
   )
@@ -247,7 +247,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
   )
 
   return (
-    <div className="flex h-screen overflow-hidden bg-[var(--background)]">
+    <div data-admin className="flex h-screen overflow-hidden bg-[var(--background)]">
       {/* Desktop sidebar */}
       <aside className="hidden md:flex flex-col w-56 flex-shrink-0 bg-[var(--card-bg)] border-r border-[var(--border)]">
         <div className="px-5 py-5 border-b border-[var(--border)]">
