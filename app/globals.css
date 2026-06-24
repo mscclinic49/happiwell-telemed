@@ -32,10 +32,10 @@
 @media (prefers-color-scheme: dark) {
   :root {
     --background:  #0d1f1a;
-    --foreground:  #e8f5f1;
+    --foreground:  #f5fdf9;
     --card-bg:     #132920;
     --border:      #1e3d33;
-    --muted:       #94a3b8;
+    --muted:       #b0c8c2;
   }
 }
 
