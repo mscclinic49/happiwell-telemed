@@ -65,7 +65,7 @@ export default function DoctorShell({ children }: { children: React.ReactNode })
 
   if (loading || checking) return (
     <div className="h-screen flex items-center justify-center bg-[var(--background)]">
-      <div className="w-8 h-8 border-4 border-[var(--hw-green)] border-t-transparent rounded-full animate-spin" />
+      <div className="w-8 h-8 border-4 border-[#1a8a6e] border-t-transparent rounded-full animate-spin" />
     </div>
   )
 
@@ -76,7 +76,7 @@ export default function DoctorShell({ children }: { children: React.ReactNode })
         return (
           <Link key={href} href={href} onClick={onClick}
             className={`flex items-center gap-3 px-4 py-3 rounded-[10px] text-sm font-medium transition-colors
-              ${active ? 'bg-[var(--hw-mint-bg)] text-[var(--hw-green)]' : 'text-[var(--muted)] hover:bg-[var(--hw-mint-bg)] hover:text-[var(--foreground)]'}`}>
+              ${active ? 'bg-[#1a8a6e]/15 text-[#1a8a6e]' : 'text-[var(--muted)] hover:bg-[#1a8a6e]/10 hover:text-[var(--foreground)]'}`}>
             <Icon size={19} />
             {label}
           </Link>
@@ -90,7 +90,7 @@ export default function DoctorShell({ children }: { children: React.ReactNode })
       {/* Desktop sidebar */}
       <aside className="hidden md:flex flex-col w-56 flex-shrink-0 bg-[var(--card-bg)] border-r border-[var(--border)]">
         <div className="px-5 py-5 border-b border-[var(--border)]">
-          <div className="text-xs font-bold uppercase tracking-widest text-[var(--hw-green)] mb-0.5">{'HappiWell'}</div>
+          <div className="text-xs font-bold uppercase tracking-widest text-[#1a8a6e] mb-0.5">{'HappiWell'}</div>
           <div className="text-[11px] text-[var(--muted)]">{'พอร์ทัลแพทย์'}</div>
         </div>
         <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
@@ -99,7 +99,7 @@ export default function DoctorShell({ children }: { children: React.ReactNode })
         <div className="px-4 py-4 border-t border-[var(--border)]">
           <div className="text-xs font-semibold text-[var(--foreground)] mb-2 truncate">{doctorName}</div>
           <Link href="/doctor/appointments"
-            className="flex items-center gap-2 text-xs text-[var(--muted)] hover:text-[var(--hw-green)] transition-colors mb-2">
+            className="flex items-center gap-2 text-xs text-[var(--muted)] hover:text-[#1a8a6e] transition-colors mb-2">
             <span className="relative">
               <IconBell size={15} />
               {queueCount > 0 && (
@@ -125,7 +125,7 @@ export default function DoctorShell({ children }: { children: React.ReactNode })
           {'HappiWell'}<span className="text-[var(--muted)] font-normal ml-1.5 text-xs">{'แพทย์'}</span>
         </span>
         <Link href="/doctor/appointments"
-          className="relative p-2 rounded-[10px] text-[var(--muted)] hover:text-[var(--hw-green)] hover:bg-[var(--hw-mint-bg)] transition-colors mr-1">
+          className="relative p-2 rounded-[10px] text-[var(--muted)] hover:text-[#1a8a6e] hover:bg-[#1a8a6e]/10 transition-colors mr-1">
           <IconBell size={22} />
           {queueCount > 0 && (
             <span className="absolute top-1 right-1 w-4 h-4 bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center animate-pulse">
@@ -145,7 +145,7 @@ export default function DoctorShell({ children }: { children: React.ReactNode })
           <aside className="md:hidden fixed left-0 top-0 bottom-0 z-50 w-64 bg-[var(--card-bg)] border-r border-[var(--border)] flex flex-col">
             <div className="flex items-center justify-between px-5 py-4 border-b border-[var(--border)]">
               <div>
-                <div className="text-xs font-bold uppercase tracking-widest text-[var(--hw-green)]">{'HappiWell'}</div>
+                <div className="text-xs font-bold uppercase tracking-widest text-[#1a8a6e]">{'HappiWell'}</div>
                 <div className="text-[11px] text-[var(--muted)]">{'พอร์ทัลแพทย์'}</div>
               </div>
               <button onClick={() => setSidebarOpen(false)} className="p-1.5 text-[var(--muted)]">
