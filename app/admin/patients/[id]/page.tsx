@@ -6,7 +6,7 @@ import { createBrowserClient } from '@supabase/ssr'
 import {
   IconArrowLeft, IconShieldCheck, IconShieldOff,
   IconPill, IconVaccine, IconTestPipe, IconNotes,
-  IconCheck, IconX, IconUser, IconId, IconClock,
+  IconCheck, IconX, IconUser, IconId, IconClock, IconExternalLink,
 } from '@tabler/icons-react'
 import { useAuth } from '@/lib/auth-context'
 
@@ -30,7 +30,7 @@ type KycRecord = {
 
 type Medication   = { id: string; name: string; dosage: string | null; frequency: string | null; start_date: string | null; hospital: string | null; status: string }
 type Vaccine      = { id: string; vaccine_name: string; dose_number: number | null; vaccinated_date: string | null; hospital: string | null; status: string }
-type LabResult    = { id: string; test_name: string; test_date: string | null; value: number | null; unit: string | null; hospital: string | null; approval_status: string }
+type LabResult    = { id: string; test_name: string; test_date: string | null; value: number | null; unit: string | null; hospital: string | null; approval_status: string; storage_path: string | null }
 type MedHistory   = { id: string; visit_date: string | null; hospital: string | null; chief_complaint: string | null; diagnosis: string | null; status: string }
 
 const TABS = [
@@ -70,7 +70,7 @@ export default function PatientDetailPage() {
       sb.from('hw_identity_verifications').select('id,id_type,id_number,storage_path,status,rejection_reason,submitted_at').eq('user_id', id).order('submitted_at', { ascending: false }).limit(1).maybeSingle(),
       sb.from('hw_medications').select('id,name,dosage,frequency,start_date,hospital,status').eq('user_id', id).order('created_at', { ascending: false }),
       sb.from('hw_vaccines').select('id,vaccine_name,dose_number,vaccinated_date,hospital,status').eq('user_id', id).order('created_at', { ascending: false }),
-      sb.from('hw_lab_results').select('id,test_name,test_date,value,unit,hospital,approval_status').eq('user_id', id).order('created_at', { ascending: false }),
+      sb.from('hw_lab_results').select('id,test_name,test_date,value,unit,hospital,approval_status,storage_path').eq('user_id', id).order('created_at', { ascending: false }),
       sb.from('hw_medical_history').select('id,visit_date,hospital,chief_complaint,diagnosis,status').eq('user_id', id).order('created_at', { ascending: false }),
     ])
     setPatient(p.data as Patient)
@@ -280,10 +280,7 @@ export default function PatientDetailPage() {
         <><span className="font-medium text-sm">{v.vaccine_name}</span>
           <span className="text-xs text-[var(--muted)]">{[v.vaccinated_date, v.hospital].filter(Boolean).join(' · ')}</span></>
       )} onApprove={(id, ok) => approveItem('hw_vaccines', id, ok)} saving={saving} />}
-      {tab === 'lab' && <HealthTab items={labs.map(l => ({ ...l, status: l.approval_status }))} statusKey="status" renderRow={(l: LabResult & { status: string }) => (
-        <><span className="font-medium text-sm">{l.test_name}</span>
-          <span className="text-xs text-[var(--muted)]">{[l.test_date, l.value != null ? `${l.value} ${l.unit ?? ''}` : null, l.hospital].filter(Boolean).join(' · ')}</span></>
-      )} onApprove={(id, ok) => approveItem('hw_lab_results', id, ok)} saving={saving} />}
+      {tab === 'lab' && <LabTab labs={labs} onApprove={(lid, ok) => approveItem('hw_lab_results', lid, ok)} saving={saving} />}
       {tab === 'history' && <HealthTab items={history} statusKey="status" renderRow={(h: MedHistory) => (
         <><span className="font-medium text-sm">{h.chief_complaint || h.diagnosis || '—'}</span>
           <span className="text-xs text-[var(--muted)]">{[h.visit_date, h.hospital].filter(Boolean).join(' · ')}</span></>
@@ -310,6 +307,67 @@ function InfoTab({ patient }: { patient: Patient }) {
           <span className="text-sm">{r.value || '—'}</span>
         </div>
       ))}
+    </div>
+  )
+}
+
+function LabTab({ labs, onApprove, saving }: {
+  labs: LabResult[]; onApprove: (id: string, ok: boolean) => void; saving: string | null
+}) {
+  const [fileUrls, setFileUrls] = useState<Record<string, string>>({})
+  const sb2 = createBrowserClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!)
+
+  useEffect(() => {
+    const withFile = labs.filter(l => l.storage_path)
+    if (withFile.length === 0) return
+    Promise.all(withFile.map(async l => {
+      const { data } = await sb2.storage.from('lab-results').createSignedUrl(l.storage_path!, 3600)
+      return [l.id, data?.signedUrl ?? null] as [string, string | null]
+    })).then(pairs => {
+      setFileUrls(Object.fromEntries(pairs.filter(([, url]) => url !== null) as [string, string][]))
+    })
+  }, [labs])
+
+  const S: Record<string, string> = { approved: 'bg-emerald-500/15 text-emerald-500', rejected: 'bg-red-500/15 text-red-400', pending: 'bg-yellow-500/15 text-yellow-500' }
+  const L: Record<string, string> = { approved: 'อนุมัติแล้ว', rejected: 'ปฏิเสธ', pending: 'รออนุมัติ' }
+  if (labs.length === 0) return <div className="text-center py-12 text-sm text-[var(--muted)]">{'ไม่มีข้อมูล'}</div>
+  return (
+    <div className="space-y-2">
+      {labs.map(l => {
+        const status = l.approval_status
+        const url = fileUrls[l.id]
+        return (
+          <div key={l.id} className="bg-[var(--card-bg)] border border-[var(--border)] rounded-[14px] p-4">
+            <div className="flex items-start gap-3">
+              <div className="flex-1 min-w-0 flex flex-col gap-0.5">
+                <span className="font-medium text-sm">{l.test_name}</span>
+                <span className="text-xs text-[var(--muted)]">
+                  {[l.test_date, l.value != null ? `${l.value} ${l.unit ?? ''}` : null, l.hospital].filter(Boolean).join(' · ')}
+                </span>
+                {url && (
+                  <a href={url} target="_blank" rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 text-xs text-[#1a8a6e] hover:underline mt-1">
+                    <IconExternalLink size={12} />{'ดูไฟล์ผลตรวจ'}
+                  </a>
+                )}
+              </div>
+              <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium flex-shrink-0 ${S[status] ?? ''}`}>{L[status] ?? status}</span>
+            </div>
+            {status === 'pending' && (
+              <div className="flex gap-2 mt-3">
+                <button onClick={() => onApprove(l.id, true)} disabled={saving === l.id}
+                  className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-[8px] bg-[#1a8a6e] text-white text-xs font-medium hover:opacity-90 disabled:opacity-50">
+                  <IconCheck size={13} />{'อนุมัติ'}
+                </button>
+                <button onClick={() => onApprove(l.id, false)} disabled={saving === l.id}
+                  className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-[8px] border border-red-500/40 text-red-400 text-xs font-medium hover:bg-red-500/10 disabled:opacity-50">
+                  <IconX size={13} />{'ปฏิเสธ'}
+                </button>
+              </div>
+            )}
+          </div>
+        )
+      })}
     </div>
   )
 }

@@ -102,6 +102,8 @@ export default function HealthBookDashboard() {
   const [medF,  setMedF]  = useState({ name: '', dosage: '', freq: '', reminder: false })
   const [vacF,  setVacF]  = useState({ name: '', dose: '1', date: today0(), hospital: '', next: '' })
   const [labF,  setLabF]  = useState({ date: today0(), hospital: '', test: '', value: '', unit: '', status: 'normal' as 'normal'|'warning'|'critical' })
+  const [labFile, setLabFile] = useState<File | null>(null)
+  const [labMode, setLabMode] = useState<'file'|'manual'>('file')
   const [visF,  setVisF]  = useState({ date: today0(), hospital: '', doctor: '', complaint: '', diagnosis: '', treatment: '' })
 
   useEffect(() => {
@@ -161,10 +163,33 @@ export default function HealthBookDashboard() {
     setVacF({ name: '', dose: '1', date: today0(), hospital: '', next: '' }); setAForm(null); setSaving(false)
   }
   async function slab() {
-    if (!labF.test || !user) return; setSaving(true)
-    await sb.from('hw_lab_results').insert({ user_id: user.id, test_date: labF.date, hospital: labF.hospital || null, test_name: labF.test, value: labF.value ? +labF.value : null, unit: labF.unit || null, status: labF.status, approval_status: 'pending', source: 'patient' })
+    if (!user) return
+    if (labMode === 'file' && !labFile) return
+    if (labMode === 'manual' && !labF.test) return
+    setSaving(true)
+    let storagePath: string | null = null
+    if (labFile) {
+      const ext = labFile.name.split('.').pop() ?? 'pdf'
+      const path = `${user.id}/${Date.now()}.${ext}`
+      const { data: sd } = await sb.storage.from('lab-results').upload(path, labFile, { contentType: labFile.type })
+      storagePath = sd?.path ?? null
+    }
+    await sb.from('hw_lab_results').insert({
+      user_id: user.id,
+      test_date: labF.date,
+      hospital: labF.hospital || null,
+      test_name: labMode === 'file' ? (labFile?.name ?? 'ไฟล์ผลตรวจ') : labF.test,
+      value: labF.value ? +labF.value : null,
+      unit: labF.unit || null,
+      status: labF.status,
+      approval_status: 'pending',
+      source: 'patient',
+      storage_path: storagePath,
+    })
     setLabPend(c => c + 1)
-    setLabF({ date: today0(), hospital: '', test: '', value: '', unit: '', status: 'normal' }); setAForm(null); setSaving(false)
+    setLabFile(null)
+    setLabF({ date: today0(), hospital: '', test: '', value: '', unit: '', status: 'normal' })
+    setAForm(null); setSaving(false)
   }
   async function svis() {
     if (!visF.hospital || !user) return; setSaving(true)
@@ -330,20 +355,49 @@ export default function HealthBookDashboard() {
         {aForm === 'lab' && (
           <div className="bg-[var(--card-bg)] border border-[var(--border)] rounded-[14px] p-4 mb-3 space-y-3">
             <p className="text-xs text-yellow-600">⏳ รอการยืนยันจากคลินิกก่อนแสดงผล</p>
+            {/* Mode toggle */}
+            <div className="flex rounded-[10px] border border-[var(--border)] overflow-hidden">
+              <button onClick={() => setLabMode('file')}
+                className={"flex-1 py-2 text-xs font-medium transition-colors " + (labMode === 'file' ? 'bg-[var(--hw-green)] text-white' : 'text-[var(--muted)]')}>
+                {'📎 อัพโหลดไฟล์'}
+              </button>
+              <button onClick={() => setLabMode('manual')}
+                className={"flex-1 py-2 text-xs font-medium transition-colors " + (labMode === 'manual' ? 'bg-[var(--hw-green)] text-white' : 'text-[var(--muted)]')}>
+                {'✏️ กรอกเอง'}
+              </button>
+            </div>
             <div><label className={lc}>วันที่ตรวจ *</label><input type="date" value={labF.date} onChange={e => setLabF({...labF, date: e.target.value})} className={ic}/></div>
             <div><label className={lc}>สถานที่</label><input value={labF.hospital} onChange={e => setLabF({...labF, hospital: e.target.value})} placeholder="เช่น HappiWell Clinic" className={ic}/></div>
-            <div><label className={lc}>รายการตรวจ *</label><input value={labF.test} onChange={e => setLabF({...labF, test: e.target.value})} placeholder="เช่น FBS, HbA1c" className={ic}/></div>
-            <div className="grid grid-cols-2 gap-3">
-              <div><label className={lc}>ค่าที่ได้</label><input type="number" value={labF.value} onChange={e => setLabF({...labF, value: e.target.value})} className={ic}/></div>
-              <div><label className={lc}>หน่วย</label><input value={labF.unit} onChange={e => setLabF({...labF, unit: e.target.value})} placeholder="mg/dL" className={ic}/></div>
-            </div>
-            <div><label className={lc}>ผลการตรวจ</label>
-              <select value={labF.status} onChange={e => setLabF({...labF, status: e.target.value as 'normal'|'warning'|'critical'})} className={ic}>
-                <option value="normal">ปกติ</option><option value="warning">ระวัง</option><option value="critical">ผิดปกติ</option>
-              </select></div>
+            {labMode === 'file' ? (
+              <div>
+                <label className={lc}>ไฟล์ผลตรวจ * (PDF / รูปภาพ)</label>
+                <label className={"flex flex-col items-center justify-center gap-2 border-2 border-dashed rounded-[10px] py-6 cursor-pointer transition-colors " + (labFile ? 'border-[var(--hw-green)] bg-[var(--hw-mint-bg)]' : 'border-[var(--border)] hover:border-[var(--hw-green)]')}>
+                  <input type="file" accept="image/jpeg,image/png,image/webp,application/pdf" className="hidden"
+                    onChange={e => setLabFile(e.target.files?.[0] ?? null)} />
+                  {labFile
+                    ? <><span className="text-2xl">📄</span><span className="text-xs font-medium text-[var(--hw-green)] text-center px-2 break-all">{labFile.name}</span><span className="text-xs text-[var(--muted)]">แตะเพื่อเปลี่ยนไฟล์</span></>
+                    : <><span className="text-2xl">📂</span><span className="text-xs text-[var(--muted)]">แตะเพื่อเลือกไฟล์</span></>}
+                </label>
+              </div>
+            ) : (
+              <>
+                <div><label className={lc}>รายการตรวจ *</label><input value={labF.test} onChange={e => setLabF({...labF, test: e.target.value})} placeholder="เช่น FBS, HbA1c" className={ic}/></div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div><label className={lc}>ค่าที่ได้</label><input type="number" value={labF.value} onChange={e => setLabF({...labF, value: e.target.value})} className={ic}/></div>
+                  <div><label className={lc}>หน่วย</label><input value={labF.unit} onChange={e => setLabF({...labF, unit: e.target.value})} placeholder="mg/dL" className={ic}/></div>
+                </div>
+                <div><label className={lc}>ผลการตรวจ</label>
+                  <select value={labF.status} onChange={e => setLabF({...labF, status: e.target.value as 'normal'|'warning'|'critical'})} className={ic}>
+                    <option value="normal">ปกติ</option><option value="warning">ระวัง</option><option value="critical">ผิดปกติ</option>
+                  </select></div>
+              </>
+            )}
             <div className="flex gap-3">
-              <button onClick={() => setAForm(null)} className={cancelBtnClass}>ยกเลิก</button>
-              <button onClick={slab} disabled={saving} className={saveBtnClass} style={{ background: 'var(--hw-green)' }}>{saving ? 'กำลังบันทึก...' : 'ส่งเพื่อยืนยัน'}</button>
+              <button onClick={() => { setAForm(null); setLabFile(null) }} className={cancelBtnClass}>ยกเลิก</button>
+              <button onClick={slab} disabled={saving || (labMode === 'file' && !labFile) || (labMode === 'manual' && !labF.test)}
+                className={saveBtnClass} style={{ background: 'var(--hw-green)' }}>
+                {saving ? 'กำลังอัพโหลด...' : 'ส่งเพื่อยืนยัน'}
+              </button>
             </div>
           </div>
         )}
