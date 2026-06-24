@@ -20,17 +20,17 @@ type Pending  = { id: string }
 type AForm = 'dtx' | 'bp' | 'med' | 'vaccine' | 'lab' | 'visit' | null
 
 const MEAL: Record<string, string> = { fasting: 'อดอาหาร', before_meal: 'ก่อนอาหาร', after_meal: 'หลังอาหาร', bedtime: 'ก่อนนอน' }
-const dtxSt = (v: number) => v < 70 ? { l:'ต่ำ',   c:'text-[var(--hw-blue)]',    b:'bg-blue-50',               bd:'bg-blue-100 text-[var(--hw-blue)]'    }
-  : v <= 99  ? { l:'ปกติ',  c:'text-[var(--hw-green)]',  b:'bg-[var(--hw-mint-bg)]',   bd:'bg-[var(--hw-mint-bg)] text-[var(--hw-green)]'  }
-  : v <= 125 ? { l:'ระวัง', c:'text-yellow-600',          b:'bg-yellow-50',             bd:'bg-yellow-100 text-yellow-700'                  }
-  :            { l:'สูง',   c:'text-red-600',             b:'bg-red-50',                bd:'bg-red-100 text-red-700'                        }
-const bpSt  = (s: number) => s < 90 ? { l:'ต่ำ',   c:'text-[var(--hw-blue)]',    b:'bg-blue-50',               bd:'bg-blue-100 text-[var(--hw-blue)]'    }
-  : s <= 120 ? { l:'ปกติ',  c:'text-[var(--hw-green)]',  b:'bg-[var(--hw-mint-bg)]',   bd:'bg-[var(--hw-mint-bg)] text-[var(--hw-green)]'  }
-  : s <= 139 ? { l:'ระวัง', c:'text-yellow-600',          b:'bg-yellow-50',             bd:'bg-yellow-100 text-yellow-700'                  }
-  :            { l:'สูง',   c:'text-red-600',             b:'bg-red-50',                bd:'bg-red-100 text-red-700'                        }
-const labSt = { normal: { l:'ปกติ',    c:'text-[var(--hw-green)]', dot:'bg-[var(--hw-green)]', bd:'bg-[var(--hw-mint-bg)] text-[var(--hw-green)]' },
-                warning: { l:'ระวัง',   c:'text-yellow-600',        dot:'bg-yellow-400',        bd:'bg-yellow-100 text-yellow-700'                  },
-                critical:{ l:'ผิดปกติ', c:'text-red-600',           dot:'bg-red-400',           bd:'bg-red-100 text-red-700'                        } }
+const dtxSt = (v: number) => v < 70 ? { l:'ต่ำ',   c:'text-blue-400',    b:'bg-blue-500/10',    bd:'bg-blue-500/15 text-blue-400'    }
+  : v <= 99  ? { l:'ปกติ',  c:'text-[#1a8a6e]',   b:'bg-[#1a8a6e]/10',  bd:'bg-[#1a8a6e]/15 text-[#1a8a6e]'  }
+  : v <= 125 ? { l:'ระวัง', c:'text-yellow-400',   b:'bg-yellow-500/10', bd:'bg-yellow-500/15 text-yellow-400' }
+  :            { l:'สูง',   c:'text-red-400',      b:'bg-red-500/10',    bd:'bg-red-500/15 text-red-400'       }
+const bpSt  = (s: number) => s < 90 ? { l:'ต่ำ',   c:'text-blue-400',    b:'bg-blue-500/10',    bd:'bg-blue-500/15 text-blue-400'    }
+  : s <= 120 ? { l:'ปกติ',  c:'text-[#1a8a6e]',   b:'bg-[#1a8a6e]/10',  bd:'bg-[#1a8a6e]/15 text-[#1a8a6e]'  }
+  : s <= 139 ? { l:'ระวัง', c:'text-yellow-400',   b:'bg-yellow-500/10', bd:'bg-yellow-500/15 text-yellow-400' }
+  :            { l:'สูง',   c:'text-red-400',      b:'bg-red-500/10',    bd:'bg-red-500/15 text-red-400'       }
+const labSt = { normal: { l:'ปกติ',    c:'text-[#1a8a6e]',  dot:'bg-[#1a8a6e]',  bd:'bg-[#1a8a6e]/15 text-[#1a8a6e]'   },
+                warning: { l:'ระวัง',   c:'text-yellow-400', dot:'bg-yellow-400',  bd:'bg-yellow-500/15 text-yellow-400'  },
+                critical:{ l:'ผิดปกติ', c:'text-red-400',    dot:'bg-red-400',     bd:'bg-red-500/15 text-red-400'        } }
 const trend = (cur: number, prev: number) => {
   const d = cur - prev
   if (Math.abs(d) < 1) return { Icon: IconMinus, c: 'text-[var(--muted)]', t: '' }
