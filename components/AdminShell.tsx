@@ -227,7 +227,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
         return (
           <Link key={href} href={href} onClick={onClick}
             className={`flex items-center gap-3 px-4 py-3 rounded-[10px] text-sm font-medium transition-colors
-              ${active ? 'bg-[var(--hw-mint-bg)] text-[var(--hw-green)]' : 'text-[var(--muted)] hover:bg-[var(--background)] hover:text-[var(--foreground)]'}`}>
+              ${active ? 'bg-[#1a8a6e]/15 text-[#1a8a6e]' : 'text-[var(--muted)] hover:bg-[#1a8a6e]/10 hover:text-[var(--foreground)]'}`}>
             <Icon size={19} />
             {label}
             {href === '/admin/patients' && pendingCount > 0 && (
