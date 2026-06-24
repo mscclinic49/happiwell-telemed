@@ -1,44 +1,174 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState, useCallback } from 'react'
 import { createBrowserClient } from '@supabase/ssr'
-import Link from 'next/link'
 import { useAuth } from '@/lib/auth-context'
-import { IconPill, IconChevronRight } from '@tabler/icons-react'
+import {
+  IconPill, IconUpload, IconCheck, IconEdit, IconUser,
+  IconCalendarClock, IconAlertCircle,
+} from '@tabler/icons-react'
 
 const sb = createBrowserClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 )
 
-type Rx = {
-  id: string; diagnosis: string | null; notes: string | null; created_at: string
-  appointment_id: string | null
+type Appt = {
+  id: string
+  scheduled_at: string
+  status: string
+  user_id: string
   hw_users: { full_name: string | null; first_name: string | null } | null
-  hw_rx_items: { id: string; drug_name: string; dosage: string | null; frequency: string | null }[]
+  hw_prescriptions: { id: string; storage_path: string }[]
+}
+
+function UploadButton({
+  appt,
+  doctorId,
+  onUploaded,
+}: {
+  appt: Appt
+  doctorId: string
+  onUploaded: () => void
+}) {
+  const { user } = useAuth()
+  const fileRef = useRef<HTMLInputElement>(null)
+  const [uploading, setUploading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [editMode, setEditMode] = useState(false)
+
+  const hasPrescription = appt.hw_prescriptions.length > 0
+
+  async function handleFile(file: File) {
+    if (!user) return
+    setUploading(true)
+    setError(null)
+    try {
+      const ext = file.name.split('.').pop() ?? 'pdf'
+      const path = `${appt.user_id}/${appt.id}_${Date.now()}.${ext}`
+
+      const { data: sd, error: se } = await sb.storage
+        .from('prescriptions')
+        .upload(path, file, { contentType: file.type })
+      if (se) throw new Error(se.message)
+
+      const { error: ie } = await sb.from('hw_prescriptions').insert({
+        appointment_id: appt.id,
+        user_id: appt.user_id,
+        doctor_id: doctorId,
+        storage_path: sd.path,
+        uploaded_by: user.id,
+      })
+      if (ie) throw new Error(ie.message)
+
+      setEditMode(false)
+      onUploaded()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'เกิดข้อผิดพลาด')
+    } finally {
+      setUploading(false)
+    }
+  }
+
+  // no prescription yet → single upload button
+  if (!hasPrescription || editMode) {
+    return (
+      <div className="flex flex-col items-end gap-1.5">
+        <input
+          ref={fileRef}
+          type="file"
+          accept="image/jpeg,image/png,image/webp,application/pdf"
+          className="hidden"
+          onChange={e => {
+            const f = e.target.files?.[0]
+            if (f) handleFile(f)
+            e.target.value = ''
+          }}
+        />
+        <button
+          onClick={() => fileRef.current?.click()}
+          disabled={uploading}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold text-white bg-[#1a8a6e] hover:opacity-90 disabled:opacity-50 transition-opacity whitespace-nowrap"
+        >
+          {uploading ? (
+            <span className="w-3 h-3 border border-white/60 border-t-white rounded-full animate-spin" />
+          ) : (
+            <IconUpload size={12} />
+          )}
+          {uploading ? 'กำลังอัพโหลด...' : editMode ? 'อัพโหลดใหม่' : 'อัพโหลดใบสั่งยา'}
+        </button>
+        {editMode && (
+          <button
+            onClick={() => { setEditMode(false); setError(null) }}
+            className="text-[10px] text-[var(--muted)] hover:text-[var(--foreground)]"
+          >
+            {'ยกเลิก'}
+          </button>
+        )}
+        {error && (
+          <div className="flex items-center gap-1 text-[10px] text-red-400">
+            <IconAlertCircle size={11} />{error}
+          </div>
+        )}
+      </div>
+    )
+  }
+
+  // prescription exists → "สั่งยาแล้ว" + "แก้ไข"
+  return (
+    <div className="flex items-center gap-2 flex-shrink-0">
+      <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-500 whitespace-nowrap">
+        <IconCheck size={12} />{'สั่งยาแล้ว'}
+      </span>
+      <button
+        onClick={() => setEditMode(true)}
+        className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border border-[var(--border)] text-[var(--muted)] hover:text-[var(--foreground)] hover:border-[#1a8a6e]/40 transition-colors whitespace-nowrap"
+      >
+        <IconEdit size={12} />{'แก้ไขใบสั่งยา'}
+      </button>
+    </div>
+  )
 }
 
 export default function DoctorRxPage() {
   const { user } = useAuth()
-  const [rxList, setRxList] = useState<Rx[]>([])
+  const [doctorId, setDoctorId] = useState<string | null>(null)
+  const [appts, setAppts] = useState<Appt[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     if (!user) return
     sb.from('hw_doctors').select('id').eq('user_id', user.id).single()
-      .then(({ data: doc }) => {
-        if (!doc) return
-        sb.from('hw_rx')
-          .select('id, diagnosis, notes, created_at, appointment_id, hw_users(full_name, first_name), hw_rx_items(id, drug_name, dosage, frequency)')
-          .eq('doctor_id', doc.id)
-          .order('created_at', { ascending: false })
-          .limit(50)
-          .then(({ data }) => {
-            setRxList((data as unknown as Rx[]) ?? [])
-            setLoading(false)
-          })
-      })
+      .then(({ data }) => { if (data) setDoctorId(data.id) })
   }, [user])
+
+  const load = useCallback(() => {
+    if (!doctorId) return
+    sb.from('hw_appointments')
+      .select('id, scheduled_at, status, user_id, hw_users(full_name, first_name), hw_prescriptions(id, storage_path)')
+      .eq('doctor_id', doctorId)
+      .neq('status', 'cancelled')
+      .order('scheduled_at', { ascending: false })
+      .limit(60)
+      .then(({ data }) => {
+        setAppts((data as unknown as Appt[]) ?? [])
+        setLoading(false)
+      })
+  }, [doctorId])
+
+  useEffect(() => { load() }, [load])
+
+  const patientName = (a: Appt) => a.hw_users?.full_name || a.hw_users?.first_name || '—'
+
+  const onUploaded = (apptId: string) => {
+    setAppts(prev =>
+      prev.map(a =>
+        a.id === apptId
+          ? { ...a, hw_prescriptions: [{ id: 'new', storage_path: '' }] }
+          : a
+      )
+    )
+  }
 
   return (
     <div className="max-w-2xl mx-auto px-5 py-6 pb-12">
@@ -48,49 +178,52 @@ export default function DoctorRxPage() {
       </div>
 
       {loading ? (
-        <div className="space-y-3">
-          {[1,2,3].map(i => <div key={i} className="h-24 rounded-[14px] bg-[var(--card-bg)] border border-[var(--border)] animate-pulse" />)}
+        <div className="space-y-2">
+          {[1, 2, 3, 4].map(i => (
+            <div key={i} className="h-16 rounded-[14px] bg-[var(--card-bg)] border border-[var(--border)] animate-pulse" />
+          ))}
         </div>
-      ) : rxList.length === 0 ? (
+      ) : appts.length === 0 ? (
         <div className="text-center py-16 text-[var(--muted)]">
           <IconPill size={40} className="mx-auto mb-3 opacity-30" />
-          <p className="text-sm">{'ยังไม่มีใบสั่งยา'}</p>
+          <p className="text-sm">{'ยังไม่มีนัดหมาย'}</p>
         </div>
       ) : (
-        <div className="space-y-3">
-          {rxList.map(rx => {
-            const name = rx.hw_users?.full_name || rx.hw_users?.first_name || '—'
-            const dt   = new Date(rx.created_at)
+        <div className="space-y-2">
+          {appts.map(a => {
+            const dt = new Date(a.scheduled_at)
             return (
-              <Link key={rx.id}
-                href={rx.appointment_id ? `/doctor/appointments/${rx.appointment_id}` : '#'}
-                className="bg-[var(--card-bg)] border border-[var(--border)] rounded-[14px] p-4 flex items-start gap-4 hover:border-[#1a8a6e]/40 transition-colors">
-                <div className="w-10 h-10 rounded-[10px] bg-[#1a8a6e]/15 flex items-center justify-center flex-shrink-0">
-                  <IconPill size={18} className="text-[#1a8a6e]" />
+              <div
+                key={a.id}
+                className="bg-[var(--card-bg)] border border-[var(--border)] rounded-[14px] px-4 py-3 flex items-center gap-3"
+              >
+                {/* Avatar */}
+                <div className="w-9 h-9 rounded-full bg-[#1a8a6e]/10 flex items-center justify-center flex-shrink-0">
+                  <IconUser size={16} className="text-[#1a8a6e]" />
                 </div>
+
+                {/* Name + date */}
                 <div className="flex-1 min-w-0">
-                  <div className="font-semibold text-sm text-[var(--foreground)]">{name}</div>
-                  {rx.diagnosis && (
-                    <div className="text-xs text-[var(--muted)] mt-0.5 truncate">{rx.diagnosis}</div>
-                  )}
-                  <div className="flex flex-wrap gap-1 mt-2">
-                    {rx.hw_rx_items.slice(0, 3).map(item => (
-                      <span key={item.id} className="text-[10px] bg-[#1a8a6e]/10 text-[#1a8a6e] px-2 py-0.5 rounded-full">
-                        {item.drug_name}
-                      </span>
-                    ))}
-                    {rx.hw_rx_items.length > 3 && (
-                      <span className="text-[10px] text-[var(--muted)]">+{rx.hw_rx_items.length - 3}</span>
-                    )}
+                  <div className="font-semibold text-sm truncate text-[var(--foreground)]">
+                    {patientName(a)}
+                  </div>
+                  <div className="flex items-center gap-1 text-xs text-[var(--muted)] mt-0.5">
+                    <IconCalendarClock size={11} />
+                    {dt.toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' })}
+                    {' · '}
+                    {dt.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })}
                   </div>
                 </div>
-                <div className="flex flex-col items-end gap-1 flex-shrink-0">
-                  <div className="text-[10px] text-[var(--muted)]">
-                    {dt.toLocaleDateString('th-TH', { dateStyle: 'short' })}
-                  </div>
-                  <IconChevronRight size={15} className="text-[var(--muted)]" />
-                </div>
-              </Link>
+
+                {/* Upload / status buttons */}
+                {doctorId && (
+                  <UploadButton
+                    appt={a}
+                    doctorId={doctorId}
+                    onUploaded={() => onUploaded(a.id)}
+                  />
+                )}
+              </div>
             )
           })}
         </div>
