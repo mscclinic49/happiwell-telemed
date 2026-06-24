@@ -26,7 +26,7 @@ type Vitals = {
 const APPT_CFG: Record<string, { label: string; color: string; Icon: typeof IconClock }> = {
   pending:   { label: 'รอยืนยัน',  color: 'text-yellow-600 bg-[var(--hw-yellow-bg)]', Icon: IconClock  },
   confirmed: { label: 'ยืนยันแล้ว', color: 'text-[var(--hw-blue)] bg-[var(--hw-blue-bg)]',    Icon: IconCheck  },
-  completed: { label: 'เสร็จสิ้น',  color: 'text-[#1a8a6e] bg-[#e8f7f3]', Icon: IconCheck  },
+  completed: { label: 'เสร็จสิ้น',  color: 'text-[var(--hw-green)] bg-[var(--hw-mint-bg)]', Icon: IconCheck  },
   cancelled: { label: 'ยกเลิก',    color: 'text-red-600 bg-[var(--hw-red-bg)]',        Icon: IconX      },
 }
 
@@ -134,11 +134,11 @@ export default function Dashboard() {
         </a>
         <div className="text-xs text-[var(--muted)]">{'จ–ศ 08:00–18:00 · ส–อา 08:00–12:00'}</div>
         <div className="flex flex-wrap gap-2 pt-1">
-          <a href="tel:020004586" className="flex items-center gap-1.5 bg-[#e6f1fb] text-[#185fa5] px-3 py-1.5 rounded-full text-xs font-medium">{'📞 02-000-4586'}</a>
+          <a href="tel:020004586" className="flex items-center gap-1.5 bg-[var(--hw-blue-bg)] text-[var(--hw-blue)] px-3 py-1.5 rounded-full text-xs font-medium">{'📞 02-000-4586'}</a>
           <a href="https://line.me/R/ti/p/@p49clinic" target="_blank" rel="noopener noreferrer"
-            className="flex items-center gap-1.5 bg-[#e8f7f3] text-[#1a8a6e] px-3 py-1.5 rounded-full text-xs font-medium">{'Line @p49clinic'}</a>
+            className="flex items-center gap-1.5 bg-[var(--hw-mint-bg)] text-[var(--hw-green)] px-3 py-1.5 rounded-full text-xs font-medium">{'Line @p49clinic'}</a>
           <a href="https://maps.app.goo.gl/vyo3zyNqkSrcYMmC8" target="_blank" rel="noopener noreferrer"
-            className="flex items-center gap-1.5 bg-[#faeeda] text-[#c47f00] px-3 py-1.5 rounded-full text-xs font-medium">{'🗺️ Google Maps'}</a>
+            className="flex items-center gap-1.5 bg-[var(--hw-peach-bg)] text-[var(--hw-orange)] px-3 py-1.5 rounded-full text-xs font-medium">{'🗺️ Google Maps'}</a>
         </div>
       </div>
 
