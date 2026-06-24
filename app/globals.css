@@ -50,4 +50,13 @@ body {
   line-height: 1.6;
 }
 
+/* Ensure all elements inherit the theme foreground color */
+*, *::before, *::after {
+  color: inherit;
+}
+
+input, select, textarea, button {
+  color: var(--foreground);
+}
+
 html, body { height: 100%; }

@@ -93,20 +93,26 @@ export default function AdminDashboard() {
 
       {/* Stat cards */}
       <div className="grid grid-cols-2 gap-3 mb-6">
-        <StatCard icon={<IconCalendarClock size={20} className="text-[#1a8a6e]" />}
+        <StatCard
+          icon={<IconCalendarClock size={20} className="text-[#1a8a6e]" />}
+          iconBg="bg-[#1a8a6e]/15"
           label={'นัดหมายวันนี้'} value={s.todayCount}
-          bg="bg-[#1a8a6e]/10" href="/admin/appointments" />
-        <StatCard icon={<IconClock size={20} className="text-[#ef9f27]" />}
+          href="/admin/appointments" />
+        <StatCard
+          icon={<IconClock size={20} className="text-[#ef9f27]" />}
+          iconBg="bg-[#ef9f27]/15"
           label={'รอยืนยัน'} value={s.pendingAppt}
-          bg="bg-[#ef9f27]/15" href="/admin/appointments"
-          urgent={s.pendingAppt > 0} />
-        <StatCard icon={<IconUsers size={20} className="text-[#378add]" />}
+          href="/admin/appointments" urgent={s.pendingAppt > 0} />
+        <StatCard
+          icon={<IconUsers size={20} className="text-[#378add]" />}
+          iconBg="bg-[#378add]/15"
           label={'คนไข้ทั้งหมด'} value={s.totalPatients}
-          bg="bg-[#378add]/10" href="/admin/patients" />
-        <StatCard icon={<IconBook2 size={20} className="text-purple-400" />}
+          href="/admin/patients" />
+        <StatCard
+          icon={<IconBook2 size={20} className="text-purple-400" />}
+          iconBg="bg-purple-500/15"
           label={'รออนุมัติสุขภาพ'} value={s.pendingHealth}
-          bg="bg-purple-500/10" href="/admin/health-book"
-          urgent={s.pendingHealth > 0} />
+          href="/admin/health-book" urgent={s.pendingHealth > 0} />
       </div>
 
       {/* Today's appointments */}
@@ -150,18 +156,20 @@ export default function AdminDashboard() {
   )
 }
 
-function StatCard({ icon, label, value, bg, href, urgent }: {
-  icon: React.ReactNode; label: string; value: number
-  bg: string; href: string; urgent?: boolean
+function StatCard({ icon, iconBg, label, value, href, urgent }: {
+  icon: React.ReactNode; iconBg: string; label: string; value: number
+  href: string; urgent?: boolean
 }) {
   return (
-    <Link href={href} className={`rounded-[14px] p-4 ${bg} flex items-start justify-between hover:opacity-90 transition-opacity relative overflow-hidden`}>
+    <Link href={href} className="rounded-[14px] p-4 bg-[var(--card-bg)] border border-[var(--border)] flex items-start gap-3 hover:opacity-90 transition-opacity relative overflow-hidden">
       {urgent && value > 0 && (
         <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-red-500 animate-pulse" />
       )}
+      <div className={`w-10 h-10 rounded-[10px] ${iconBg} flex items-center justify-center flex-shrink-0`}>
+        {icon}
+      </div>
       <div>
-        <div className="mb-2">{icon}</div>
-        <div className="text-2xl font-bold">{value}</div>
+        <div className="text-2xl font-bold text-[var(--foreground)]">{value}</div>
         <div className="text-xs text-[var(--muted)] mt-0.5">{label}</div>
       </div>
     </Link>
