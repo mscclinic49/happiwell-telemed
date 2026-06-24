@@ -11,9 +11,38 @@ import {
   IconHistory, IconBook2, IconHeart, IconShield,
   IconMapPin, IconShieldCheck, IconShieldOff,
   IconFileText, IconHelp, IconLogout, IconChevronDown,
-  IconSettings2,
+  IconSettings2, IconSun, IconMoon,
 } from '@tabler/icons-react'
 import { useAuth } from '@/lib/auth-context'
+
+function useTheme() {
+  const [dark, setDark] = useState(false)
+  useEffect(() => {
+    setDark(document.documentElement.classList.contains('dark'))
+  }, [])
+  function toggle() {
+    const next = !dark
+    document.documentElement.classList.toggle('dark', next)
+    localStorage.setItem('hw-theme', next ? 'dark' : 'light')
+    setDark(next)
+  }
+  return { dark, toggle }
+}
+
+function ThemeToggle({ compact = false }: { compact?: boolean }) {
+  const { dark, toggle } = useTheme()
+  return (
+    <button
+      onClick={toggle}
+      title={dark ? 'เปลี่ยนเป็น Light mode' : 'เปลี่ยนเป็น Dark mode'}
+      className={`flex items-center gap-2 rounded-[10px] transition-colors text-[var(--muted)] hover:text-[var(--foreground)] hover:bg-[var(--border)] ${
+        compact ? 'p-2' : 'px-3 py-2 w-full'
+      }`}>
+      {dark ? <IconSun size={18} /> : <IconMoon size={18} />}
+      {!compact && <span className="text-sm">{dark ? 'Light Mode' : 'Dark Mode'}</span>}
+    </button>
+  )
+}
 
 const NAV = [
   {
@@ -313,11 +342,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           })}
         </nav>
 
-        {user && (
-          <div className="p-3 border-t border-[var(--border)]">
-            <ProfileDropdown displayName={displayName} email={user.email ?? ''} onSignOut={handleSignOut} />
-          </div>
-        )}
+        <div className="p-3 border-t border-[var(--border)] space-y-1">
+          <ThemeToggle />
+          {user && <ProfileDropdown displayName={displayName} email={user.email ?? ''} onSignOut={handleSignOut} />}
+        </div>
       </aside>
 
       {/* Main column */}
@@ -328,7 +356,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <Link href="/">
             <Image src="/logo-hc.png" alt="HappiWell Clinic" width={120} height={42} className="object-contain" priority />
           </Link>
-          {user && <MobileProfileDropdown displayName={displayName} onSignOut={handleSignOut} />}
+          <div className="flex items-center gap-1">
+            <ThemeToggle compact />
+            {user && <MobileProfileDropdown displayName={displayName} onSignOut={handleSignOut} />}
+          </div>
         </header>
 
         <main className="flex-1 overflow-y-auto relative">
