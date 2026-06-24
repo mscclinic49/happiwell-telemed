@@ -1,12 +1,12 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useRef } from 'react'
 import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import { createBrowserClient } from '@supabase/ssr'
 import {
   IconArrowLeft, IconShieldCheck, IconShieldOff,
   IconPill, IconVaccine, IconTestPipe, IconNotes,
-  IconCheck, IconX, IconUser, IconId, IconClock, IconExternalLink,
+  IconCheck, IconX, IconUser, IconId, IconClock, IconExternalLink, IconUpload,
 } from '@tabler/icons-react'
 import { useAuth } from '@/lib/auth-context'
 
@@ -280,7 +280,7 @@ export default function PatientDetailPage() {
         <><span className="font-medium text-sm">{v.vaccine_name}</span>
           <span className="text-xs text-[var(--muted)]">{[v.vaccinated_date, v.hospital].filter(Boolean).join(' · ')}</span></>
       )} onApprove={(id, ok) => approveItem('hw_vaccines', id, ok)} saving={saving} />}
-      {tab === 'lab' && <LabTab labs={labs} onApprove={(lid, ok) => approveItem('hw_lab_results', lid, ok)} saving={saving} />}
+      {tab === 'lab' && <LabTab labs={labs} patientId={id} onApprove={(lid, ok) => approveItem('hw_lab_results', lid, ok)} onUploaded={load} saving={saving} />}
       {tab === 'history' && <HealthTab items={history} statusKey="status" renderRow={(h: MedHistory) => (
         <><span className="font-medium text-sm">{h.chief_complaint || h.diagnosis || '—'}</span>
           <span className="text-xs text-[var(--muted)]">{[h.visit_date, h.hospital].filter(Boolean).join(' · ')}</span></>
@@ -311,11 +311,22 @@ function InfoTab({ patient }: { patient: Patient }) {
   )
 }
 
-function LabTab({ labs, onApprove, saving }: {
-  labs: LabResult[]; onApprove: (id: string, ok: boolean) => void; saving: string | null
+function LabTab({ labs, patientId, onApprove, onUploaded, saving }: {
+  labs: LabResult[]; patientId: string
+  onApprove: (id: string, ok: boolean) => void
+  onUploaded: () => void
+  saving: string | null
 }) {
-  const [fileUrls, setFileUrls] = useState<Record<string, string>>({})
+  const { user } = useAuth()
   const sb2 = createBrowserClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!)
+  const [fileUrls, setFileUrls] = useState<Record<string, string>>({})
+  const [showForm, setShowForm] = useState(false)
+  const [uploading, setUploading] = useState(false)
+  const [uploadErr, setUploadErr] = useState<string | null>(null)
+  const [file, setFile] = useState<File | null>(null)
+  const [date, setDate] = useState(new Date().toISOString().slice(0, 10))
+  const [hospital, setHospital] = useState('')
+  const fileRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     const withFile = labs.filter(l => l.storage_path)
@@ -328,11 +339,81 @@ function LabTab({ labs, onApprove, saving }: {
     })
   }, [labs])
 
+  async function handleUpload() {
+    if (!file || !user) return
+    setUploading(true); setUploadErr(null)
+    try {
+      const ext = file.name.split('.').pop() ?? 'pdf'
+      const path = `${patientId}/${Date.now()}.${ext}`
+      const { data: sd, error: se } = await sb2.storage.from('lab-results').upload(path, file, { contentType: file.type })
+      if (se) throw new Error(se.message)
+      const { error: ie } = await sb2.from('hw_lab_results').insert({
+        user_id: patientId,
+        test_date: date,
+        hospital: hospital || null,
+        test_name: file.name,
+        approval_status: 'approved',
+        source: 'clinic',
+        storage_path: sd.path,
+      })
+      if (ie) throw new Error(ie.message)
+      setFile(null); setHospital(''); setShowForm(false)
+      onUploaded()
+    } catch (e) {
+      setUploadErr(e instanceof Error ? e.message : 'เกิดข้อผิดพลาด')
+    } finally {
+      setUploading(false)
+    }
+  }
+
+  const ic = 'w-full border border-[var(--border)] rounded-[10px] px-3 py-2.5 text-sm bg-[var(--background)] focus:outline-none focus:border-[#1a8a6e]'
   const S: Record<string, string> = { approved: 'bg-emerald-500/15 text-emerald-500', rejected: 'bg-red-500/15 text-red-400', pending: 'bg-yellow-500/15 text-yellow-500' }
   const L: Record<string, string> = { approved: 'อนุมัติแล้ว', rejected: 'ปฏิเสธ', pending: 'รออนุมัติ' }
-  if (labs.length === 0) return <div className="text-center py-12 text-sm text-[var(--muted)]">{'ไม่มีข้อมูล'}</div>
+
   return (
-    <div className="space-y-2">
+    <div className="space-y-3">
+      {/* Admin upload button */}
+      <button onClick={() => { setShowForm(v => !v); setUploadErr(null) }}
+        className="w-full flex items-center justify-center gap-2 py-2.5 rounded-[10px] border border-dashed border-[#1a8a6e]/50 text-[#1a8a6e] text-sm font-medium hover:bg-[#1a8a6e]/5 transition-colors">
+        <IconUpload size={15} />{'อัพโหลดผลตรวจให้คนไข้'}
+      </button>
+
+      {showForm && (
+        <div className="bg-[var(--card-bg)] border border-[var(--border)] rounded-[14px] p-4 space-y-3">
+          <p className="text-xs font-semibold text-[var(--muted)]">{'อัพโหลดผลตรวจ (อนุมัติอัตโนมัติ)'}</p>
+          <div>
+            <label className="text-xs text-[var(--muted)] mb-1 block">{'วันที่ตรวจ'}</label>
+            <input type="date" value={date} onChange={e => setDate(e.target.value)} className={ic} />
+          </div>
+          <div>
+            <label className="text-xs text-[var(--muted)] mb-1 block">{'สถานที่'}</label>
+            <input value={hospital} onChange={e => setHospital(e.target.value)} placeholder="เช่น HappiWell Clinic" className={ic} />
+          </div>
+          <div>
+            <input ref={fileRef} type="file" accept="image/jpeg,image/png,image/webp,application/pdf" className="hidden"
+              onChange={e => setFile(e.target.files?.[0] ?? null)} />
+            <label onClick={() => fileRef.current?.click()}
+              className={"flex items-center gap-3 border-2 border-dashed rounded-[10px] p-3 cursor-pointer transition-colors " + (file ? 'border-[#1a8a6e] bg-[#1a8a6e]/5' : 'border-[var(--border)] hover:border-[#1a8a6e]')}>
+              <span className="text-xl">{file ? '📄' : '📂'}</span>
+              <span className="text-xs text-[var(--muted)] flex-1 min-w-0 truncate">{file ? file.name : 'เลือกไฟล์ PDF หรือรูปภาพ'}</span>
+            </label>
+          </div>
+          {uploadErr && <p className="text-xs text-red-400">{uploadErr}</p>}
+          <div className="flex gap-2">
+            <button onClick={() => { setShowForm(false); setFile(null); setUploadErr(null) }}
+              className="flex-1 py-2 rounded-[8px] border border-[var(--border)] text-xs text-[var(--muted)]">{'ยกเลิก'}</button>
+            <button onClick={handleUpload} disabled={!file || uploading}
+              className="flex-1 py-2 rounded-[8px] bg-[#1a8a6e] text-white text-xs font-medium disabled:opacity-40 hover:opacity-90">
+              {uploading ? 'กำลังอัพโหลด...' : 'อัพโหลด'}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {labs.length === 0 && !showForm && (
+        <div className="text-center py-8 text-sm text-[var(--muted)]">{'ไม่มีข้อมูล'}</div>
+      )}
+
       {labs.map(l => {
         const status = l.approval_status
         const url = fileUrls[l.id]
