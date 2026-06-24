@@ -6,45 +6,55 @@ import type { User } from '@supabase/supabase-js'
 
 type AuthContextType = {
   user: User | null
+  role: string | null
   loading: boolean
   signOut: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType>({
   user: null,
+  role: null,
   loading: true,
   signOut: async () => {},
 })
 
+const sb = createBrowserClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+)
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
+  const [role, setRole] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
 
-  const supabase = createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  )
+  async function loadUser(u: User | null) {
+    setUser(u)
+    if (u) {
+      const { data } = await sb.from('hw_users').select('role').eq('id', u.id).single()
+      setRole(data?.role ?? null)
+    } else {
+      setRole(null)
+    }
+    setLoading(false)
+  }
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      setUser(user)
-      setLoading(false)
-    })
+    sb.auth.getUser().then(({ data: { user } }) => loadUser(user))
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null)
-      setLoading(false)
+    const { data: { subscription } } = sb.auth.onAuthStateChange((_event, session) => {
+      loadUser(session?.user ?? null)
     })
 
     return () => subscription.unsubscribe()
   }, [])
 
   async function signOut() {
-    await supabase.auth.signOut()
+    await sb.auth.signOut()
   }
 
   return (
-    <AuthContext.Provider value={{ user, loading, signOut }}>
+    <AuthContext.Provider value={{ user, role, loading, signOut }}>
       {children}
     </AuthContext.Provider>
   )

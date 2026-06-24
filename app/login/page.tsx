@@ -47,8 +47,7 @@ export default function LoginPage() {
     // redirect by role
     const { data: profile } = await sb.from('hw_users').select('role').eq('id', authData.user.id).single()
     const isAdmin = profile?.role === 'admin' || profile?.role === 'superadmin'
-    router.push(isAdmin ? '/admin' : '/')
-    router.refresh()
+    window.location.href = isAdmin ? '/admin' : '/'
   }
 
   const inputClass = 'w-full px-4 py-3 rounded-[10px] border border-[var(--border)] bg-[var(--card-bg)] text-sm focus:outline-none focus:border-[#1a8a6e] transition-colors'

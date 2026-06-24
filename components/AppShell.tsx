@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useCallback } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -210,8 +210,16 @@ function MobileProfileDropdown({ displayName, onSignOut }: {
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const router = useRouter()
-  const { user, signOut } = useAuth()
+  const { user, role, loading, signOut } = useAuth()
   const showShell = !NO_SHELL.some(p => pathname.startsWith(p))
+
+  // redirect admin users away from patient pages
+  useEffect(() => {
+    if (loading) return
+    if ((role === 'admin' || role === 'superadmin') && showShell) {
+      router.replace('/admin')
+    }
+  }, [role, loading, showShell])
 
   const displayName = user?.user_metadata?.first_name
     ? `${user.user_metadata.title ?? ''}${user.user_metadata.first_name}`
