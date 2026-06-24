@@ -112,7 +112,7 @@ function BellDropdown({ count, notifs, onClose }: { count: number; notifs: Notif
   }, [onClose])
 
   return (
-    <div ref={ref} className="absolute right-0 top-full mt-2 w-72 bg-[var(--card-bg)] border border-[var(--border)] rounded-[16px] shadow-xl z-50 overflow-hidden">
+    <div ref={ref} className="absolute right-0 top-full mt-2 w-80 bg-[var(--card-bg)] border border-[var(--border)] rounded-[16px] shadow-xl z-50 overflow-hidden">
       <div className="px-4 py-3 border-b border-[var(--border)] flex items-center justify-between">
         <span className="font-bold text-sm">{'การแจ้งเตือน'}</span>
         {count > 0 && <span className="text-xs bg-red-500 text-white px-2 py-0.5 rounded-full">{count} รายการ</span>}
@@ -220,12 +220,9 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
     <div className="flex h-screen overflow-hidden bg-[var(--background)]">
       {/* Desktop sidebar */}
       <aside className="hidden md:flex flex-col w-56 flex-shrink-0 bg-[var(--card-bg)] border-r border-[var(--border)]">
-        <div className="px-5 py-5 border-b border-[var(--border)] flex items-center justify-between">
-          <div>
-            <div className="text-xs font-bold uppercase tracking-widest text-[var(--hw-green)] mb-0.5">{'HappiWell'}</div>
-            <div className="text-[11px] text-[var(--muted)]">{'แผงควบคุมแอดมิน'}</div>
-          </div>
-          <Bell />
+        <div className="px-5 py-5 border-b border-[var(--border)]">
+          <div className="text-xs font-bold uppercase tracking-widest text-[var(--hw-green)] mb-0.5">{'HappiWell'}</div>
+          <div className="text-[11px] text-[var(--muted)]">{'แผงควบคุมแอดมิน'}</div>
         </div>
         <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
           <NavLinks />
@@ -273,7 +270,14 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
         </>
       )}
 
-      <main className="flex-1 overflow-y-auto md:pt-0 pt-14">{children}</main>
+      {/* Right column: top bar + content */}
+      <div className="flex flex-col flex-1 overflow-hidden">
+        {/* Desktop top bar */}
+        <div className="hidden md:flex items-center justify-end px-5 py-3 border-b border-[var(--border)] bg-[var(--card-bg)] flex-shrink-0 h-14">
+          <Bell />
+        </div>
+        <main className="flex-1 overflow-y-auto pt-14 md:pt-0">{children}</main>
+      </div>
     </div>
   )
 }

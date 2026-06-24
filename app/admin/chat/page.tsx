@@ -55,13 +55,21 @@ export default function AdminChatPage() {
 
   const active = convs.find(c => c.id === activeId)
 
-  // Load all conversations
+  // Load all conversations + patient names separately
   useEffect(() => {
     if (!user) return
     sb.from('hw_conversations')
-      .select('id, type, title, appointment_id, patient_id, last_message_at, hw_users(first_name, last_name)')
+      .select('id, type, title, appointment_id, patient_id, last_message_at')
       .order('last_message_at', { ascending: false })
-      .then(({ data }) => setConvs((data as unknown as Conversation[]) || []))
+      .then(async ({ data: convData }) => {
+        if (!convData?.length) { setConvs([]); return }
+        const patientIds = [...new Set(convData.map(c => c.patient_id))]
+        const { data: users } = await sb.from('hw_users')
+          .select('id, first_name, last_name')
+          .in('id', patientIds)
+        const userMap = Object.fromEntries((users ?? []).map(u => [u.id, { first_name: u.first_name, last_name: u.last_name }]))
+        setConvs(convData.map(c => ({ ...c, hw_users: userMap[c.patient_id] ?? null })) as Conversation[])
+      })
   }, [user])
 
   // Load messages for active
