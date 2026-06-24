@@ -24,26 +24,26 @@ type Vitals = {
 }
 
 const APPT_CFG: Record<string, { label: string; color: string; Icon: typeof IconClock }> = {
-  pending:   { label: 'รอยืนยัน',  color: 'text-yellow-600 bg-yellow-50', Icon: IconClock  },
-  confirmed: { label: 'ยืนยันแล้ว', color: 'text-blue-600 bg-blue-50',    Icon: IconCheck  },
-  completed: { label: 'เสร็จสิ้น',  color: 'text-[#1a8a6e] bg-[#e8f7f3]', Icon: IconCheck  },
-  cancelled: { label: 'ยกเลิก',    color: 'text-red-600 bg-red-50',        Icon: IconX      },
+  pending:   { label: 'รอยืนยัน',  color: 'text-yellow-400 bg-yellow-500/10', Icon: IconClock  },
+  confirmed: { label: 'ยืนยันแล้ว', color: 'text-blue-400 bg-blue-500/10',    Icon: IconCheck  },
+  completed: { label: 'เสร็จสิ้น',  color: 'text-[#1a8a6e] bg-[#1a8a6e]/15', Icon: IconCheck  },
+  cancelled: { label: 'ยกเลิก',    color: 'text-red-400 bg-red-500/10',        Icon: IconX      },
 }
 
 const getBpSt = (s: number) =>
-  s <= 120 ? { label:'ปกติ', color:'text-[var(--hw-green)]', bg:'bg-[var(--hw-mint-bg)]', badge:'bg-[var(--hw-mint-bg)] text-[var(--hw-green)]' }
-  : s <= 139 ? { label:'ระวัง', color:'text-yellow-600', bg:'bg-yellow-50', badge:'bg-yellow-100 text-yellow-700' }
-  : { label:'สูง', color:'text-red-600', bg:'bg-red-50', badge:'bg-red-100 text-red-700' }
+  s <= 120 ? { label:'ปกติ', color:'text-[var(--hw-green)]', bg:'bg-[var(--card-bg)] border border-[var(--border)]', badge:'bg-[#1a8a6e]/15 text-[var(--hw-green)]' }
+  : s <= 139 ? { label:'ระวัง', color:'text-yellow-400', bg:'bg-yellow-500/10', badge:'bg-yellow-500/15 text-yellow-400' }
+  : { label:'สูง', color:'text-red-400', bg:'bg-red-500/10', badge:'bg-red-500/15 text-red-400' }
 
 const getDtxSt = (v: number) =>
-  v <= 99  ? { label:'ปกติ', color:'text-[var(--hw-green)]', bg:'bg-[var(--hw-mint-bg)]', badge:'bg-[var(--hw-mint-bg)] text-[var(--hw-green)]' }
-  : v <= 125 ? { label:'ระวัง', color:'text-yellow-600', bg:'bg-yellow-50', badge:'bg-yellow-100 text-yellow-700' }
-  : { label:'สูง', color:'text-red-600', bg:'bg-red-50', badge:'bg-red-100 text-red-700' }
+  v <= 99  ? { label:'ปกติ', color:'text-[var(--hw-green)]', bg:'bg-[var(--card-bg)] border border-[var(--border)]', badge:'bg-[#1a8a6e]/15 text-[var(--hw-green)]' }
+  : v <= 125 ? { label:'ระวัง', color:'text-yellow-400', bg:'bg-yellow-500/10', badge:'bg-yellow-500/15 text-yellow-400' }
+  : { label:'สูง', color:'text-red-400', bg:'bg-red-500/10', badge:'bg-red-500/15 text-red-400' }
 
 const getBmiSt = (b: number) =>
-  b < 23 ? { label:'ปกติ', color:'text-[var(--hw-green)]', badge:'bg-[var(--hw-mint-bg)] text-[var(--hw-green)]' }
-  : b < 25 ? { label:'น้ำหนักเกิน', color:'text-yellow-600', badge:'bg-yellow-100 text-yellow-700' }
-  : { label:'อ้วน', color:'text-red-600', badge:'bg-red-100 text-red-700' }
+  b < 23 ? { label:'ปกติ', color:'text-[var(--hw-green)]', badge:'bg-[#1a8a6e]/15 text-[var(--hw-green)]' }
+  : b < 25 ? { label:'น้ำหนักเกิน', color:'text-yellow-400', badge:'bg-yellow-500/15 text-yellow-400' }
+  : { label:'อ้วน', color:'text-red-400', badge:'bg-red-500/15 text-red-400' }
 
 const getTrend = (cur: number, prev: number | null) => {
   if (!prev) return null
@@ -180,12 +180,12 @@ export default function Dashboard() {
                 </button>
               )}
               {vitals.lastBp?.pulse && (
-                <button className="rounded-xl p-3 bg-[var(--hw-mint-bg)] text-left w-full" onClick={() => router.push('/health-book/record')}>
+                <button className="rounded-xl p-3 bg-[#1a8a6e]/15 text-left w-full" onClick={() => router.push('/health-book/record')}>
                   <p className="text-xs text-[var(--muted)] mb-1">{'ชีพจร'}</p>
                   <p className="text-lg font-bold text-[var(--hw-green)]">
                     {vitals.lastBp.pulse}<span className="text-xs font-normal text-[var(--muted)] ml-1">{'bpm'}</span>
                   </p>
-                  <span className="text-xs px-2 py-0.5 rounded-full bg-[var(--hw-mint-bg)] text-[var(--hw-green)] mt-1 inline-block">
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-[#1a8a6e]/15 text-[var(--hw-green)] mt-1 inline-block">
                     {vitals.lastBp.pulse >= 60 && vitals.lastBp.pulse <= 100 ? 'ปกติ' : 'ผิดปกติ'}
                   </span>
                 </button>

@@ -132,7 +132,7 @@ export default function PrescriptionsPage() {
               </div>
 
               {expired && (
-                <div className="mt-3 flex items-center gap-1.5 text-xs text-red-600 bg-red-50 px-3 py-1.5 rounded-lg">
+                <div className="mt-3 flex items-center gap-1.5 text-xs text-red-400 bg-red-500/10 px-3 py-1.5 rounded-lg">
                   <IconAlertCircle size={13} />
                   {'ใบสั่งยานี้หมดอายุแล้ว กรุณาปรึกษาแพทย์เพื่อออกใบสั่งยาใหม่'}
                 </div>

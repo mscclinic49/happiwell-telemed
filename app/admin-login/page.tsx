@@ -51,7 +51,7 @@ export default function AdminLoginPage() {
   const inputBase = 'w-full pl-10 pr-4 py-3 rounded-[10px] border border-[var(--border)] bg-[var(--card-bg)] text-sm focus:outline-none focus:border-[#1a8a6e] transition-colors'
 
   return (
-    <main className="min-h-screen bg-[var(--hw-mint-bg)] flex items-center justify-center p-5">
+    <main className="min-h-screen bg-[var(--background)] flex items-center justify-center p-5">
       <div className="w-full max-w-sm">
         <div className="flex flex-col items-center mb-8">
           <Image src="/logo-hc.png" alt="HappiWell Clinic" width={180} height={60} className="object-contain mb-4" priority />
@@ -90,7 +90,7 @@ export default function AdminLoginPage() {
             </div>
 
             {error && (
-              <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-[10px] px-4 py-3">
+              <div className="text-sm text-red-400 bg-red-500/10 border border-red-500/20 rounded-[10px] px-4 py-3">
                 {error}
               </div>
             )}

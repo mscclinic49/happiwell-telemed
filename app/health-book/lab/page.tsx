@@ -23,9 +23,9 @@ type LabResult = {
 }
 
 const STATUS_MAP = {
-  normal:   { label: 'ปกติ ✓',  color: 'text-[var(--hw-green)]', bg: 'bg-[var(--hw-mint-bg)]', dot: 'bg-[var(--hw-green)]'  },
-  warning:  { label: 'ระวัง ↑', color: 'text-yellow-600',        bg: 'bg-yellow-100',           dot: 'bg-yellow-500'         },
-  critical: { label: 'สูง ↑',   color: 'text-red-600',           bg: 'bg-red-100',              dot: 'bg-red-500'            },
+  normal:   { label: 'ปกติ ✓',  color: 'text-[var(--hw-green)]', bg: 'bg-[#1a8a6e]/15', dot: 'bg-[var(--hw-green)]'  },
+  warning:  { label: 'ระวัง ↑', color: 'text-yellow-400',        bg: 'bg-yellow-500/15', dot: 'bg-yellow-500'         },
+  critical: { label: 'สูง ↑',   color: 'text-red-400',           bg: 'bg-red-500/15',    dot: 'bg-red-500'            },
 }
 
 const CATEGORIES: Record<string, { label: string; emoji: string; tests: string[] }> = {
@@ -151,7 +151,7 @@ export default function LabResultsPage() {
             {pending.map(rec => (
               <div key={rec.id} className="flex items-center justify-between py-1.5 border-b border-yellow-100 last:border-0">
                 <p className="text-sm">{rec.test_name}</p>
-                <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full">{'รอยืนยัน'}</span>
+                <span className="text-xs bg-yellow-500/15 text-yellow-400 px-2 py-0.5 rounded-full">{'รอยืนยัน'}</span>
               </div>
             ))}
           </div>
@@ -212,7 +212,7 @@ export default function LabResultsPage() {
                               </div>
                             </div>
                             {isInfoOpen && info && (
-                              <div className="mx-4 mb-3 bg-[var(--hw-blue-bg)] rounded-xl p-3">
+                              <div className="mx-4 mb-3 bg-[var(--card-bg)] border border-[var(--border)] rounded-xl p-3">
                                 <p className="text-xs font-medium text-[var(--hw-blue-dk)] mb-1">{info.desc}</p>
                                 <p className="text-xs text-[var(--hw-blue)]">{'💡 '}{info.tip}</p>
                               </div>

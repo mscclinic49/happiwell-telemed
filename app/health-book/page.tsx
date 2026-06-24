@@ -51,7 +51,7 @@ function SectionHead({ title, href, fKey, label, color, pendingN = 0, active, to
     <div className="flex items-center justify-between mb-3">
       <div className="flex items-center gap-2">
         <h2 className="font-semibold text-sm">{title}</h2>
-        {pendingN > 0 && <span className="text-xs bg-yellow-100 text-yellow-700 px-1.5 py-0.5 rounded-full flex items-center gap-1"><IconClock size={10}/>{pendingN}</span>}
+        {pendingN > 0 && <span className="text-xs bg-yellow-500/15 text-yellow-400 px-1.5 py-0.5 rounded-full flex items-center gap-1"><IconClock size={10}/>{pendingN}</span>}
       </div>
       <div className="flex items-center gap-2">
         <button onClick={() => toggle(fKey)}
@@ -285,7 +285,7 @@ export default function HealthBookDashboard() {
         <SectionHead title="ยาที่ต้องกิน" href="/health-book/meds" fKey="med" label="เพิ่มยา" color="var(--hw-orange)" pendingN={medPend.length} active={aForm} toggle={toggle}/>
         {aForm === 'med' && (
           <div className="bg-[var(--card-bg)] border border-[var(--border)] rounded-[14px] p-4 mb-3 space-y-3">
-            <p className="text-xs text-yellow-600">⏳ รอการยืนยันจากคลินิกก่อนแสดงผล</p>
+            <p className="text-xs text-yellow-400">⏳ รอการยืนยันจากคลินิกก่อนแสดงผล</p>
             <div><label className={lc}>ชื่อยา *</label><input value={medF.name} onChange={e => setMedF({...medF, name: e.target.value})} placeholder="เช่น Metformin 500mg" className={ic}/></div>
             <div><label className={lc}>ขนาดยา</label><input value={medF.dosage} onChange={e => setMedF({...medF, dosage: e.target.value})} placeholder="เช่น 500mg" className={ic}/></div>
             <div><label className={lc}>ความถี่</label><input value={medF.freq} onChange={e => setMedF({...medF, freq: e.target.value})} placeholder="เช่น วันละ 2 ครั้ง" className={ic}/></div>
@@ -305,7 +305,7 @@ export default function HealthBookDashboard() {
                   <div className="flex items-center gap-1.5">
                     <p className="text-sm font-semibold truncate">{m.name}</p>
                     {m.reminder_enabled ? <IconBell size={13} className="text-[var(--hw-orange)] flex-shrink-0"/> : <IconBellOff size={13} className="text-[var(--muted)] flex-shrink-0"/>}
-                    {m.source === 'clinic' && <span className="text-xs bg-[var(--hw-mint-bg)] text-[var(--hw-green)] px-1.5 py-0.5 rounded-full">คลินิก</span>}
+                    {m.source === 'clinic' && <span className="text-xs bg-[#1a8a6e]/15 text-[var(--hw-green)] px-1.5 py-0.5 rounded-full">คลินิก</span>}
                   </div>
                   <p className="text-xs text-[var(--muted)]">{[m.dosage, m.frequency].filter(Boolean).join(' · ')}</p>
                 </div>
@@ -321,7 +321,7 @@ export default function HealthBookDashboard() {
         <SectionHead title="วัคซีน" href="/health-book/meds" fKey="vaccine" label="บันทึก" color="var(--hw-blue)" pendingN={vacPend.length} active={aForm} toggle={toggle}/>
         {aForm === 'vaccine' && (
           <div className="bg-[var(--card-bg)] border border-[var(--border)] rounded-[14px] p-4 mb-3 space-y-3">
-            <p className="text-xs text-yellow-600">⏳ รอการยืนยันจากคลินิกก่อนแสดงผล</p>
+            <p className="text-xs text-yellow-400">⏳ รอการยืนยันจากคลินิกก่อนแสดงผล</p>
             <div><label className={lc}>ชื่อวัคซีน *</label><input value={vacF.name} onChange={e => setVacF({...vacF, name: e.target.value})} placeholder="เช่น COVID-19" className={ic}/></div>
             <div><label className={lc}>เข็มที่</label><input type="number" value={vacF.dose} onChange={e => setVacF({...vacF, dose: e.target.value})} className={ic}/></div>
             <div><label className={lc}>วันที่ฉีด *</label><input type="date" value={vacF.date} onChange={e => setVacF({...vacF, date: e.target.value})} className={ic}/></div>
@@ -342,7 +342,7 @@ export default function HealthBookDashboard() {
                 <div key={v.id} className={"bg-[var(--card-bg)] border rounded-[14px] px-4 py-3 " + (od ? 'border-red-200' : 'border-[var(--border)]')}>
                   <p className="text-sm font-semibold">{v.vaccine_name} <span className="text-xs font-normal text-[var(--muted)]">เข็มที่ {v.dose_number}</span></p>
                   <p className="text-xs text-[var(--muted)]">{new Date(v.vaccinated_date).toLocaleDateString('th-TH', { dateStyle: 'medium' })}{v.hospital ? ' · ' + v.hospital : ''}</p>
-                  {v.next_due_date && <p className={"text-xs mt-0.5 " + (od ? 'text-red-500' : ds ? 'text-yellow-600' : 'text-[var(--hw-green)]')}>{od ? '⚠️ เลยกำหนด' : '📅 ครั้งถัดไป'}: {new Date(v.next_due_date).toLocaleDateString('th-TH', { dateStyle: 'medium' })}</p>}
+                  {v.next_due_date && <p className={"text-xs mt-0.5 " + (od ? 'text-red-500' : ds ? 'text-yellow-400' : 'text-[var(--hw-green)]')}>{od ? '⚠️ เลยกำหนด' : '📅 ครั้งถัดไป'}: {new Date(v.next_due_date).toLocaleDateString('th-TH', { dateStyle: 'medium' })}</p>}
                 </div>
               )
             })}
@@ -355,7 +355,7 @@ export default function HealthBookDashboard() {
         <SectionHead title="ผลตรวจเลือด" href="/health-book/lab" fKey="lab" label="เพิ่มผล" color="var(--hw-green)" pendingN={labPend} active={aForm} toggle={toggle}/>
         {aForm === 'lab' && (
           <div className="bg-[var(--card-bg)] border border-[var(--border)] rounded-[14px] p-4 mb-3 space-y-3">
-            <p className="text-xs text-yellow-600">⏳ รอการยืนยันจากคลินิกก่อนแสดงผล</p>
+            <p className="text-xs text-yellow-400">⏳ รอการยืนยันจากคลินิกก่อนแสดงผล</p>
             {/* Mode toggle */}
             <div className="flex rounded-[10px] border border-[var(--border)] overflow-hidden">
               <button onClick={() => setLabMode('file')}
@@ -372,7 +372,7 @@ export default function HealthBookDashboard() {
             {labMode === 'file' ? (
               <div>
                 <label className={lc}>ไฟล์ผลตรวจ * (PDF / รูปภาพ)</label>
-                <label className={"flex flex-col items-center justify-center gap-2 border-2 border-dashed rounded-[10px] py-6 cursor-pointer transition-colors " + (labFile ? 'border-[var(--hw-green)] bg-[var(--hw-mint-bg)]' : 'border-[var(--border)] hover:border-[var(--hw-green)]')}>
+                <label className={"flex flex-col items-center justify-center gap-2 border-2 border-dashed rounded-[10px] py-6 cursor-pointer transition-colors " + (labFile ? 'border-[var(--hw-green)] bg-[#1a8a6e]/15' : 'border-[var(--border)] hover:border-[var(--hw-green)]')}>
                   <input type="file" accept="image/jpeg,image/png,image/webp,application/pdf" className="hidden"
                     onChange={e => setLabFile(e.target.files?.[0] ?? null)} />
                   {labFile
@@ -446,7 +446,7 @@ export default function HealthBookDashboard() {
                 <div className="flex items-center justify-between gap-2">
                   <p className="text-sm font-semibold truncate">{v.hospital}</p>
                   <div className="flex items-center gap-2 flex-shrink-0">
-                    {v.status === 'pending' && <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full">รอยืนยัน</span>}
+                    {v.status === 'pending' && <span className="text-xs bg-yellow-500/15 text-yellow-400 px-2 py-0.5 rounded-full">รอยืนยัน</span>}
                     <span className="text-xs text-[var(--muted)]">{new Date(v.visit_date).toLocaleDateString('th-TH', { dateStyle: 'medium' })}</span>
                   </div>
                 </div>
