@@ -72,15 +72,24 @@ export default function AdminChatPage() {
       })
   }, [user])
 
-  // Load messages for active
+  // Load messages + mark as read
   useEffect(() => {
-    if (!activeId) return
+    if (!activeId || !user) return
     sb.from('hw_messages')
       .select('*')
       .eq('conversation_id', activeId)
       .order('created_at', { ascending: true })
-      .then(({ data }) => setMessages((data as Message[]) || []))
-  }, [activeId])
+      .then(({ data }) => {
+        setMessages((data as Message[]) || [])
+        // mark unread patient messages as read
+        sb.from('hw_messages')
+          .update({ read_at: new Date().toISOString() })
+          .eq('conversation_id', activeId)
+          .neq('sender_id', user.id)
+          .is('read_at', null)
+          .then(() => {})
+      })
+  }, [activeId, user])
 
   // Realtime
   useEffect(() => {

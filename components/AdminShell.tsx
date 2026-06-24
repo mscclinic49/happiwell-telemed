@@ -46,6 +46,30 @@ const NOTIF_LABEL: Record<Notif['type'], string> = {
   kyc: 'ยืนยันตัวตน', med: 'ยา', vaccine: 'วัคซีน', lab: 'ผลตรวจ', history: 'ประวัติ',
 }
 
+function useUnreadChat(userId: string | undefined) {
+  const [unread, setUnread] = useState(0)
+
+  const refresh = useCallback(async () => {
+    if (!userId) return
+    const { count } = await sb
+      .from('hw_messages')
+      .select('id', { count: 'exact', head: true })
+      .neq('sender_id', userId)
+      .is('read_at', null)
+    setUnread(count ?? 0)
+  }, [userId])
+
+  useEffect(() => {
+    refresh()
+    const channel = sb.channel('admin-unread')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'hw_messages' }, refresh)
+      .subscribe()
+    return () => { sb.removeChannel(channel) }
+  }, [refresh])
+
+  return { unread, refresh }
+}
+
 function usePending() {
   const [count, setCount] = useState(0)
   const [notifs, setNotifs] = useState<Notif[]>([])
@@ -160,6 +184,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [bellOpen, setBellOpen] = useState(false)
   const { count: pendingCount, notifs } = usePending()
+  const { unread: unreadChat } = useUnreadChat(user?.id)
 
   useEffect(() => {
     if (loading) return
@@ -208,6 +233,11 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
             {href === '/admin/patients' && pendingCount > 0 && (
               <span className="ml-auto text-[10px] bg-red-500 text-white rounded-full px-1.5 py-0.5 min-w-[18px] text-center leading-none">
                 {pendingCount}
+              </span>
+            )}
+            {href === '/admin/chat' && unreadChat > 0 && (
+              <span className="ml-auto text-[10px] bg-red-500 text-white rounded-full px-1.5 py-0.5 min-w-[18px] text-center leading-none animate-pulse">
+                {unreadChat}
               </span>
             )}
           </Link>

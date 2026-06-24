@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState, useCallback } from 'react'
+import { createBrowserClient } from '@supabase/ssr'
 import { usePathname, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -209,12 +210,38 @@ function MobileProfileDropdown({ displayName, onSignOut }: {
 
 const VERIFY_REQUIRED = ['/doctors']
 
+const sbChat = typeof window !== 'undefined'
+  ? createBrowserClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!)
+  : null
+
+function useUnreadChat(userId: string | undefined) {
+  const [unread, setUnread] = useState(0)
+  useEffect(() => {
+    if (!userId || !sbChat) return
+    const check = async () => {
+      const { count } = await sbChat
+        .from('hw_messages')
+        .select('id', { count: 'exact', head: true })
+        .neq('sender_id', userId)
+        .is('read_at', null)
+      setUnread(count ?? 0)
+    }
+    check()
+    const ch = sbChat.channel(`patient-unread-${userId}`)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'hw_messages' }, check)
+      .subscribe()
+    return () => { sbChat.removeChannel(ch) }
+  }, [userId])
+  return unread
+}
+
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const router = useRouter()
   const { user, role, identityVerified, loading, signOut } = useAuth()
   const showShell = !NO_SHELL.some(p => pathname.startsWith(p))
   const needsVerify = !loading && user && role === 'patient' && !identityVerified && VERIFY_REQUIRED.some(p => pathname.startsWith(p))
+  const unreadChat = useUnreadChat(showShell ? user?.id : undefined)
 
   // redirect admin users away from patient pages
   useEffect(() => {
@@ -264,18 +291,21 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
           {NAV.map(({ href, label, Icon, match }) => {
             const active = match(pathname)
+            const isChatWithBadge = href === '/chat' && unreadChat > 0
             return (
-              <Link
-                key={href}
-                href={href}
+              <Link key={href} href={href}
                 className={`flex items-center gap-3 px-3 py-3 rounded-[10px] text-base font-medium transition-colors ${
-                  active
-                    ? 'text-[#1a8a6e] font-semibold'
-                    : 'text-[var(--muted)] hover:text-[var(--foreground)] hover:bg-[#e8f7f3]'
+                  active ? 'text-[#1a8a6e] font-semibold' : 'text-[var(--muted)] hover:text-[var(--foreground)] hover:bg-[#e8f7f3]'
                 }`}
-                style={active ? { background: '#e8f7f3' } : {}}
-              >
-                <Icon size={21} strokeWidth={active ? 2.2 : 1.8} />
+                style={active ? { background: '#e8f7f3' } : {}}>
+                <div className="relative">
+                  <Icon size={21} strokeWidth={active ? 2.2 : 1.8} />
+                  {isChatWithBadge && (
+                    <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-[9px] rounded-full flex items-center justify-center animate-pulse">
+                      {unreadChat > 9 ? '9+' : unreadChat}
+                    </span>
+                  )}
+                </div>
                 {label}
               </Link>
             )
@@ -308,15 +338,20 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <nav className="md:hidden flex bg-[var(--card-bg)] border-t border-[var(--border)] flex-shrink-0">
           {NAV.map(({ href, label, Icon, match }) => {
             const active = match(pathname)
+            const isChatWithBadge = href === '/chat' && unreadChat > 0
             return (
-              <Link
-                key={href}
-                href={href}
+              <Link key={href} href={href}
                 className={`flex-1 flex flex-col items-center gap-0.5 py-2.5 text-[10px] font-medium transition-colors ${
                   active ? 'text-[#1a8a6e]' : 'text-[var(--muted)]'
-                }`}
-              >
-                <Icon size={22} strokeWidth={active ? 2.2 : 1.6} />
+                }`}>
+                <div className="relative">
+                  <Icon size={22} strokeWidth={active ? 2.2 : 1.6} />
+                  {isChatWithBadge && (
+                    <span className="absolute -top-1 -right-1.5 w-3.5 h-3.5 bg-red-500 text-white text-[8px] rounded-full flex items-center justify-center">
+                      {unreadChat > 9 ? '9+' : unreadChat}
+                    </span>
+                  )}
+                </div>
                 <span>{label}</span>
               </Link>
             )
