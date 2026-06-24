@@ -82,30 +82,43 @@ export default function ChatPage() {
     init()
   }, [user])
 
-  // Load messages
+  // Load messages + mark admin messages as read
   useEffect(() => {
-    if (!activeId) return
+    if (!activeId || !user) return
     sb.from('hw_messages').select('*').eq('conversation_id', activeId)
       .order('created_at', { ascending: true })
-      .then(({ data }) => setMessages((data as Message[]) || []))
-  }, [activeId])
+      .then(({ data }) => {
+        setMessages((data as Message[]) || [])
+        sb.from('hw_messages')
+          .update({ read_at: new Date().toISOString() })
+          .eq('conversation_id', activeId)
+          .neq('sender_id', user.id)
+          .is('read_at', null)
+          .then(() => {})
+      })
+  }, [activeId, user])
 
-  // Realtime
+  // Realtime — also mark incoming admin messages as read immediately
   useEffect(() => {
-    if (!activeId) return
+    if (!activeId || !user) return
     const ch = sb.channel(`chat:${activeId}`)
       .on('postgres_changes', {
         event: 'INSERT', schema: 'public', table: 'hw_messages',
         filter: `conversation_id=eq.${activeId}`,
       }, payload => {
+        const msg = payload.new as Message
         setMessages(prev => {
-          if (prev.some(m => m.id === (payload.new as Message).id)) return prev
-          return [...prev, payload.new as Message]
+          if (prev.some(m => m.id === msg.id)) return prev
+          return [...prev, msg]
         })
+        // mark incoming admin message as read right away
+        if (msg.sender_id !== user.id) {
+          sb.from('hw_messages').update({ read_at: new Date().toISOString() }).eq('id', msg.id).then(() => {})
+        }
       })
       .subscribe()
     return () => { sb.removeChannel(ch) }
-  }, [activeId])
+  }, [activeId, user])
 
   // Auto-scroll
   useEffect(() => {

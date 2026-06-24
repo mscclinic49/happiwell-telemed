@@ -1,6 +1,6 @@
 ﻿'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useCallback } from 'react'
 import { createBrowserClient } from '@supabase/ssr'
 import { IconMessageCircle2, IconSend, IconChevronLeft, IconCalendarClock, IconUser } from '@tabler/icons-react'
 import { useAuth } from '@/lib/auth-context'
@@ -13,6 +13,7 @@ type Conversation = {
   patient_id: string
   last_message_at: string
   hw_users?: { first_name: string | null; last_name: string | null } | null
+  unreadCount: number
 }
 
 type Message = {
@@ -55,24 +56,43 @@ export default function AdminChatPage() {
 
   const active = convs.find(c => c.id === activeId)
 
-  // Load all conversations + patient names separately
-  useEffect(() => {
+  const loadConvs = useCallback(async () => {
     if (!user) return
-    sb.from('hw_conversations')
+    const { data: convData } = await sb.from('hw_conversations')
       .select('id, type, title, appointment_id, patient_id, last_message_at')
       .order('last_message_at', { ascending: false })
-      .then(async ({ data: convData }) => {
-        if (!convData?.length) { setConvs([]); return }
-        const patientIds = [...new Set(convData.map(c => c.patient_id))]
-        const { data: users } = await sb.from('hw_users')
-          .select('id, first_name, last_name')
-          .in('id', patientIds)
-        const userMap = Object.fromEntries((users ?? []).map(u => [u.id, { first_name: u.first_name, last_name: u.last_name }]))
-        setConvs(convData.map(c => ({ ...c, hw_users: userMap[c.patient_id] ?? null })) as Conversation[])
-      })
+    if (!convData?.length) { setConvs([]); return }
+
+    const convIds = convData.map(c => c.id)
+    const [usersRes, msgsRes] = await Promise.all([
+      sb.from('hw_users').select('id, first_name, last_name').in('id', [...new Set(convData.map(c => c.patient_id))]),
+      sb.from('hw_messages').select('conversation_id, sender_id, read_at').in('conversation_id', convIds),
+    ])
+    const userMap = Object.fromEntries((usersRes.data ?? []).map(u => [u.id, u]))
+
+    // per-conv stats: has patient message? unread count?
+    const patientSent = new Set<string>()
+    const unreadMap: Record<string, number> = {}
+    for (const msg of msgsRes.data ?? []) {
+      const conv = convData.find(c => c.id === msg.conversation_id)
+      if (!conv) continue
+      if (msg.sender_id === conv.patient_id) {
+        patientSent.add(msg.conversation_id)
+        if (!msg.read_at) unreadMap[msg.conversation_id] = (unreadMap[msg.conversation_id] ?? 0) + 1
+      }
+    }
+
+    setConvs(
+      convData
+        .filter(c => patientSent.has(c.id))
+        .sort((a, b) => new Date(b.last_message_at).getTime() - new Date(a.last_message_at).getTime())
+        .map(c => ({ ...c, hw_users: userMap[c.patient_id] ?? null, unreadCount: unreadMap[c.id] ?? 0 })) as Conversation[]
+    )
   }, [user])
 
-  // Load messages + mark as read
+  useEffect(() => { loadConvs() }, [loadConvs])
+
+  // Load messages + mark as read + refresh conv list
   useEffect(() => {
     if (!activeId || !user) return
     sb.from('hw_messages')
@@ -81,13 +101,12 @@ export default function AdminChatPage() {
       .order('created_at', { ascending: true })
       .then(({ data }) => {
         setMessages((data as Message[]) || [])
-        // mark unread patient messages as read
         sb.from('hw_messages')
           .update({ read_at: new Date().toISOString() })
           .eq('conversation_id', activeId)
           .neq('sender_id', user.id)
           .is('read_at', null)
-          .then(() => {})
+          .then(() => loadConvs()) // refresh badge counts
       })
   }, [activeId, user])
 
@@ -142,20 +161,23 @@ export default function AdminChatPage() {
             <div className="text-center py-12 text-[var(--muted)] text-sm">{'ยังไม่มีการสนทนา'}</div>
           )}
           {convs.map(c => (
-            <button
-              key={c.id}
-              onClick={() => setActiveId(c.id)}
-              className={`w-full text-left px-5 py-3.5 border-b border-[var(--border)] hover:bg-[#e8f7f3] transition-colors ${activeId === c.id ? 'bg-[#e8f7f3]' : ''}`}
-            >
+            <button key={c.id} onClick={() => setActiveId(c.id)}
+              className={`w-full text-left px-5 py-3.5 border-b border-[var(--border)] hover:bg-[#e8f7f3] transition-colors ${activeId === c.id ? 'bg-[#e8f7f3]' : ''}`}>
               <div className="flex items-center gap-2 mb-0.5">
                 <IconUser size={14} className="text-[var(--muted)] flex-shrink-0" />
-                <span className="font-semibold text-sm truncate">{patientName(c)}</span>
+                <span className={`text-sm truncate flex-1 ${c.unreadCount > 0 ? 'font-bold text-[var(--foreground)]' : 'font-semibold'}`}>
+                  {patientName(c)}
+                </span>
+                {c.unreadCount > 0 && (
+                  <span className="text-[10px] bg-red-500 text-white rounded-full px-1.5 py-0.5 min-w-[18px] text-center leading-none flex-shrink-0 animate-pulse">
+                    {c.unreadCount}
+                  </span>
+                )}
               </div>
               <div className="flex items-center gap-1.5">
                 {c.type === 'appointment'
                   ? <IconCalendarClock size={11} className="text-[var(--muted)]" />
-                  : <IconMessageCircle2 size={11} className="text-[var(--muted)]" />
-                }
+                  : <IconMessageCircle2 size={11} className="text-[var(--muted)]" />}
                 <span className="text-xs text-[var(--muted)] truncate">
                   {c.type === 'support' ? 'ติดต่อคลินิก' : (c.title || 'แชทนัดหมาย')}
                   {' · '}{timeLabel(c.last_message_at)}
