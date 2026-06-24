@@ -325,9 +325,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             return (
               <Link key={href} href={href}
                 className={`flex items-center gap-3 px-3 py-3 rounded-[10px] text-base font-medium transition-colors ${
-                  active ? 'text-[#1a8a6e] font-semibold' : 'text-[var(--muted)] hover:text-[var(--foreground)] hover:bg-[#e8f7f3]'
-                }`}
-                style={active ? { background: '#e8f7f3' } : {}}>
+                  active ? 'text-[var(--hw-green)] font-semibold bg-[var(--hw-mint-bg)]' : 'text-[var(--muted)] hover:text-[var(--foreground)] hover:bg-[var(--hw-mint-bg)]'
+                }`}>
                 <div className="relative">
                   <Icon size={21} strokeWidth={active ? 2.2 : 1.8} />
                   {isChatWithBadge && (
