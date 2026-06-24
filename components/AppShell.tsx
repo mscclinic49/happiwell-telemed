@@ -91,7 +91,7 @@ const PROFILE_SECTIONS = [
   },
 ]
 
-const NO_SHELL = ['/login', '/register', '/consent', '/auth', '/consult', '/admin', '/admin-login', '/forgot-password']
+const NO_SHELL = ['/login', '/register', '/consent', '/auth', '/consult', '/admin', '/admin-login', '/forgot-password', '/doctor']
 
 function UserAvatar({ name, size = 32 }: { name: string; size?: number }) {
   const initial = name.replace(/^(นาย|นาง|น\.ส\.|ด\.ช\.|ด\.ญ\.)\s*/, '').slice(0, 1) || '?'
@@ -245,12 +245,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const needsVerify = !loading && user && role === 'patient' && !identityVerified && VERIFY_REQUIRED.some(p => pathname.startsWith(p))
   const unreadChat = useUnreadChat(showShell ? user?.id : undefined, pathname.startsWith('/chat'))
 
-  // redirect admin users away from patient pages
+  // redirect admin/doctor users away from patient pages
   useEffect(() => {
     if (loading) return
-    if ((role === 'admin' || role === 'superadmin') && showShell) {
-      router.replace('/admin')
-    }
+    if ((role === 'admin' || role === 'superadmin') && showShell) router.replace('/admin')
+    if (role === 'doctor' && showShell) router.replace('/doctor')
   }, [role, loading, showShell])
 
   const displayName = user?.user_metadata?.first_name
