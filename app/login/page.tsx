@@ -37,14 +37,17 @@ export default function LoginPage() {
       email = data
     }
 
-    const { error: authErr } = await sb.auth.signInWithPassword({ email, password })
-    if (authErr) {
+    const { data: authData, error: authErr } = await sb.auth.signInWithPassword({ email, password })
+    if (authErr || !authData.user) {
       setError('อีเมล/username หรือรหัสผ่านไม่ถูกต้อง')
       setLoading(false)
       return
     }
 
-    router.push('/')
+    // redirect by role
+    const { data: profile } = await sb.from('hw_users').select('role').eq('id', authData.user.id).single()
+    const isAdmin = profile?.role === 'admin' || profile?.role === 'superadmin'
+    router.push(isAdmin ? '/admin' : '/')
     router.refresh()
   }
 

@@ -36,7 +36,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
 
   useEffect(() => {
     if (loading) return
-    if (!user) { router.replace('/admin-login'); return }
+    if (!user) { router.replace('/login'); return }
     sb.from('hw_users').select('role, first_name, full_name').eq('id', user.id).single()
       .then(({ data }) => {
         if (data?.role !== 'admin' && data?.role !== 'superadmin') {
