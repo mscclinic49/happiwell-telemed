@@ -19,7 +19,7 @@ export default function DoctorsPage() {
   useEffect(() => {
     Promise.all([
       sb.from('hw_doctors')
-        .select('id, full_name, specialty, bio, avatar_url, consultation_fee, rating, is_online')
+        .select('id, full_name, specialty, license_no, bio, avatar_url, consultation_fee, rating, is_online')
         .eq('is_active', true)
         .order('rating', { ascending: false }),
       sb.from('hw_doctor_schedules')
