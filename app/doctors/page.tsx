@@ -13,7 +13,7 @@ export default function DoctorsPage() {
   useEffect(() => {
     supabase
       .from('hw_doctors')
-      .select('id, full_name, specialty, bio, avatar_url, consultation_fee, rating, is_online')
+      .select('id, full_name, specialty, bio, avatar_url, consultation_fee, rating, is_online, hw_doctor_schedules(day_of_week, start_time, end_time, is_available)')
       .eq('is_active', true)
       .order('is_online', { ascending: false })
       .order('rating', { ascending: false })

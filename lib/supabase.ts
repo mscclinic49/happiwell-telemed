@@ -5,6 +5,13 @@ export const supabase = createBrowserClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 )
 
+export type DoctorSchedule = {
+  day_of_week: number
+  start_time: string
+  end_time: string
+  is_available: boolean
+}
+
 export type Doctor = {
   id: string
   full_name: string
@@ -14,4 +21,5 @@ export type Doctor = {
   consultation_fee: number
   rating: number | null
   is_online: boolean
+  hw_doctor_schedules?: DoctorSchedule[]
 }
