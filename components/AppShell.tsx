@@ -207,7 +207,7 @@ function MobileProfileDropdown({ displayName, onSignOut }: {
   )
 }
 
-const VERIFY_REQUIRED = ['/chat', '/doctors']
+const VERIFY_REQUIRED = ['/doctors']
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()

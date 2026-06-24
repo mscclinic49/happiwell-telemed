@@ -270,14 +270,12 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
         </>
       )}
 
-      {/* Right column: top bar + content */}
-      <div className="flex flex-col flex-1 overflow-hidden">
-        {/* Desktop top bar */}
-        <div className="hidden md:flex items-center justify-end px-5 py-3 border-b border-[var(--border)] bg-[var(--card-bg)] flex-shrink-0 h-14">
-          <Bell />
-        </div>
-        <main className="flex-1 overflow-y-auto pt-14 md:pt-0">{children}</main>
+      {/* Floating bell — desktop only */}
+      <div className="hidden md:block fixed top-4 right-4 z-40">
+        <Bell />
       </div>
+
+      <main className="flex-1 overflow-y-auto pt-14 md:pt-0">{children}</main>
     </div>
   )
 }
