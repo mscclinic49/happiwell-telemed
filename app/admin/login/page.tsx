@@ -29,7 +29,7 @@ export default function AdminLoginPage() {
 
     // If not email → lookup by username
     if (!input.includes('@')) {
-      const { data, error: rpcErr } = await sb.rpc('get_email_by_admin_username', { p_username: input.toLowerCase() })
+      const { data, error: rpcErr } = await sb.rpc('get_email_by_username', { p_username: input.toLowerCase() })
       if (rpcErr || !data) {
         setError('ไม่พบบัญชีผู้ใช้นี้ในระบบ')
         setLoading(false)

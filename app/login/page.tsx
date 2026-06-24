@@ -1,31 +1,45 @@
-﻿'use client'
+'use client'
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { createBrowserClient } from '@supabase/ssr'
+import { IconEye, IconEyeOff } from '@tabler/icons-react'
+
+const sb = createBrowserClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+)
 
 export default function LoginPage() {
   const router = useRouter()
-  const [email, setEmail] = useState('')
+  const [identifier, setIdentifier] = useState('')
   const [password, setPassword] = useState('')
+  const [showPw, setShowPw] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-
-  const supabase = createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  )
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setLoading(true)
     setError(null)
 
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
+    const input = identifier.trim()
+    let email = input
 
-    if (error) {
-      setError('อีเมลหรือรหัสผ่านไม่ถูกต้อง')
+    if (!input.includes('@')) {
+      const { data, error: rpcErr } = await sb.rpc('get_email_by_username', { p_username: input.toLowerCase() })
+      if (rpcErr || !data) {
+        setError('ไม่พบบัญชีผู้ใช้นี้ในระบบ')
+        setLoading(false)
+        return
+      }
+      email = data
+    }
+
+    const { error: authErr } = await sb.auth.signInWithPassword({ email, password })
+    if (authErr) {
+      setError('อีเมล/username หรือรหัสผ่านไม่ถูกต้อง')
       setLoading(false)
       return
     }
@@ -34,58 +48,70 @@ export default function LoginPage() {
     router.refresh()
   }
 
-  const inputClass = 'w-full p-3 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:border-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500'
+  const inputClass = 'w-full px-4 py-3 rounded-[10px] border border-[var(--border)] bg-[var(--card-bg)] text-sm focus:outline-none focus:border-[#1a8a6e] transition-colors'
 
   return (
-    <main className="min-h-screen p-6 max-w-md mx-auto">
-      <div className="mt-12 mb-8 flex flex-col items-center">
-        <Image src="/logo-hc.png" alt="HappiWell Clinic" width={240} height={80} className="object-contain mb-6" priority />
-        <h1 className="text-2xl font-bold">เข้าสู่ระบบ</h1>
-      </div>
-
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium mb-1">อีเมล</label>
-          <input
-            type="email"
-            required
-            value={email}
-            onChange={e => setEmail(e.target.value)}
-            className={inputClass}
-            placeholder="example@email.com"
-          />
+    <main className="min-h-screen flex items-center justify-center p-5 bg-[var(--background)]">
+      <div className="w-full max-w-sm">
+        <div className="flex flex-col items-center mb-8">
+          <Image src="/logo-hc.png" alt="HappiWell Clinic" width={200} height={70} className="object-contain mb-2" priority />
+          <h1 className="text-xl font-bold mt-4">{'เข้าสู่ระบบ'}</h1>
         </div>
 
-        <div>
-          <label className="block text-sm font-medium mb-1">รหัสผ่าน</label>
-          <input
-            type="password"
-            required
-            value={password}
-            onChange={e => setPassword(e.target.value)}
-            className={inputClass}
-          />
-        </div>
-
-        {error && (
-          <div className="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-700 rounded p-3 text-red-700 dark:text-red-400 text-sm">
-            {error}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium mb-1.5">{'อีเมล หรือ username'}</label>
+            <input
+              type="text"
+              required
+              autoCapitalize="none"
+              autoComplete="username"
+              value={identifier}
+              onChange={e => setIdentifier(e.target.value)}
+              placeholder={'email@example.com หรือ username'}
+              className={inputClass}
+            />
           </div>
-        )}
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full bg-blue-600 text-white py-3 rounded-full font-medium hover:bg-blue-700 disabled:opacity-50"
-        >
-          {loading ? 'กำลังเข้าสู่ระบบ...' : 'เข้าสู่ระบบ'}
-        </button>
-      </form>
+          <div>
+            <label className="block text-sm font-medium mb-1.5">{'รหัสผ่าน'}</label>
+            <div className="relative">
+              <input
+                type={showPw ? 'text' : 'password'}
+                required
+                autoComplete="current-password"
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                placeholder={'รหัสผ่าน'}
+                className={inputClass + ' pr-10'}
+              />
+              <button type="button" onClick={() => setShowPw(v => !v)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--muted)] hover:text-[var(--foreground)]">
+                {showPw ? <IconEyeOff size={16} /> : <IconEye size={16} />}
+              </button>
+            </div>
+          </div>
 
-      <p className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
-        ยังไม่มีบัญชี?{' '}
-        <a href="/register" className="text-blue-600 dark:text-blue-400 hover:underline">สมัครใช้งาน</a>
-      </p>
+          {error && (
+            <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-[10px] px-4 py-3">
+              {error}
+            </div>
+          )}
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full py-3 rounded-full font-semibold text-white text-sm hover:opacity-90 disabled:opacity-50 transition-opacity"
+            style={{ background: '#1a8a6e' }}>
+            {loading ? 'กำลังเข้าสู่ระบบ...' : 'เข้าสู่ระบบ'}
+          </button>
+        </form>
+
+        <p className="mt-6 text-center text-sm text-[var(--muted)]">
+          {'ยังไม่มีบัญชี? '}
+          <a href="/register" className="text-[#1a8a6e] font-medium hover:underline">{'สมัครใช้งาน'}</a>
+        </p>
+      </div>
     </main>
   )
 }
