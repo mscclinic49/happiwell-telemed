@@ -1,9 +1,15 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { createBrowserClient } from '@supabase/ssr'
 import { IconSearch } from '@tabler/icons-react'
-import { supabase, type Doctor } from '@/lib/supabase'
+import type { Doctor, DoctorSchedule } from '@/lib/supabase'
 import { DoctorCard } from '@/components/DoctorCard'
+
+const sb = createBrowserClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+)
 
 export default function DoctorsPage() {
   const [doctors, setDoctors] = useState<Doctor[]>([])
@@ -11,13 +17,23 @@ export default function DoctorsPage() {
   const [search, setSearch] = useState('')
 
   useEffect(() => {
-    supabase
-      .from('hw_doctors')
-      .select('id, full_name, specialty, bio, avatar_url, consultation_fee, rating, is_online, hw_doctor_schedules(day_of_week, start_time, end_time, is_available)')
-      .eq('is_active', true)
-      .order('is_online', { ascending: false })
-      .order('rating', { ascending: false })
-      .then(({ data }) => { setDoctors((data as Doctor[]) || []); setLoading(false) })
+    Promise.all([
+      sb.from('hw_doctors')
+        .select('id, full_name, specialty, bio, avatar_url, consultation_fee, rating, is_online')
+        .eq('is_active', true)
+        .order('rating', { ascending: false }),
+      sb.from('hw_doctor_schedules')
+        .select('doctor_id, day_of_week, start_time, end_time, is_available')
+        .eq('is_available', true),
+    ]).then(([{ data: docs }, { data: schedules }]) => {
+      const sched = (schedules ?? []) as (DoctorSchedule & { doctor_id: string })[]
+      const merged = (docs ?? []).map(d => ({
+        ...d,
+        hw_doctor_schedules: sched.filter(s => s.doctor_id === d.id),
+      })) as Doctor[]
+      setDoctors(merged)
+      setLoading(false)
+    })
   }, [])
 
   const filtered = doctors.filter(d =>
@@ -42,7 +58,7 @@ export default function DoctorsPage() {
 
       {loading && (
         <div className="space-y-3">
-          {[1,2,3].map(i => <div key={i} className="h-24 rounded-[14px] bg-[var(--card-bg)] border border-[var(--border)] animate-pulse" />)}
+          {[1,2,3].map(i => <div key={i} className="h-28 rounded-[14px] bg-[var(--card-bg)] border border-[var(--border)] animate-pulse" />)}
         </div>
       )}
 
