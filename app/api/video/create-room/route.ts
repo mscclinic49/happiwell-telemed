@@ -21,14 +21,30 @@ export async function POST(req: NextRequest) {
 
     const service = createSupabaseServiceClient()
 
-    // ตรวจสอบว่า appointment เป็นของ user คนนี้
+    // ตรวจสอบว่าเป็น patient หรือ doctor ของ appointment นี้
     const { data: appt } = await service
       .from('hw_appointments')
-      .select('id, user_id')
+      .select('id, user_id, doctor_id')
       .eq('id', appointmentId)
       .single()
 
-    if (!appt || appt.user_id !== user.id) {
+    if (!appt) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
+
+    const isPatient = appt.user_id === user.id
+    let isDoctor = false
+    if (!isPatient && appt.doctor_id) {
+      const { data: doc } = await service
+        .from('hw_doctors')
+        .select('id')
+        .eq('id', appt.doctor_id)
+        .eq('user_id', user.id)
+        .single()
+      isDoctor = !!doc
+    }
+
+    if (!isPatient && !isDoctor) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 

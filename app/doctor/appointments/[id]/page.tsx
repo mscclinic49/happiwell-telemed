@@ -1,13 +1,12 @@
 'use client'
 
-import { useEffect, useState, useRef, useCallback } from 'react'
+import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { createBrowserClient } from '@supabase/ssr'
-import Image from 'next/image'
 import { useAuth } from '@/lib/auth-context'
 import {
-  IconArrowLeft, IconSend, IconPill, IconTrash, IconPlus,
-  IconCheck, IconUser, IconPhone, IconCalendarClock, IconChevronDown,
+  IconArrowLeft, IconPill, IconTrash, IconPlus,
+  IconCheck, IconUser, IconPhone, IconVideo, IconChevronDown,
 } from '@tabler/icons-react'
 
 const sb = createBrowserClient(
@@ -27,8 +26,6 @@ type Appt = {
   hw_doctors: { id: string } | null
 }
 
-type Msg = { id: string; sender_id: string; content: string; created_at: string }
-
 type RxItem = { id?: string; drug_name: string; dosage: string; frequency: string; duration: string; instructions: string; quantity: string }
 
 const EMPTY_ITEM = (): RxItem => ({ drug_name: '', dosage: '', frequency: '', duration: '', instructions: '', quantity: '' })
@@ -36,24 +33,11 @@ const EMPTY_ITEM = (): RxItem => ({ drug_name: '', dosage: '', frequency: '', du
 const STATUS_LABEL: Record<string, string> = {
   pending: 'รอยืนยัน', confirmed: 'ยืนยันแล้ว', completed: 'เสร็จสิ้น', cancelled: 'ยกเลิก',
 }
-
 const GENDER: Record<string, string> = { male: 'ชาย', female: 'หญิง', other: 'อื่น' }
 
 function calcAge(dob: string | null) {
   if (!dob) return null
   return Math.floor((Date.now() - new Date(dob).getTime()) / (365.25 * 24 * 3600 * 1000))
-}
-
-function MsgBubble({ msg, mine }: { msg: Msg; mine: boolean }) {
-  return (
-    <div className={`flex ${mine ? 'justify-end' : 'justify-start'}`}>
-      <div className={`max-w-[75%] px-3 py-2 rounded-[14px] text-sm ${
-        mine ? 'bg-[#1a8a6e] text-white rounded-br-[4px]' : 'bg-[var(--card-bg)] border border-[var(--border)] rounded-bl-[4px]'
-      }`}>
-        {msg.content}
-      </div>
-    </div>
-  )
 }
 
 export default function ConsultationPage() {
@@ -63,12 +47,15 @@ export default function ConsultationPage() {
 
   const [appt, setAppt] = useState<Appt | null>(null)
   const [doctorId, setDoctorId] = useState<string | null>(null)
-  const [convId, setConvId] = useState<string | null>(null)
-  const [messages, setMessages] = useState<Msg[]>([])
-  const [input, setInput] = useState('')
-  const [sending, setSending] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [updatingStatus, setUpdatingStatus] = useState(false)
 
+  // Video call
+  const [roomUrl, setRoomUrl] = useState<string | null>(null)
+  const [startingCall, setStartingCall] = useState(false)
+  const [callError, setCallError] = useState<string | null>(null)
+
+  // Rx
   const [diagnosis, setDiagnosis] = useState('')
   const [rxNotes, setRxNotes] = useState('')
   const [rxItems, setRxItems] = useState<RxItem[]>([EMPTY_ITEM()])
@@ -76,10 +63,7 @@ export default function ConsultationPage() {
   const [rxSaved, setRxSaved] = useState(false)
   const [existingRxId, setExistingRxId] = useState<string | null>(null)
 
-  const [tab, setTab] = useState<'chat' | 'rx'>('chat')
-  const [updatingStatus, setUpdatingStatus] = useState(false)
-
-  const bottomRef = useRef<HTMLDivElement>(null)
+  const [tab, setTab] = useState<'video' | 'rx'>('video')
 
   // Load appointment + doctor
   useEffect(() => {
@@ -96,60 +80,19 @@ export default function ConsultationPage() {
     })
   }, [user, apptId])
 
-  // Get or create doctor-patient conversation
+  // Load existing room URL
   useEffect(() => {
-    if (!doctorId || !appt?.hw_users?.id) return
-    sb.from('hw_conversations')
-      .select('id')
-      .eq('appointment_id', apptId)
-      .eq('doctor_id', doctorId)
-      .maybeSingle()
-      .then(async ({ data }) => {
-        if (data) {
-          setConvId(data.id)
-        } else {
-          const { data: newConv } = await sb.from('hw_conversations').insert({
-            type: 'doctor',
-            patient_id: appt.hw_users!.id,
-            appointment_id: apptId,
-            doctor_id: doctorId,
-          }).select('id').single()
-          if (newConv) setConvId(newConv.id)
-        }
-      })
-  }, [doctorId, appt, apptId])
+    if (!apptId) return
+    sb.from('hw_consultations').select('room_url').eq('appointment_id', apptId).maybeSingle()
+      .then(({ data }) => { if (data?.room_url) setRoomUrl(data.room_url) })
+  }, [apptId])
 
-  // Load messages + realtime
-  const loadMsgs = useCallback(async () => {
-    if (!convId) return
-    const { data } = await sb.from('hw_messages')
-      .select('id, sender_id, content, created_at')
-      .eq('conversation_id', convId)
-      .order('created_at')
-    setMessages((data as Msg[]) ?? [])
-  }, [convId])
-
-  useEffect(() => {
-    if (!convId) return
-    loadMsgs()
-    const ch = sb.channel(`consult-${convId}`)
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'hw_messages',
-        filter: `conversation_id=eq.${convId}` }, loadMsgs)
-      .subscribe()
-    return () => { sb.removeChannel(ch) }
-  }, [convId, loadMsgs])
-
-  useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages])
-
-  // Load existing Rx for this appointment
+  // Load existing Rx
   useEffect(() => {
     if (!doctorId || !apptId) return
-    sb.from('hw_rx').select('id, diagnosis, notes, hw_rx_items(id, drug_name, dosage, frequency, duration, instructions, quantity, sort_order)')
-      .eq('appointment_id', apptId)
-      .eq('doctor_id', doctorId)
-      .maybeSingle()
+    sb.from('hw_rx')
+      .select('id, diagnosis, notes, hw_rx_items(id, drug_name, dosage, frequency, duration, instructions, quantity, sort_order)')
+      .eq('appointment_id', apptId).eq('doctor_id', doctorId).maybeSingle()
       .then(({ data }) => {
         if (!data) return
         setExistingRxId(data.id)
@@ -162,12 +105,22 @@ export default function ConsultationPage() {
       })
   }, [doctorId, apptId])
 
-  async function sendMessage() {
-    if (!input.trim() || !convId || !user) return
-    setSending(true)
-    await sb.from('hw_messages').insert({ conversation_id: convId, sender_id: user.id, content: input.trim() })
-    setInput('')
-    setSending(false)
+  async function startCall() {
+    setStartingCall(true)
+    setCallError(null)
+    try {
+      const res = await fetch('/api/video/create-room', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ appointmentId: apptId }),
+      })
+      const json = await res.json()
+      if (!res.ok) throw new Error(json.error ?? 'เกิดข้อผิดพลาด')
+      setRoomUrl(json.roomUrl)
+    } catch (e) {
+      setCallError(e instanceof Error ? e.message : 'เกิดข้อผิดพลาด')
+    }
+    setStartingCall(false)
   }
 
   async function updateStatus(status: string) {
@@ -188,37 +141,24 @@ export default function ConsultationPage() {
       if (validItems.length > 0) {
         await sb.from('hw_rx_items').insert(
           validItems.map((i, idx) => ({
-            rx_id: existingRxId,
-            drug_name: i.drug_name,
-            dosage: i.dosage,
-            frequency: i.frequency,
-            duration: i.duration,
-            instructions: i.instructions,
-            quantity: i.quantity ? parseInt(i.quantity) : null,
-            sort_order: idx,
+            rx_id: existingRxId, drug_name: i.drug_name, dosage: i.dosage,
+            frequency: i.frequency, duration: i.duration, instructions: i.instructions,
+            quantity: i.quantity ? parseInt(i.quantity) : null, sort_order: idx,
           }))
         )
       }
     } else {
       const { data: rxData } = await sb.from('hw_rx').insert({
-        appointment_id: apptId,
-        patient_id: appt.hw_users!.id,
-        doctor_id: doctorId,
-        diagnosis,
-        notes: rxNotes,
+        appointment_id: apptId, patient_id: appt.hw_users!.id,
+        doctor_id: doctorId, diagnosis, notes: rxNotes,
       }).select('id').single()
       if (rxData && validItems.length > 0) {
         setExistingRxId(rxData.id)
         await sb.from('hw_rx_items').insert(
           validItems.map((i, idx) => ({
-            rx_id: rxData.id,
-            drug_name: i.drug_name,
-            dosage: i.dosage,
-            frequency: i.frequency,
-            duration: i.duration,
-            instructions: i.instructions,
-            quantity: i.quantity ? parseInt(i.quantity) : null,
-            sort_order: idx,
+            rx_id: rxData.id, drug_name: i.drug_name, dosage: i.dosage,
+            frequency: i.frequency, duration: i.duration, instructions: i.instructions,
+            quantity: i.quantity ? parseInt(i.quantity) : null, sort_order: idx,
           }))
         )
       }
@@ -253,7 +193,6 @@ export default function ConsultationPage() {
             {dt.toLocaleDateString('th-TH', { dateStyle: 'medium' })} · {dt.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })}
           </div>
         </div>
-        {/* Status selector */}
         <div className="relative flex-shrink-0">
           <select value={appt.status} disabled={updatingStatus}
             onChange={e => updateStatus(e.target.value)}
@@ -264,13 +203,11 @@ export default function ConsultationPage() {
         </div>
       </div>
 
-      {/* Body — 3 columns on desktop */}
       <div className="flex flex-1 overflow-hidden min-h-0">
 
         {/* LEFT: Patient info */}
         <aside className="hidden lg:flex flex-col w-64 flex-shrink-0 border-r border-[var(--border)] overflow-y-auto bg-[var(--card-bg)]">
           <div className="p-4 space-y-4">
-            {/* Avatar + name */}
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 rounded-full bg-[#1a8a6e]/15 flex items-center justify-center flex-shrink-0">
                 <IconUser size={22} className="text-[#1a8a6e]" />
@@ -283,7 +220,6 @@ export default function ConsultationPage() {
               </div>
             </div>
 
-            {/* Info rows */}
             {[
               { label: 'เบอร์โทร', value: patient?.phone },
               { label: 'กรุ๊ปเลือด', value: patient?.blood_type },
@@ -302,7 +238,6 @@ export default function ConsultationPage() {
                 <div className="text-xs text-[var(--foreground)]">{patient.allergies}</div>
               </div>
             )}
-
             {appt.symptoms && (
               <div className="bg-[var(--background)] rounded-[10px] p-3">
                 <div className="text-xs font-semibold text-[var(--muted)] mb-1 uppercase tracking-wide">{'อาการ'}</div>
@@ -312,7 +247,7 @@ export default function ConsultationPage() {
           </div>
         </aside>
 
-        {/* MIDDLE: Chat */}
+        {/* CENTER: Video call */}
         <div className={`flex flex-col flex-1 overflow-hidden min-w-0 ${tab === 'rx' ? 'hidden lg:flex' : 'flex'}`}>
           {/* Mobile patient info strip */}
           <div className="lg:hidden px-4 py-2 bg-[var(--background)] border-b border-[var(--border)] text-xs text-[var(--muted)] flex gap-4">
@@ -320,34 +255,36 @@ export default function ConsultationPage() {
             {patient?.allergies && <span className="text-red-400 truncate">{'แพ้: '}{patient.allergies}</span>}
           </div>
 
-          <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
-            {messages.length === 0 && (
-              <div className="text-center text-sm text-[var(--muted)] mt-12">{'เริ่มแชทกับคนไข้'}</div>
-            )}
-            {messages.map(m => (
-              <MsgBubble key={m.id} msg={m} mine={m.sender_id === user?.id} />
-            ))}
-            <div ref={bottomRef} />
-          </div>
-
-          {/* Input */}
-          <div className="px-4 py-3 border-t border-[var(--border)] flex gap-2 flex-shrink-0">
-            <input
-              value={input}
-              onChange={e => setInput(e.target.value)}
-              onKeyDown={e => e.key === 'Enter' && !e.shiftKey && (e.preventDefault(), sendMessage())}
-              placeholder={'พิมพ์ข้อความ...'}
-              className="flex-1 px-3 py-2 rounded-[10px] border border-[var(--border)] bg-[var(--background)] text-sm focus:outline-none focus:border-[#1a8a6e]"
+          {roomUrl ? (
+            <iframe
+              src={roomUrl}
+              allow="camera; microphone; fullscreen; display-capture"
+              className="flex-1 w-full border-0"
             />
-            <button onClick={sendMessage} disabled={!input.trim() || sending}
-              className="w-9 h-9 rounded-[10px] bg-[#1a8a6e] text-white flex items-center justify-center disabled:opacity-40 flex-shrink-0">
-              <IconSend size={16} />
-            </button>
-          </div>
+          ) : (
+            <div className="flex-1 flex flex-col items-center justify-center gap-4 p-8">
+              <div className="w-20 h-20 rounded-full bg-[#1a8a6e]/10 flex items-center justify-center">
+                <IconVideo size={36} className="text-[#1a8a6e]" />
+              </div>
+              <div className="text-center">
+                <div className="font-semibold text-[var(--foreground)] mb-1">{'วีดีโอคอล'}</div>
+                <div className="text-sm text-[var(--muted)]">{'กดเริ่มเพื่อเปิดห้องวีดีโอกับคนไข้'}</div>
+              </div>
+              {callError && (
+                <div className="text-xs text-red-400 bg-red-500/10 px-4 py-2 rounded-[10px]">{callError}</div>
+              )}
+              <button onClick={startCall} disabled={startingCall}
+                className="flex items-center gap-2 px-6 py-3 rounded-full font-semibold text-white text-sm hover:opacity-90 disabled:opacity-50 transition-opacity"
+                style={{ background: '#1a8a6e' }}>
+                <IconVideo size={18} />
+                {startingCall ? 'กำลังเปิดห้อง...' : 'เริ่มวีดีโอคอล'}
+              </button>
+            </div>
+          )}
         </div>
 
         {/* RIGHT: Rx form */}
-        <div className={`flex flex-col w-full lg:w-96 flex-shrink-0 border-l border-[var(--border)] overflow-y-auto bg-[var(--card-bg)] ${tab === 'chat' ? 'hidden lg:flex' : 'flex'}`}>
+        <div className={`flex flex-col w-full lg:w-96 flex-shrink-0 border-l border-[var(--border)] overflow-y-auto bg-[var(--card-bg)] ${tab === 'video' ? 'hidden lg:flex' : 'flex'}`}>
           <div className="px-4 pt-4 pb-2 border-b border-[var(--border)]">
             <div className="flex items-center gap-2 mb-1">
               <IconPill size={16} className="text-[#1a8a6e]" />
@@ -359,7 +296,6 @@ export default function ConsultationPage() {
           </div>
 
           <div className="p-4 space-y-4 flex-1">
-            {/* Diagnosis */}
             <div>
               <label className="block text-xs font-semibold text-[var(--muted)] mb-1.5 uppercase tracking-wide">{'วินิจฉัย'}</label>
               <textarea value={diagnosis} onChange={e => setDiagnosis(e.target.value)}
@@ -367,7 +303,6 @@ export default function ConsultationPage() {
                 className="w-full px-3 py-2 text-sm border border-[var(--border)] rounded-[10px] bg-[var(--background)] focus:outline-none focus:border-[#1a8a6e] resize-none" />
             </div>
 
-            {/* Drug items */}
             <div>
               <div className="flex items-center justify-between mb-2">
                 <label className="text-xs font-semibold text-[var(--muted)] uppercase tracking-wide">{'รายการยา'}</label>
@@ -414,7 +349,6 @@ export default function ConsultationPage() {
               </div>
             </div>
 
-            {/* Notes */}
             <div>
               <label className="block text-xs font-semibold text-[var(--muted)] mb-1.5 uppercase tracking-wide">{'หมายเหตุ'}</label>
               <textarea value={rxNotes} onChange={e => setRxNotes(e.target.value)}
@@ -423,7 +357,6 @@ export default function ConsultationPage() {
             </div>
           </div>
 
-          {/* Save button */}
           <div className="px-4 pb-4 flex-shrink-0">
             <button onClick={saveRx} disabled={savingRx}
               className="w-full py-3 rounded-full font-semibold text-white text-sm flex items-center justify-center gap-2 hover:opacity-90 disabled:opacity-50 transition-opacity"
@@ -437,8 +370,8 @@ export default function ConsultationPage() {
       {/* Mobile bottom tabs */}
       <div className="lg:hidden flex border-t border-[var(--border)] bg-[var(--card-bg)] flex-shrink-0">
         {[
-          { key: 'chat' as const, label: 'แชท', Icon: IconCalendarClock },
-          { key: 'rx' as const, label: 'ใบสั่งยา', Icon: IconPill },
+          { key: 'video' as const, label: 'วีดีโอคอล', Icon: IconVideo },
+          { key: 'rx'    as const, label: 'ใบสั่งยา',  Icon: IconPill },
         ].map(t => (
           <button key={t.key} onClick={() => setTab(t.key)}
             className={`flex-1 flex flex-col items-center gap-0.5 py-2.5 text-xs font-medium transition-colors ${

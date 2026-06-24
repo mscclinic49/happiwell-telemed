@@ -1,19 +1,18 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createBrowserClient } from '@supabase/ssr'
 import { useAuth } from '@/lib/auth-context'
 import {
-  IconLayoutDashboard, IconCalendarClock, IconMessageCircle2,
+  IconLayoutDashboard, IconCalendarClock,
   IconLogout, IconMenu2, IconX, IconPill,
 } from '@tabler/icons-react'
 
 const NAV = [
   { href: '/doctor',              label: 'ภาพรวม',  Icon: IconLayoutDashboard, exact: true },
   { href: '/doctor/appointments', label: 'นัดหมาย',  Icon: IconCalendarClock },
-  { href: '/doctor/chat',         label: 'แชท',      Icon: IconMessageCircle2 },
   { href: '/doctor/rx',           label: 'ใบสั่งยา', Icon: IconPill },
 ]
 
@@ -28,7 +27,6 @@ export default function DoctorShell({ children }: { children: React.ReactNode })
   const pathname = usePathname()
   const [checking, setChecking] = useState(true)
   const [doctorName, setDoctorName] = useState('')
-  const [unread, setUnread] = useState(0)
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   useEffect(() => {
@@ -41,31 +39,6 @@ export default function DoctorShell({ children }: { children: React.ReactNode })
         setChecking(false)
       })
   }, [user, loading])
-
-  const refreshUnread = useCallback(async () => {
-    if (!user) return
-    const { data: doc } = await sb.from('hw_doctors').select('id').eq('user_id', user.id).single()
-    if (!doc) return
-    const { data: convs } = await sb.from('hw_conversations').select('id').eq('doctor_id', doc.id)
-    const convIds = (convs ?? []).map(c => c.id)
-    if (convIds.length === 0) return
-    const { count } = await sb
-      .from('hw_messages')
-      .select('id', { count: 'exact', head: true })
-      .neq('sender_id', user.id)
-      .is('read_at', null)
-      .in('conversation_id', convIds)
-    setUnread(count ?? 0)
-  }, [user])
-
-  useEffect(() => {
-    if (!user || checking) return
-    refreshUnread()
-    const ch = sb.channel('doctor-unread')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'hw_messages' }, refreshUnread)
-      .subscribe()
-    return () => { sb.removeChannel(ch) }
-  }, [user, checking, refreshUnread])
 
   async function signOut() { await sb.auth.signOut(); router.replace('/login') }
 
@@ -85,11 +58,6 @@ export default function DoctorShell({ children }: { children: React.ReactNode })
               ${active ? 'bg-[#1a8a6e]/15 text-[#1a8a6e]' : 'text-[var(--muted)] hover:bg-[#1a8a6e]/10 hover:text-[var(--foreground)]'}`}>
             <Icon size={19} />
             {label}
-            {href === '/doctor/chat' && unread > 0 && (
-              <span className="ml-auto text-[10px] bg-red-500 text-white rounded-full px-1.5 py-0.5 min-w-[18px] text-center leading-none animate-pulse">
-                {unread}
-              </span>
-            )}
           </Link>
         )
       })}
