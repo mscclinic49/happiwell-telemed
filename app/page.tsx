@@ -72,8 +72,9 @@ export default function Dashboard() {
         supabase.from('hw_users').select('first_name, weight, height').eq('id', user!.id).single(),
         supabase.from('hw_appointments')
           .select('id, scheduled_at, status, symptoms, hw_doctors(full_name, specialty)')
-          .eq('user_id', user!.id).in('status', ['pending', 'confirmed'])
-          .gte('scheduled_at', new Date().toISOString()).order('scheduled_at', { ascending: true }).limit(3),
+          .eq('user_id', user!.id)
+          .in('status', ['pending', 'confirmed', 'completed'])
+          .order('scheduled_at', { ascending: false }).limit(5),
         supabase.from('hw_prescriptions')
           .select('id, issued_at, hw_doctors(full_name)')
           .eq('user_id', user!.id).order('issued_at', { ascending: false }).limit(1).maybeSingle(),
@@ -234,7 +235,7 @@ export default function Dashboard() {
         <section>
           <div className="flex items-center gap-2 mb-3">
             <IconCalendarClock size={16} className="text-[var(--hw-green)]" />
-            <h2 className="font-semibold text-sm">{'นัดหมายที่กำลังจะมา'}</h2>
+            <h2 className="font-semibold text-sm">{'นัดหมาย'}</h2>
           </div>
           <div className="space-y-2">
             {upcoming.map(a => {
