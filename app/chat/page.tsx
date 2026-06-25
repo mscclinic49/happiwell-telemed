@@ -7,6 +7,7 @@ import {
   IconMessageCircle2, IconSend, IconAlertCircle, IconPhoto,
 } from '@tabler/icons-react'
 import { useAuth } from '@/lib/auth-context'
+import { WalkinButton } from '@/components/WalkinButton'
 
 type Conversation = {
   id: string; type: 'support' | 'appointment'
@@ -191,6 +192,11 @@ export default function ChatPage() {
           <div className="font-semibold text-sm">{'ติดต่อคลินิก'}</div>
           <div className="text-xs text-[var(--muted)]">{'แฮปปี้เวลล์ คลินิกเวชกรรม'}</div>
         </div>
+      </div>
+
+      {/* Walk-in banner */}
+      <div className="px-4 py-2 border-b border-[var(--border)] bg-[var(--background)] flex-shrink-0">
+        <WalkinButton compact onSuccess={() => { window.location.href = '/' }} />
       </div>
 
       <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3 min-h-0">
