@@ -37,7 +37,6 @@ type RxData = {
 }
 
 const inputCls = 'w-full px-2.5 py-1.5 text-sm border border-[var(--border)] rounded-[8px] bg-[var(--card-bg)] focus:outline-none focus:border-[var(--hw-green-dk)]'
-const disabledCls = 'w-full px-2.5 py-1.5 text-sm border border-[var(--border)] rounded-[8px] bg-[var(--background)] text-[var(--muted)] cursor-not-allowed select-none'
 
 export default function AdminRxEditPage() {
   const { rxId } = useParams<{ rxId: string }>()
@@ -74,7 +73,7 @@ export default function AdminRxEditPage() {
       })
   }, [user, rxId, router])
 
-  function updateItem(id: string, field: 'quantity' | 'instructions', value: string) {
+  function updateItem(id: string, field: 'quantity', value: string) {
     setItems(prev => prev.map(i => i.id === id ? { ...i, [field]: value } : i))
   }
 
@@ -86,7 +85,6 @@ export default function AdminRxEditPage() {
         items.map(i =>
           sb.from('hw_rx_items').update({
             quantity: i.quantity ? parseInt(i.quantity) : null,
-            instructions: i.instructions || null,
           }).eq('id', i.id)
         )
       )
@@ -147,41 +145,29 @@ export default function AdminRxEditPage() {
 
       <div className="bg-[var(--card-bg)] border border-[var(--border)] rounded-[14px] p-1 mb-4">
         {/* Column header */}
-        <div className="grid grid-cols-[2fr_1fr_1fr_2fr] gap-2 px-3 py-2 text-[10px] font-semibold uppercase tracking-wide text-[var(--muted)] border-b border-[var(--border)]">
+        <div className="grid grid-cols-[2fr_1fr_1fr] gap-2 px-3 py-2 text-[10px] font-semibold uppercase tracking-wide text-[var(--muted)] border-b border-[var(--border)]">
           <span>{'ยา'}</span>
-          <span>{'ขนาด/ความถี่'}</span>
+          <span>{'ขนาด / วิธีกิน'}</span>
           <span>{'จำนวน (เม็ด)'}</span>
-          <span>{'วิธีกิน'}</span>
         </div>
 
         {items.map(item => (
-          <div key={item.id} className="grid grid-cols-[2fr_1fr_1fr_2fr] gap-2 px-3 py-3 border-b border-[var(--border)] last:border-0 items-start">
-            {/* Drug name (read-only) */}
+          <div key={item.id} className="grid grid-cols-[2fr_1fr_1fr] gap-2 px-3 py-3 border-b border-[var(--border)] last:border-0 items-center">
             <div>
               <p className="text-sm font-medium">{item.drug_name}</p>
-              {item.frequency && <p className="text-xs text-[var(--muted)] mt-0.5">{item.frequency}</p>}
-              {item.duration && <p className="text-xs text-[var(--muted)]">{item.duration} วัน</p>}
+              {item.dosage && <p className="text-xs text-[var(--muted)] mt-0.5">{item.dosage}</p>}
+              {item.frequency && <p className="text-xs text-[var(--muted)]">{item.frequency}</p>}
+              {item.instructions && <p className="text-xs text-[var(--muted)]">{item.instructions}</p>}
             </div>
-
-            {/* Dosage (read-only) */}
             <div>
-              <p className="text-sm text-[var(--muted)]">{item.dosage || '—'}</p>
+              {item.duration
+                ? <p className="text-xs text-[var(--muted)]">{item.duration} วัน</p>
+                : <p className="text-xs text-[var(--muted)]">—</p>}
             </div>
-
-            {/* Quantity (editable) */}
             <input
               type="number" min="1"
               value={item.quantity}
               onChange={e => updateItem(item.id, 'quantity', e.target.value)}
-              className={inputCls}
-            />
-
-            {/* Instructions (editable) */}
-            <input
-              type="text"
-              value={item.instructions}
-              onChange={e => updateItem(item.id, 'instructions', e.target.value)}
-              placeholder="วิธีกิน / คำแนะนำ"
               className={inputCls}
             />
           </div>
