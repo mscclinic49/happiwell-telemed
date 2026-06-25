@@ -140,6 +140,7 @@ export default function ConsultPage() {
 
   const [role, setRole] = useState<Role>(null)
   const [patientUserId, setPatientUserId] = useState<string | null>(null)
+  const [displayName, setDisplayName] = useState<string>('')
   const [status, setStatus] = useState<'loading' | 'consent' | 'doctor-verify' | 'joining' | 'in-call' | 'error'>('loading')
   const [error, setError] = useState<string | null>(null)
   const [roomUrl, setRoomUrl] = useState<string | null>(null)
@@ -151,18 +152,27 @@ export default function ConsultPage() {
     if (authLoading || !user) return
 
     async function detectRole() {
-      const { data: appt } = await supabase
-        .from('hw_appointments')
-        .select('user_id, hw_doctors!inner(user_id)')
-        .eq('id', appointmentId)
-        .single()
+      const [apptRes, profileRes] = await Promise.all([
+        supabase.from('hw_appointments')
+          .select('user_id, hw_doctors!inner(user_id)')
+          .eq('id', appointmentId).single(),
+        supabase.from('hw_users')
+          .select('title, first_name, last_name, full_name')
+          .eq('id', user!.id).single(),
+      ])
 
-      if (!appt) { setError('ไม่พบข้อมูลการนัดหมาย'); setStatus('error'); return }
+      if (!apptRes.data) { setError('ไม่พบข้อมูลการนัดหมาย'); setStatus('error'); return }
 
-      const doctorUserId = (appt.hw_doctors as unknown as { user_id: string | null })?.user_id
+      const p = profileRes.data
+      if (p) {
+        const name = [p.title, p.first_name ?? p.full_name, p.last_name].filter(Boolean).join('')
+        setDisplayName(name || user!.email?.split('@')[0] || 'ผู้ใช้')
+      }
+
+      const doctorUserId = (apptRes.data.hw_doctors as unknown as { user_id: string | null })?.user_id
       const detectedRole: Role = doctorUserId === user!.id ? 'doctor' : 'patient'
       setRole(detectedRole)
-      setPatientUserId(appt.user_id)
+      setPatientUserId(apptRes.data.user_id)
       setStatus(detectedRole === 'doctor' ? 'doctor-verify' : 'consent')
     }
 
@@ -204,7 +214,7 @@ export default function ConsultPage() {
       callFrame.on('joined-meeting', () => setStatus('in-call'))
       callFrame.on('error', (e) => { setError('เกิดข้อผิดพลาด: ' + (e?.errorMsg || 'unknown')); setStatus('error'); })
 
-      await callFrame.join({ url: data.roomUrl })
+      await callFrame.join({ url: data.roomUrl, userName: displayName || undefined })
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error')
       setStatus('error')
