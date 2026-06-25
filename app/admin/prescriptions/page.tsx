@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { createBrowserClient } from '@supabase/ssr'
 import {
-  IconPill, IconUpload, IconCheck, IconEdit, IconUser,
+  IconPill, IconUpload, IconEye, IconEdit, IconUser,
   IconCalendarClock, IconAlertCircle, IconStethoscope,
 } from '@tabler/icons-react'
 import { useAuth } from '@/lib/auth-context'
@@ -22,22 +22,34 @@ type Appt = {
   hw_users: { full_name: string | null } | null
   hw_doctors: { full_name: string | null } | null
   hw_prescriptions: { id: string; storage_path: string }[]
+  hw_rx: { id: string }[]
 }
 
-function UploadButton({
-  appt,
-  onUploaded,
-}: {
-  appt: Appt
-  onUploaded: () => void
-}) {
+function PrescriptionButtons({ appt, onUploaded }: { appt: Appt; onUploaded: () => void }) {
   const { user } = useAuth()
   const fileRef = useRef<HTMLInputElement>(null)
   const [uploading, setUploading] = useState(false)
+  const [viewing, setViewing] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [editMode, setEditMode] = useState(false)
 
-  const hasPrescription = appt.hw_prescriptions.length > 0
+  const hasFile = appt.hw_prescriptions.length > 0
+  const hasRx   = appt.hw_rx.length > 0
+  const hasAny  = hasFile || hasRx
+
+  async function handleView() {
+    if (hasRx) {
+      window.open(`/doctor/rx/${appt.hw_rx[0].id}/print`, '_blank')
+      return
+    }
+    if (hasFile) {
+      setViewing(true)
+      const { data } = await sb.storage
+        .from('prescriptions')
+        .createSignedUrl(appt.hw_prescriptions[0].storage_path, 3600)
+      if (data?.signedUrl) window.open(data.signedUrl, '_blank')
+      setViewing(false)
+    }
+  }
 
   async function handleFile(file: File) {
     if (!user) return
@@ -46,28 +58,15 @@ function UploadButton({
     try {
       const ext = file.name.split('.').pop() ?? 'pdf'
       const path = `${appt.user_id}/${appt.id}_${Date.now()}.${ext}`
-
       const { data: sd, error: se } = await sb.storage
-        .from('prescriptions')
-        .upload(path, file, { contentType: file.type })
+        .from('prescriptions').upload(path, file, { contentType: file.type })
       if (se) throw new Error(se.message)
-
-      const { data: ad } = await sb
-        .from('hw_appointments')
-        .select('doctor_id')
-        .eq('id', appt.id)
-        .single()
-
+      const { data: ad } = await sb.from('hw_appointments').select('doctor_id').eq('id', appt.id).single()
       const { error: ie } = await sb.from('hw_prescriptions').insert({
-        appointment_id: appt.id,
-        user_id: appt.user_id,
-        doctor_id: ad?.doctor_id ?? null,
-        storage_path: sd.path,
-        uploaded_by: user.id,
+        appointment_id: appt.id, user_id: appt.user_id,
+        doctor_id: ad?.doctor_id ?? null, storage_path: sd.path, uploaded_by: user.id,
       })
       if (ie) throw new Error(ie.message)
-
-      setEditMode(false)
       onUploaded()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'เกิดข้อผิดพลาด')
@@ -76,58 +75,53 @@ function UploadButton({
     }
   }
 
-  if (!hasPrescription || editMode) {
-    return (
-      <div className="flex flex-col items-end gap-1.5">
-        <input
-          ref={fileRef}
-          type="file"
-          accept="image/jpeg,image/png,image/webp,application/pdf"
-          className="hidden"
-          onChange={e => {
-            const f = e.target.files?.[0]
-            if (f) handleFile(f)
-            e.target.value = ''
-          }}
-        />
+  return (
+    <div className="flex flex-col items-end gap-1.5">
+      <input ref={fileRef} type="file" accept="image/jpeg,image/png,image/webp,application/pdf"
+        className="hidden"
+        onChange={e => { const f = e.target.files?.[0]; if (f) handleFile(f); e.target.value = '' }} />
+
+      <div className="flex items-center gap-1.5">
+        {/* ดูใบสั่งยา */}
+        <button
+          onClick={handleView}
+          disabled={!hasAny || viewing}
+          title={!hasAny ? 'ยังไม่มีใบสั่งยา' : 'ดูใบสั่งยา'}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors whitespace-nowrap
+            disabled:opacity-40 disabled:cursor-not-allowed
+            enabled:border-[var(--hw-green)] enabled:text-[var(--hw-green)] enabled:hover:bg-[var(--hw-mint-bg)]
+            border-[var(--border)] text-[var(--muted)]">
+          <IconEye size={12} />{'ดูใบสั่งยา'}
+        </button>
+
+        {/* แก้ไขใบสั่งยา */}
+        <button
+          onClick={() => fileRef.current?.click()}
+          disabled={!hasAny || uploading}
+          title={!hasAny ? 'ยังไม่มีใบสั่งยา' : 'อัพโหลดใบสั่งยาใหม่'}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors whitespace-nowrap
+            disabled:opacity-40 disabled:cursor-not-allowed
+            enabled:border-[var(--border)] enabled:text-[var(--muted)] enabled:hover:border-[#1a8a6e]/40 enabled:hover:text-[var(--foreground)]">
+          <IconEdit size={12} />{'แก้ไขใบสั่งยา'}
+        </button>
+
+        {/* อัพโหลด */}
         <button
           onClick={() => fileRef.current?.click()}
           disabled={uploading}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold text-white bg-[#1a8a6e] hover:opacity-90 disabled:opacity-50 transition-opacity whitespace-nowrap"
-        >
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold text-white bg-[#1a8a6e] hover:opacity-90 disabled:opacity-50 transition-opacity whitespace-nowrap">
           {uploading
             ? <span className="w-3 h-3 border border-white/60 border-t-white rounded-full animate-spin" />
             : <IconUpload size={12} />}
-          {uploading ? 'กำลังอัพโหลด...' : editMode ? 'อัพโหลดใหม่' : 'อัพโหลดใบสั่งยา'}
+          {uploading ? 'กำลังอัพโหลด...' : hasFile ? 'อัพโหลดใหม่' : 'อัพโหลด'}
         </button>
-        {editMode && (
-          <button
-            onClick={() => { setEditMode(false); setError(null) }}
-            className="text-[10px] text-[var(--muted)] hover:text-[var(--foreground)]"
-          >
-            {'ยกเลิก'}
-          </button>
-        )}
-        {error && (
-          <div className="flex items-center gap-1 text-[10px] text-red-400">
-            <IconAlertCircle size={11} />{error}
-          </div>
-        )}
       </div>
-    )
-  }
 
-  return (
-    <div className="flex items-center gap-2 flex-shrink-0">
-      <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-500 whitespace-nowrap">
-        <IconCheck size={12} />{'สั่งยาแล้ว'}
-      </span>
-      <button
-        onClick={() => setEditMode(true)}
-        className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border border-[var(--border)] text-[var(--muted)] hover:text-[var(--foreground)] hover:border-[#1a8a6e]/40 transition-colors whitespace-nowrap"
-      >
-        <IconEdit size={12} />{'แก้ไขใบสั่งยา'}
-      </button>
+      {error && (
+        <div className="flex items-center gap-1 text-[10px] text-red-400">
+          <IconAlertCircle size={11} />{error}
+        </div>
+      )}
     </div>
   )
 }
@@ -161,7 +155,7 @@ export default function AdminPrescriptionsPage() {
 
   const load = useCallback(() => {
     sb.from('hw_appointments')
-      .select('id, scheduled_at, status, user_id, hw_users(full_name), hw_doctors(full_name), hw_prescriptions(id, storage_path)')
+      .select('id, scheduled_at, status, user_id, hw_users(full_name), hw_doctors(full_name), hw_prescriptions(id, storage_path), hw_rx(id)')
       .neq('status', 'cancelled')
       .order('scheduled_at', { ascending: false })
       .limit(80)
@@ -174,11 +168,9 @@ export default function AdminPrescriptionsPage() {
   useEffect(() => { if (isAdmin) load() }, [isAdmin, load])
 
   const onUploaded = (apptId: string) =>
-    setAppts(prev =>
-      prev.map(a =>
-        a.id === apptId ? { ...a, hw_prescriptions: [{ id: 'new', storage_path: '' }] } : a
-      )
-    )
+    setAppts(prev => prev.map(a =>
+      a.id === apptId ? { ...a, hw_prescriptions: [{ id: 'new', storage_path: '' }] } : a
+    ))
 
   if (isAdmin === null || (isAdmin && loading)) {
     return (
@@ -190,7 +182,7 @@ export default function AdminPrescriptionsPage() {
   if (!isAdmin) return null
 
   return (
-    <div className="max-w-2xl mx-auto px-5 py-6 pb-8">
+    <div className="max-w-3xl mx-auto px-5 py-6 pb-8">
       <div className="flex items-center gap-2 mb-5">
         <IconPill size={20} className="text-[#1a8a6e]" />
         <h1 className="text-lg font-bold">{'ใบสั่งยา'}</h1>
@@ -234,7 +226,7 @@ export default function AdminPrescriptionsPage() {
                   </div>
                 </div>
 
-                <UploadButton appt={a} onUploaded={() => onUploaded(a.id)} />
+                <PrescriptionButtons appt={a} onUploaded={() => onUploaded(a.id)} />
               </div>
             )
           })}
