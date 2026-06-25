@@ -10,7 +10,8 @@ const sb = createBrowserClient(
 )
 
 type RxItem = {
-  id: string; drug_name: string; instructions: string | null
+  id: string; drug_name: string; dosage: string | null; frequency: string | null
+  duration: string | null; instructions: string | null
   quantity: number | null; sort_order: number
 }
 type RxData = {
@@ -54,7 +55,7 @@ export default function RxPrintPage() {
   useEffect(() => {
     sb.from('hw_rx')
       .select(`id, diagnosis, notes, created_at,
-        hw_rx_items(id, drug_name, instructions, quantity, sort_order),
+        hw_rx_items(id, drug_name, dosage, frequency, duration, instructions, quantity, sort_order),
         hw_appointments(scheduled_at, symptoms,
           hw_users(id, full_name, first_name, last_name, title, date_of_birth, blood_type, allergies, hn, cid, insurance_type),
           hw_doctors(full_name, license_no)
@@ -258,6 +259,11 @@ export default function RxPrintPage() {
                 <td className="num">{idx + 1}</td>
                 <td>
                   <div style={{ fontWeight: 'bold' }}>{item.drug_name}</div>
+                  {(item.dosage || item.frequency || item.duration) && (
+                    <div style={{ fontSize: 11.5 }}>
+                      {[item.dosage, item.frequency, item.duration ? `${item.duration} วัน` : ''].filter(Boolean).join(' · ')}
+                    </div>
+                  )}
                   {item.instructions && <div style={{ fontSize: 11.5 }}>{item.instructions}</div>}
                 </td>
                 <td className="num">{item.quantity ?? '—'}</td>
