@@ -120,7 +120,13 @@ const PROFILE_SECTIONS = [
   },
 ]
 
-const NO_SHELL = ['/login', '/register', '/consent', '/auth', '/consult', '/admin', '/admin-login', '/forgot-password', '/doctor/']
+const NO_SHELL = ['/login', '/register', '/consent', '/auth', '/consult', '/admin', '/admin-login', '/forgot-password']
+// doctor routes: /doctor exactly or /doctor/* — but NOT /doctors
+function noShell(pathname: string) {
+  if (NO_SHELL.some(p => pathname.startsWith(p))) return true
+  if (pathname === '/doctor' || pathname.startsWith('/doctor/')) return true
+  return false
+}
 
 function UserAvatar({ name, size = 32 }: { name: string; size?: number }) {
   const initial = name.replace(/^(นาย|นาง|น\.ส\.|ด\.ช\.|ด\.ญ\.)\s*/, '').slice(0, 1) || '?'
@@ -270,7 +276,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const router = useRouter()
   const { user, role, identityVerified, loading, signOut } = useAuth()
-  const showShell = !NO_SHELL.some(p => pathname.startsWith(p))
+  const showShell = !noShell(pathname)
   const needsVerify = !loading && user && role === 'patient' && !identityVerified && VERIFY_REQUIRED.some(p => pathname.startsWith(p))
   const unreadChat = useUnreadChat(showShell ? user?.id : undefined, pathname.startsWith('/chat'))
 
