@@ -109,7 +109,7 @@ export default function DoctorDetailPage() {
             {[1, 2, 3, 4, 5, 6, 0].map(day => {
               const s = scheduleByDay[day]
               return (
-                <div key={day} className={`flex items-center justify-between py-2.5 px-3 rounded-[10px] ${s?.is_available ? 'bg-[#e8f7f3]' : 'bg-[var(--background)]'}`}>
+                <div key={day} className={`flex items-center justify-between py-2.5 px-3 rounded-[10px] ${s?.is_available ? 'bg-[var(--hw-mint-bg)]' : 'bg-[var(--background)]'}`}>
                   <div className="flex items-center gap-3">
                     <span className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 ${
                       s?.is_available ? 'bg-[var(--hw-green-dk)] text-white' : 'bg-[var(--border)] text-[var(--muted)]'

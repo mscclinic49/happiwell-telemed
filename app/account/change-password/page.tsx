@@ -37,7 +37,7 @@ export default function ChangePasswordPage() {
       </div>
 
       {success && (
-        <div className="flex items-center gap-2 p-4 bg-[#e8f7f3] border border-[var(--hw-green-dk)] rounded-[14px] mb-6 text-[var(--hw-green-dk)]">
+        <div className="flex items-center gap-2 p-4 bg-[var(--hw-mint-bg)] border border-[var(--hw-green-dk)] rounded-[14px] mb-6 text-[var(--hw-green-dk)]">
           <IconCheck size={18} />
           <span className="font-medium">{'เปลี่ยนรหัสผ่านสำเร็จ'}</span>
         </div>

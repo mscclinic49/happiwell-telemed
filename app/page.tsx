@@ -26,7 +26,7 @@ type Vitals = {
 const APPT_CFG: Record<string, { label: string; color: string; Icon: typeof IconClock }> = {
   pending:   { label: 'รอยืนยัน',  color: 'text-yellow-600 bg-yellow-50', Icon: IconClock  },
   confirmed: { label: 'ยืนยันแล้ว', color: 'text-blue-600 bg-blue-50',    Icon: IconCheck  },
-  completed: { label: 'เสร็จสิ้น',  color: 'text-[var(--hw-green-dk)] bg-[#e8f7f3]', Icon: IconCheck  },
+  completed: { label: 'เสร็จสิ้น',  color: 'text-[var(--hw-green-dk)] bg-[var(--hw-mint-bg)]', Icon: IconCheck  },
   cancelled: { label: 'ยกเลิก',    color: 'text-red-600 bg-red-50',        Icon: IconX      },
 }
 
@@ -150,7 +150,7 @@ export default function Dashboard() {
         <div className="font-semibold text-sm">{'แฮปปี้เวลล์ คลินิกเวชกรรม'}</div>
         <div className="text-xs text-[var(--muted)]">{'ใบอนุญาตประกอบกิจการ: 10101035068'}</div>
         <a href="https://maps.app.goo.gl/vyo3zyNqkSrcYMmC8" target="_blank" rel="noopener noreferrer"
-          className="flex items-start gap-1.5 text-xs text-[#185fa5] hover:underline">
+          className="flex items-start gap-1.5 text-xs text-blue-700 hover:underline">
           <span className="mt-px">{'📍'}</span>
           <span>{'เลขที่ 193, 195 ชั้น 1 ถนนประชาอุทิศ ตำบลบางมด อำเภอทุ่งครุ กรุงเทพฯ'}</span>
         </a>

@@ -3,6 +3,20 @@
 /* Dark mode via .dark class on <html> */
 @custom-variant dark (&:is(.dark, .dark *));
 
+/*
+ * กฎสำคัญ: ห้ามใช้สี hex ตรงๆ เช่น bg-[#e8f7f3] หรือ text-[#c47f00]
+ * ในไฟล์ component ใดๆ เพราะจะไม่มี dark mode รองรับ และจะกลืนกับสี
+ * การ์ดข้างเคียงใน light mode ได้
+ *
+ * ให้ใช้อย่างใดอย่างหนึ่งเท่านั้น:
+ * 1. ตัวแปร --hw-* ที่มีอยู่แล้ว (--hw-green, --hw-mint-bg, --hw-blue,
+ *    --hw-peach-bg, --hw-yellow-bg, --hw-red-bg ฯลฯ) ผ่าน bg-[var(--hw-x)]
+ * 2. คลาสสี Tailwind มาตรฐาน (bg-purple-50, text-blue-700 ฯลฯ) ที่มี
+ *    .dark override กำกับไว้ในไฟล์นี้แล้วเท่านั้น ถ้าจะใช้คลาสสีใหม่ที่
+ *    ยังไม่มีในรายการ .dark override ด้านล่าง ต้องเพิ่ม override ให้
+ *    ในไฟล์นี้ทันทีที่ใช้ครั้งแรก ห้ามใช้แล้วลืมเพิ่ม
+ */
+
 /* ── HappiWell Design Tokens · Light Mode ─────────────── */
 :root {
   /* Brand */

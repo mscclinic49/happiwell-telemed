@@ -113,7 +113,7 @@ export default function HistoryPage() {
                 {hasPrescription && (
                   <Link
                     href="/prescriptions"
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border border-[var(--border)] text-[var(--foreground)] hover:bg-[#e8f7f3] transition-colors"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border border-[var(--border)] text-[var(--foreground)] hover:bg-[var(--hw-mint-bg)] transition-colors"
                   >
                     <IconPill size={13} />
                     {'ดูใบสั่งยา'}

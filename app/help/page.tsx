@@ -62,7 +62,7 @@ export default function HelpPage() {
           <div key={i} className="bg-[var(--card-bg)] border border-[var(--border)] rounded-[14px] overflow-hidden">
             <button
               onClick={() => setOpen(open === i ? null : i)}
-              className="w-full flex items-center justify-between px-5 py-4 text-left hover:bg-[#e8f7f3] transition-colors"
+              className="w-full flex items-center justify-between px-5 py-4 text-left hover:bg-[var(--hw-mint-bg)] transition-colors"
             >
               <span className="font-medium pr-4">{faq.q}</span>
               <IconChevronDown size={18} className={`text-[var(--muted)] flex-shrink-0 transition-transform ${open === i ? 'rotate-180' : ''}`} />
@@ -76,7 +76,7 @@ export default function HelpPage() {
         ))}
       </div>
 
-      <div className="bg-[#e8f7f3] rounded-[14px] p-5">
+      <div className="bg-[var(--hw-mint-bg)] rounded-[14px] p-5">
         <h2 className="font-bold mb-1">{'ยังต้องการความช่วยเหลือ?'}</h2>
         <p className="text-sm text-[var(--muted)] mb-4">{'ติดต่อเจ้าหน้าที่คลินิกได้โดยตรง'}</p>
         <div className="flex flex-col sm:flex-row gap-3">

@@ -69,7 +69,7 @@ export default function ForgotPasswordPage() {
 
         {sent ? (
           <div className="text-center">
-            <div className="w-16 h-16 rounded-full bg-[#e8f7f3] flex items-center justify-center mx-auto mb-4">
+            <div className="w-16 h-16 rounded-full bg-[var(--hw-mint-bg)] flex items-center justify-center mx-auto mb-4">
               <IconCircleCheck size={36} className="text-[var(--hw-brand-blue)]" />
             </div>
             <h2 className="text-lg font-bold mb-2">{'ส่งลิงก์แล้ว'}</h2>

@@ -150,9 +150,9 @@ export default function AccountSettingsPage() {
                   className={`flex items-center gap-2.5 w-full px-3 py-2.5 rounded-[10px] text-sm font-medium transition-colors text-left ${
                     activeSection === id
                       ? 'text-[var(--hw-green-dk)] font-semibold'
-                      : 'text-[var(--muted)] hover:text-[var(--foreground)] hover:bg-[#e8f7f3]'
+                      : 'text-[var(--muted)] hover:text-[var(--foreground)] hover:bg-[var(--hw-mint-bg)]'
                   }`}
-                  style={activeSection === id ? { background: '#e8f7f3' } : {}}
+                  style={activeSection === id ? { background: 'var(--hw-mint-bg)' } : {}}
                 >
                   <Icon size={16} strokeWidth={activeSection === id ? 2.2 : 1.8} />
                   <span className="flex-1">{label}</span>
@@ -208,7 +208,7 @@ export default function AccountSettingsPage() {
                   <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-[10px] px-4 py-3">{unError}</div>
                 )}
                 {savedUn && (
-                  <div className="text-sm text-[var(--hw-green-dk)] bg-[#e8f7f3] border border-[#b2dfd3] rounded-[10px] px-4 py-3 flex items-center gap-2">
+                  <div className="text-sm text-[var(--hw-green-dk)] bg-[var(--hw-mint-bg)] border border-[#b2dfd3] rounded-[10px] px-4 py-3 flex items-center gap-2">
                     <IconCircleCheck size={16} />{'บันทึก Username เรียบร้อยแล้ว'}
                   </div>
                 )}

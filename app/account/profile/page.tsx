@@ -79,7 +79,7 @@ function KycSection({ userId, sb }: { userId: string; sb: ReturnType<typeof crea
   // Verified — read-only, no edit
   if (kyc?.status === 'verified') {
     return (
-      <div className="bg-[#e8f7f3] border border-[var(--hw-green-dk)]/30 rounded-[14px] p-5">
+      <div className="bg-[var(--hw-mint-bg)] border border-[var(--hw-green-dk)]/30 rounded-[14px] p-5">
         <div className="flex items-center gap-3 mb-4">
           <div className="w-9 h-9 rounded-full bg-[var(--hw-green-dk)] flex items-center justify-center flex-shrink-0">
             <IconShieldCheck size={18} className="text-white" />
@@ -111,29 +111,29 @@ function KycSection({ userId, sb }: { userId: string; sb: ReturnType<typeof crea
   // Pending — read-only waiting
   if (kyc?.status === 'pending') {
     return (
-      <div className="bg-[#fef9ec] border border-[#ef9f27]/30 rounded-[14px] p-5">
+      <div className="bg-[var(--hw-yellow-bg)] border border-[#ef9f27]/30 rounded-[14px] p-5">
         <div className="flex items-center gap-3 mb-4">
           <div className="w-9 h-9 rounded-full bg-[#ef9f27] flex items-center justify-center flex-shrink-0">
             <IconClock size={18} className="text-white" />
           </div>
           <div>
-            <div className="font-bold text-[#c47f00]">{'รอตรวจสอบ'}</div>
-            <div className="text-xs text-[#c47f00]/70">
+            <div className="font-bold text-yellow-700">{'รอตรวจสอบ'}</div>
+            <div className="text-xs text-yellow-700/70">
               {'ส่งเมื่อ '}{new Date(kyc.submitted_at).toLocaleDateString('th-TH', { dateStyle: 'medium' })}
             </div>
           </div>
         </div>
         <div className="space-y-2 text-sm">
           <div className="flex gap-2">
-            <span className="text-[#c47f00]/70 w-28 flex-shrink-0">{'ประเภทเอกสาร'}</span>
+            <span className="text-yellow-700/70 w-28 flex-shrink-0">{'ประเภทเอกสาร'}</span>
             <span className="font-semibold">{kyc.id_type === 'national_id' ? 'บัตรประชาชน' : 'พาสปอร์ต'}</span>
           </div>
           <div className="flex gap-2">
-            <span className="text-[#c47f00]/70 w-28 flex-shrink-0">{'เลขที่'}</span>
+            <span className="text-yellow-700/70 w-28 flex-shrink-0">{'เลขที่'}</span>
             <span className="font-semibold font-mono tracking-wider">{kyc.id_number}</span>
           </div>
         </div>
-        <p className="text-xs text-[#c47f00]/70 mt-3">{'ทีมงานจะตรวจสอบภายใน 1–2 วันทำการ'}</p>
+        <p className="text-xs text-yellow-700/70 mt-3">{'ทีมงานจะตรวจสอบภายใน 1–2 วันทำการ'}</p>
       </div>
     )
   }
@@ -166,7 +166,7 @@ function KycSection({ userId, sb }: { userId: string; sb: ReturnType<typeof crea
               key={value}
               className={`flex-1 flex items-center justify-center py-2.5 rounded-[10px] border-2 cursor-pointer text-sm font-medium transition-colors ${
                 idType === value
-                  ? 'border-[var(--hw-green-dk)] bg-[#e8f7f3] text-[var(--hw-green-dk)]'
+                  ? 'border-[var(--hw-green-dk)] bg-[var(--hw-mint-bg)] text-[var(--hw-green-dk)]'
                   : 'border-[var(--border)] text-[var(--muted)]'
               }`}
             >
@@ -200,7 +200,7 @@ function KycSection({ userId, sb }: { userId: string; sb: ReturnType<typeof crea
           <div
             onClick={() => fileRef.current?.click()}
             className={`flex flex-col items-center gap-1.5 py-6 rounded-[10px] border-2 border-dashed cursor-pointer transition-colors ${
-              file ? 'border-[var(--hw-green-dk)] bg-[#e8f7f3]' : 'border-[var(--border)] hover:border-[var(--hw-green-dk)]'
+              file ? 'border-[var(--hw-green-dk)] bg-[var(--hw-mint-bg)]' : 'border-[var(--border)] hover:border-[var(--hw-green-dk)]'
             }`}
           >
             <input ref={fileRef} type="file" accept="image/jpeg,image/png,image/webp,application/pdf" className="hidden"
@@ -387,7 +387,7 @@ export default function ProfilePage() {
           </div>
         )}
         {saved && (
-          <div className="flex items-center gap-2 p-3 bg-[#e8f7f3] border border-[var(--hw-green-dk)]/30 rounded-[10px] text-[var(--hw-green-dk)] text-sm">
+          <div className="flex items-center gap-2 p-3 bg-[var(--hw-mint-bg)] border border-[var(--hw-green-dk)]/30 rounded-[10px] text-[var(--hw-green-dk)] text-sm">
             <IconCheck size={15} />{'บันทึกข้อมูลเรียบร้อยแล้ว'}
           </div>
         )}

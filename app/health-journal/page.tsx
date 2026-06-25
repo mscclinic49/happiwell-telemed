@@ -176,17 +176,17 @@ export default function HealthJournalPage() {
             {(e.weight_kg || e.blood_pressure || e.temperature_c) && (
               <div className="flex flex-wrap gap-2">
                 {e.weight_kg && (
-                  <span className="flex items-center gap-1 text-xs px-2 py-1 rounded-full bg-[#e6f1fb] text-[#185fa5]">
+                  <span className="flex items-center gap-1 text-xs px-2 py-1 rounded-full bg-[var(--hw-blue-bg)] text-blue-700">
                     <IconScale size={11} />{e.weight_kg} กก.
                   </span>
                 )}
                 {e.blood_pressure && (
-                  <span className="flex items-center gap-1 text-xs px-2 py-1 rounded-full bg-[#fee2e2] text-red-700">
+                  <span className="flex items-center gap-1 text-xs px-2 py-1 rounded-full bg-[var(--hw-red-bg)] text-red-700">
                     <IconHeartbeat size={11} />{e.blood_pressure}
                   </span>
                 )}
                 {e.temperature_c && (
-                  <span className="flex items-center gap-1 text-xs px-2 py-1 rounded-full bg-[#faeeda] text-[#c47f00]">
+                  <span className="flex items-center gap-1 text-xs px-2 py-1 rounded-full bg-[var(--hw-peach-bg)] text-yellow-700">
                     <IconTemperature size={11} />{e.temperature_c}°C
                   </span>
                 )}

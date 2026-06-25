@@ -159,7 +159,7 @@ export default function SignaturePage() {
             </div>
           )}
           {success && (
-            <div className="flex items-center gap-2 mt-3 p-3 bg-[#e8f7f3] border border-[var(--hw-green-dk)] rounded-[10px] text-[var(--hw-green-dk)] text-sm">
+            <div className="flex items-center gap-2 mt-3 p-3 bg-[var(--hw-mint-bg)] border border-[var(--hw-green-dk)] rounded-[10px] text-[var(--hw-green-dk)] text-sm">
               <IconCheck size={15} />{'บันทึกลายเซ็นสำเร็จ'}
             </div>
           )}

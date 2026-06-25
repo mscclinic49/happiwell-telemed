@@ -76,7 +76,7 @@ export default function DeliveryAddressPage() {
       </div>
 
       {success && (
-        <div className="flex items-center gap-2 p-3 bg-[#e8f7f3] border border-[var(--hw-green-dk)] rounded-[14px] mb-4 text-[var(--hw-green-dk)] text-sm">
+        <div className="flex items-center gap-2 p-3 bg-[var(--hw-mint-bg)] border border-[var(--hw-green-dk)] rounded-[14px] mb-4 text-[var(--hw-green-dk)] text-sm">
           <IconCheck size={16} /><span>{'บันทึกที่อยู่สำเร็จ'}</span>
         </div>
       )}
@@ -86,7 +86,7 @@ export default function DeliveryAddressPage() {
           <label className="block text-sm font-medium mb-1.5">{'ป้ายชื่อที่อยู่'}</label>
           <div className="flex gap-2">
             {LABELS.map(l => (
-              <label key={l} className={`flex-1 flex items-center justify-center py-2.5 rounded-[10px] border-2 cursor-pointer text-sm font-medium transition-colors ${form.label === l ? 'border-[var(--hw-green-dk)] bg-[#e8f7f3] text-[var(--hw-green-dk)]' : 'border-[var(--border)] text-[var(--muted)]'}`}>
+              <label key={l} className={`flex-1 flex items-center justify-center py-2.5 rounded-[10px] border-2 cursor-pointer text-sm font-medium transition-colors ${form.label === l ? 'border-[var(--hw-green-dk)] bg-[var(--hw-mint-bg)] text-[var(--hw-green-dk)]' : 'border-[var(--border)] text-[var(--muted)]'}`}>
                 <input type="radio" className="hidden" checked={form.label === l} onChange={() => setForm(f => ({ ...f, label: l }))} />
                 {l}
               </label>

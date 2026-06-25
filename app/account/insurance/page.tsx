@@ -51,7 +51,7 @@ export default function InsurancePage() {
       </div>
 
       {success && (
-        <div className="flex items-center gap-2 p-3 bg-[#e8f7f3] border border-[var(--hw-green-dk)] rounded-[14px] mb-4 text-[var(--hw-green-dk)] text-sm">
+        <div className="flex items-center gap-2 p-3 bg-[var(--hw-mint-bg)] border border-[var(--hw-green-dk)] rounded-[14px] mb-4 text-[var(--hw-green-dk)] text-sm">
           <IconCheck size={16} /><span>{'บันทึกข้อมูลสำเร็จ'}</span>
         </div>
       )}
@@ -61,7 +61,7 @@ export default function InsurancePage() {
           <label className="block text-sm font-medium mb-1.5">{'ประเภทสิทธิ์'}</label>
           <div className="space-y-2">
             {TYPES.map(t => (
-              <label key={t} className={`flex items-center gap-3 px-4 py-3 rounded-[10px] border-2 cursor-pointer transition-colors ${form.insurance_type === t ? 'border-[var(--hw-green-dk)] bg-[#e8f7f3]' : 'border-[var(--border)] hover:border-[var(--hw-green-dk)]'}`}>
+              <label key={t} className={`flex items-center gap-3 px-4 py-3 rounded-[10px] border-2 cursor-pointer transition-colors ${form.insurance_type === t ? 'border-[var(--hw-green-dk)] bg-[var(--hw-mint-bg)]' : 'border-[var(--border)] hover:border-[var(--hw-green-dk)]'}`}>
                 <input type="radio" className="hidden" checked={form.insurance_type === t} onChange={() => setForm(f => ({ ...f, insurance_type: t }))} />
                 <span className={`w-4 h-4 rounded-full border-2 flex-shrink-0 flex items-center justify-center ${form.insurance_type === t ? 'border-[var(--hw-green-dk)] bg-[var(--hw-green-dk)]' : 'border-[var(--border)]'}`}>
                   {form.insurance_type === t && <span className="w-1.5 h-1.5 rounded-full bg-white" />}
