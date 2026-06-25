@@ -34,12 +34,12 @@ type PatientInfo = {
 type VitalsForm = {
   weight_kg: string; height_cm: string
   bp_systolic: string; bp_diastolic: string; pulse: string
-  rr: string; spo2: string; temperature: string; drug_allergy: string; cc: string
+  rr: string; spo2: string; temperature: string; dtx: string; drug_allergy: string; cc: string
 }
 
 const EMPTY_VITALS: VitalsForm = {
   weight_kg: '', height_cm: '', bp_systolic: '', bp_diastolic: '',
-  pulse: '', rr: '', spo2: '', temperature: '', drug_allergy: '', cc: '',
+  pulse: '', rr: '', spo2: '', temperature: '', dtx: '', drug_allergy: '', cc: '',
 }
 
 // ── Helpers ────────────────────────────────────────────
@@ -214,6 +214,7 @@ export default function AdminChatPage() {
         rr:           v ? String(v.rr ?? '')           : '',
         spo2:         v ? String(v.spo2 ?? '')         : '',
         temperature:  v ? String(v.temperature ?? '')   : '',
+        dtx:          v ? String(v.dtx ?? '')          : '',
         drug_allergy: v ? (v.drug_allergy ?? '')       : (uRes.data?.allergies ?? ''),
         cc:           v ? (v.cc ?? '')                 : '',
       })
@@ -278,6 +279,7 @@ export default function AdminChatPage() {
       rr:           vitals.rr           ? parseInt(vitals.rr)              : null,
       spo2:         vitals.spo2         ? parseFloat(vitals.spo2)          : null,
       temperature:  vitals.temperature  ? parseFloat(vitals.temperature)   : null,
+      dtx:          vitals.dtx          ? parseFloat(vitals.dtx)           : null,
       drug_allergy: vitals.drug_allergy || null,
       cc:           vitals.cc           || null,
     }
@@ -383,7 +385,10 @@ export default function AdminChatPage() {
           <VField label="RR" unit="/min" half placeholder="20" value={vitals.rr} onChange={v => setVitals(p => ({ ...p, rr: v }))} />
           <VField label="SpO2" unit="%" half placeholder="98" value={vitals.spo2} onChange={v => setVitals(p => ({ ...p, spo2: v }))} />
         </div>
-        <VField label="อุณหภูมิ" unit="°C" placeholder="37.0" value={vitals.temperature} onChange={v => setVitals(p => ({ ...p, temperature: v }))} />
+        <div className="flex gap-2">
+          <VField label="อุณหภูมิ" unit="°C" half placeholder="37.0" value={vitals.temperature} onChange={v => setVitals(p => ({ ...p, temperature: v }))} />
+          <VField label="Dtx" unit="mg/dL" half placeholder="100" value={vitals.dtx} onChange={v => setVitals(p => ({ ...p, dtx: v }))} />
+        </div>
 
         {/* Drug allergy */}
         <div>

@@ -11,7 +11,7 @@ type Role = 'patient' | 'doctor' | null
 type Vitals = {
   weight_kg: number | null; height_cm: number | null
   bp_systolic: number | null; bp_diastolic: number | null; pulse: number | null
-  rr: number | null; spo2: number | null; temperature: number | null
+  rr: number | null; spo2: number | null; temperature: number | null; dtx: number | null
   drug_allergy: string | null; cc: string | null
 }
 
@@ -49,7 +49,7 @@ function DoctorVitalsPanel({ patientId }: { patientId: string }) {
         .select('full_name, first_name, last_name, title, date_of_birth, blood_type')
         .eq('id', patientId).single(),
       supabase.from('hw_vitals')
-        .select('weight_kg,height_cm,bp_systolic,bp_diastolic,pulse,rr,spo2,temperature,drug_allergy,cc')
+        .select('weight_kg,height_cm,bp_systolic,bp_diastolic,pulse,rr,spo2,temperature,dtx,drug_allergy,cc')
         .eq('patient_id', patientId)
         .order('recorded_at', { ascending: false }).limit(1).maybeSingle(),
     ]).then(([uRes, vRes]) => {
@@ -101,6 +101,7 @@ function DoctorVitalsPanel({ patientId }: { patientId: string }) {
               <VRow label="RR" value={vitals.rr} unit="/min" />
               <VRow label="SpO2" value={vitals.spo2} unit="%" />
               <VRow label="อุณหภูมิ" value={vitals.temperature} unit="°C" />
+              <VRow label="Dtx" value={vitals.dtx} unit="mg/dL" />
               <VRow label="น้ำหนัก" value={vitals.weight_kg} unit="kg" />
               <VRow label="ส่วนสูง" value={vitals.height_cm} unit="cm" />
               {bmi && <VRow label="BMI" value={bmi} />}
