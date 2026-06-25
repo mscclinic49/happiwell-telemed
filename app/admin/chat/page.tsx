@@ -284,7 +284,20 @@ export default function AdminChatPage() {
       drug_allergy: vitals.drug_allergy || null,
       cc:           vitals.cc           || null,
     }
+    const now = new Date().toISOString()
     await sb.from('hw_vitals').insert(row)
+    if (row.bp_systolic && row.bp_diastolic) {
+      await sb.from('hw_bp_records').insert({
+        user_id: row.patient_id, systolic: row.bp_systolic,
+        diastolic: row.bp_diastolic, pulse: row.pulse ?? null, measured_at: now,
+      })
+    }
+    if (row.dtx) {
+      await sb.from('hw_dtx_records').insert({
+        user_id: row.patient_id, value: row.dtx,
+        meal_status: 'fasting', measured_at: now,
+      })
+    }
     setSaving(false)
     setSaved(true)
     setTimeout(() => setSaved(false), 3000)

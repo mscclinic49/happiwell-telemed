@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 import { createBrowserClient } from '@supabase/ssr'
 import { useAuth } from '@/lib/auth-context'
 import Link from 'next/link'
-import { IconArrowLeft, IconTrash, IconBell, IconBellOff, IconClock } from '@tabler/icons-react'
+import { IconArrowLeft, IconTrash, IconBell, IconBellOff, IconClock, IconStethoscope } from '@tabler/icons-react'
 
 const sb = createBrowserClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -18,6 +18,15 @@ type Medication = {
 type Vaccine = {
   id: string; vaccine_name: string; dose_number: number; vaccinated_date: string
   hospital: string | null; next_due_date: string | null; status: string
+}
+type RxDrug = {
+  id: string; drug_name: string; dosage: string | null; frequency: string | null
+  duration: string | null; instructions: string | null; quantity: number | null
+}
+type Prescription = {
+  id: string; issued_at: string | null; diagnosis: string | null
+  hw_rx_items: RxDrug[]
+  hw_doctors: { full_name: string | null } | null
 }
 
 type Tab = 'meds' | 'vaccines'
@@ -35,6 +44,8 @@ export default function MedsPage() {
   const [medsPending, setMedsPending] = useState<Medication[]>([])
   const [vaccines, setVaccines] = useState<Vaccine[]>([])
   const [vacPending, setVacPending] = useState<Vaccine[]>([])
+  const [prescriptions, setPrescriptions] = useState<Prescription[]>([])
+
   useEffect(() => {
     if (!user) return
     Promise.all([
@@ -42,11 +53,17 @@ export default function MedsPage() {
       sb.from('hw_medications').select('id,name,status').eq('user_id', user.id).eq('status', 'pending'),
       sb.from('hw_vaccines').select('id,vaccine_name,dose_number,vaccinated_date,hospital,next_due_date,status').eq('user_id', user.id).eq('status', 'approved').order('vaccinated_date', { ascending: false }),
       sb.from('hw_vaccines').select('id,vaccine_name,status').eq('user_id', user.id).eq('status', 'pending'),
-    ]).then(([m, mp, v, vp]) => {
+      sb.from('hw_prescriptions')
+        .select('id,issued_at,diagnosis,hw_rx_items(id,drug_name,dosage,frequency,duration,instructions,quantity),hw_doctors(full_name)')
+        .eq('patient_id', user.id)
+        .order('issued_at', { ascending: false })
+        .limit(10),
+    ]).then(([m, mp, v, vp, rx]) => {
       setMeds((m.data ?? []) as Medication[])
       setMedsPending((mp.data ?? []) as Medication[])
       setVaccines((v.data ?? []) as Vaccine[])
       setVacPending((vp.data ?? []) as Vaccine[])
+      setPrescriptions((rx.data ?? []) as unknown as Prescription[])
       setLoading(false)
     })
   }, [user])
@@ -86,6 +103,60 @@ export default function MedsPage() {
           </div>
         ) : tab === 'meds' ? (
           <>
+            {/* ── ใบสั่งยาจากแพทย์ ── */}
+            {prescriptions.length > 0 && (
+              <div className="mb-5">
+                <div className="flex items-center gap-2 mb-3">
+                  <IconStethoscope size={16} className="text-[var(--hw-green-dk)]"/>
+                  <h2 className="text-sm font-semibold">{'ใบสั่งยาจากแพทย์'}</h2>
+                </div>
+                <div className="space-y-3">
+                  {prescriptions.map(rx => (
+                    <div key={rx.id} className="bg-[var(--card-bg)] border border-[var(--border)] rounded-[14px] p-4">
+                      <div className="flex items-center justify-between mb-3">
+                        <div>
+                          {rx.hw_doctors?.full_name && (
+                            <p className="text-xs font-medium text-[var(--hw-green-dk)]">{rx.hw_doctors.full_name}</p>
+                          )}
+                          {rx.issued_at && (
+                            <p className="text-xs text-[var(--muted)]">
+                              {new Date(rx.issued_at).toLocaleDateString('th-TH', { dateStyle: 'medium' })}
+                            </p>
+                          )}
+                        </div>
+                        {rx.diagnosis && (
+                          <span className="text-xs bg-[var(--hw-mint-bg)] text-[var(--hw-green)] px-2 py-0.5 rounded-full max-w-[140px] truncate">
+                            {rx.diagnosis}
+                          </span>
+                        )}
+                      </div>
+                      <div className="space-y-2">
+                        {rx.hw_rx_items.map((drug, i) => (
+                          <div key={drug.id} className="flex gap-2.5">
+                            <span className="text-xs text-[var(--muted)] w-4 flex-shrink-0 pt-0.5">{i + 1}.</span>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium leading-snug">{drug.drug_name}</p>
+                              {(drug.dosage || drug.frequency || drug.duration) && (
+                                <p className="text-xs text-[var(--muted)] mt-0.5">
+                                  {[drug.dosage, drug.frequency, drug.duration ? drug.duration + ' วัน' : ''].filter(Boolean).join(' · ')}
+                                </p>
+                              )}
+                              {drug.instructions && (
+                                <p className="text-xs text-[var(--muted)]">{drug.instructions}</p>
+                              )}
+                            </div>
+                            {drug.quantity != null && (
+                              <span className="text-xs text-[var(--muted)] flex-shrink-0">{drug.quantity} เม็ด</span>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {medsPending.length > 0 && (
               <div className="mb-4">
                 <div className="flex items-center gap-2 mb-2">
