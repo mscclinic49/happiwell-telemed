@@ -148,12 +148,17 @@ export default function RxPrintPage() {
         }
         @media screen {
           body { background: #e5e7eb; }
-          #rx-print { width: 210mm; min-height: 297mm; margin: 20px auto; background: white; padding: 16mm; box-shadow: 0 4px 24px rgba(0,0,0,.15); }
+          #rx-print { width: 210mm; min-height: 297mm; margin: 20px auto; background: #fff; padding: 16mm; box-shadow: 0 4px 24px rgba(0,0,0,.15); }
         }
-        * { font-family: 'Sarabun', 'TH Sarabun New', 'Noto Sans Thai', sans-serif; }
+        #rx-print, #rx-print * {
+          color: #000 !important;
+          background-color: transparent;
+          font-family: 'Sarabun', 'TH Sarabun New', 'Noto Sans Thai', sans-serif;
+        }
+        #rx-print { background-color: #fff !important; }
         .rx-table { width: 100%; border-collapse: collapse; font-size: 13px; }
         .rx-table th { border-bottom: 2px solid #000; padding: 4px 6px; text-align: left; font-weight: bold; }
-        .rx-table td { border-bottom: 1px dashed #aaa; padding: 4px 6px; vertical-align: top; }
+        .rx-table td { border-bottom: 1px dashed #666; padding: 4px 6px; vertical-align: top; }
         .rx-table .num { text-align: center; }
         .rx-table .price { text-align: right; }
       `}</style>
@@ -291,7 +296,7 @@ export default function RxPrintPage() {
             <b>{'หมายเหตุ'}</b>{' '}{rx.notes}
           </div>
         )}
-        <div style={{ marginTop: 16, fontSize: 11, textAlign: 'right', color: '#555' }}>{'หน้า 1 / 1'}</div>
+        <div style={{ marginTop: 16, fontSize: 11, textAlign: 'right' }}>{'หน้า 1 / 1'}</div>
       </div>
     </>
   )
