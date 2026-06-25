@@ -27,6 +27,11 @@ type Appt = {
 }
 
 type RxItem = { id?: string; drug_name: string; dosage: string; frequency: string; duration: string; instructions: string; quantity: string }
+type Vitals = {
+  bp_systolic: number | null; bp_diastolic: number | null; pulse: number | null
+  rr: number | null; spo2: number | null; temperature: number | null; dtx: number | null
+  drug_allergy: string | null; cc: string | null
+}
 
 const EMPTY_ITEM = (): RxItem => ({ drug_name: '', dosage: '', frequency: '', duration: '', instructions: '', quantity: '' })
 
@@ -64,6 +69,7 @@ export default function ConsultationPage() {
   const [existingRxId, setExistingRxId] = useState<string | null>(null)
 
   const [tab, setTab] = useState<'video' | 'rx'>('video')
+  const [vitals, setVitals] = useState<Vitals | null>(null)
 
   // Load appointment + doctor
   useEffect(() => {
@@ -75,7 +81,17 @@ export default function ConsultationPage() {
         .eq('id', apptId).single(),
     ]).then(([doc, apptRes]) => {
       if (doc.data) setDoctorId(doc.data.id)
-      if (apptRes.data) setAppt(apptRes.data as unknown as Appt)
+      if (apptRes.data) {
+        setAppt(apptRes.data as unknown as Appt)
+        const patientId = (apptRes.data as unknown as Appt).hw_users?.id
+        if (patientId) {
+          sb.from('hw_vitals')
+            .select('bp_systolic,bp_diastolic,pulse,rr,spo2,temperature,dtx,drug_allergy,cc')
+            .eq('patient_id', patientId)
+            .order('recorded_at', { ascending: false }).limit(1).maybeSingle()
+            .then(({ data }) => { if (data) setVitals(data as Vitals) })
+        }
+      }
       setLoading(false)
     })
   }, [user, apptId])
@@ -232,16 +248,42 @@ export default function ConsultationPage() {
               </div>
             ) : null)}
 
-            {patient?.allergies && (
+            {(vitals?.drug_allergy || patient?.allergies) && (
               <div className="bg-red-500/10 border border-red-500/30 rounded-[10px] p-3">
                 <div className="text-xs font-semibold text-red-400 mb-1">{'แพ้ยา'}</div>
-                <div className="text-xs text-[var(--foreground)]">{patient.allergies}</div>
+                <div className="text-xs text-[var(--foreground)]">{vitals?.drug_allergy || patient?.allergies}</div>
               </div>
             )}
             {appt.symptoms && (
               <div className="bg-[var(--background)] rounded-[10px] p-3">
                 <div className="text-xs font-semibold text-[var(--muted)] mb-1 uppercase tracking-wide">{'อาการ'}</div>
                 <div className="text-xs text-[var(--foreground)]">{appt.symptoms}</div>
+              </div>
+            )}
+
+            {/* Vitals */}
+            {vitals && (
+              <div className="border-t border-[var(--border)] pt-3 space-y-1.5">
+                <div className="text-[10px] font-bold text-[var(--muted)] uppercase tracking-widest mb-2">{'Vitals'}</div>
+                {[
+                  vitals.bp_systolic && vitals.bp_diastolic ? { label: 'ความดัน', value: `${vitals.bp_systolic}/${vitals.bp_diastolic}`, unit: 'mmHg' } : null,
+                  vitals.pulse   ? { label: 'ชีพจร',    value: vitals.pulse,       unit: 'bpm'   } : null,
+                  vitals.rr      ? { label: 'RR',        value: vitals.rr,          unit: '/min'  } : null,
+                  vitals.spo2    ? { label: 'SpO2',      value: vitals.spo2,        unit: '%'     } : null,
+                  vitals.temperature ? { label: 'อุณหภูมิ', value: vitals.temperature, unit: '°C' } : null,
+                  vitals.dtx     ? { label: 'Dtx',       value: vitals.dtx,         unit: 'mg/dL' } : null,
+                ].filter(Boolean).map(r => (
+                  <div key={r!.label} className="flex justify-between items-baseline">
+                    <span className="text-xs text-[var(--muted)]">{r!.label}</span>
+                    <span className="text-xs font-semibold">{r!.value} <span className="text-[var(--muted)] font-normal">{r!.unit}</span></span>
+                  </div>
+                ))}
+                {vitals.cc && (
+                  <div className="bg-[var(--background)] rounded-[10px] p-2.5 mt-2">
+                    <div className="text-[10px] font-bold text-[var(--muted)] uppercase tracking-widest mb-1">{'CC'}</div>
+                    <div className="text-xs text-[var(--foreground)]">{vitals.cc}</div>
+                  </div>
+                )}
               </div>
             )}
           </div>
