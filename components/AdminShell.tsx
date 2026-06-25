@@ -9,7 +9,7 @@ import {
   IconMessageCircle2, IconCalendarClock, IconStethoscope,
   IconPill, IconLogout, IconMenu2, IconX, IconLayoutDashboard,
   IconUsers, IconBell, IconShieldOff,
-  IconVaccine, IconTestPipe, IconNotes, IconChevronRight,
+  IconVaccine, IconTestPipe, IconNotes, IconChevronRight, IconMedicineSyrup,
 } from '@tabler/icons-react'
 
 const NAV = [
@@ -18,6 +18,7 @@ const NAV = [
   { href: '/admin/appointments',  label: 'นัดหมาย',  Icon: IconCalendarClock  },
   { href: '/admin/doctors',       label: 'แพทย์',    Icon: IconStethoscope   },
   { href: '/admin/prescriptions', label: 'ใบสั่งยา', Icon: IconPill          },
+  { href: '/admin/drugs',         label: 'คลังยา',   Icon: IconMedicineSyrup },
   { href: '/admin/patients',      label: 'คนไข้',    Icon: IconUsers         },
 ]
 

@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { createBrowserClient } from '@supabase/ssr'
 import { useAuth } from '@/lib/auth-context'
@@ -27,6 +27,7 @@ type Appt = {
 }
 
 type RxItem = { id?: string; drug_name: string; dosage: string; frequency: string; duration: string; instructions: string; quantity: string; price: string }
+type DrugOption = { id: string; drug_name: string; strength: string | null; dosage: string | null; frequency: string | null; duration: string | null; instructions: string | null; unit: string | null; price: number | null }
 type Vitals = {
   bp_systolic: number | null; bp_diastolic: number | null; pulse: number | null
   rr: number | null; spo2: number | null; temperature: number | null; dtx: number | null
@@ -43,6 +44,63 @@ const GENDER: Record<string, string> = { male: 'ชาย', female: 'หญิ�
 function calcAge(dob: string | null) {
   if (!dob) return null
   return Math.floor((Date.now() - new Date(dob).getTime()) / (365.25 * 24 * 3600 * 1000))
+}
+
+function DrugAutocomplete({ value, onChange, onSelect }: {
+  value: string
+  onChange: (v: string) => void
+  onSelect: (d: DrugOption) => void
+}) {
+  const [options, setOptions] = useState<DrugOption[]>([])
+  const [open, setOpen] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (value.length < 1) { setOptions([]); return }
+    const t = setTimeout(() => {
+      sb.from('hw_drugs').select('id,drug_name,strength,dosage,frequency,duration,instructions,unit,price')
+        .ilike('drug_name', `%${value}%`).eq('is_active', true).limit(10)
+        .then(({ data }) => { setOptions((data as DrugOption[]) ?? []); setOpen(true) })
+    }, 200)
+    return () => clearTimeout(t)
+  }, [value])
+
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [])
+
+  return (
+    <div ref={ref} className="relative flex-1 min-w-0">
+      <input
+        value={value}
+        onChange={e => { onChange(e.target.value); setOpen(true) }}
+        onFocus={() => { if (options.length > 0) setOpen(true) }}
+        placeholder="ชื่อยา * (พิมพ์เพื่อค้นหา)"
+        className="w-full px-2.5 py-1.5 text-sm border border-[var(--border)] rounded-[8px] bg-[var(--card-bg)] focus:outline-none focus:border-[#1a8a6e]"
+      />
+      {open && options.length > 0 && (
+        <div className="absolute top-full left-0 right-0 mt-1 z-50 bg-[var(--card-bg)] border border-[var(--border)] rounded-[10px] shadow-lg overflow-hidden max-h-52 overflow-y-auto">
+          {options.map(d => (
+            <button key={d.id} type="button"
+              onMouseDown={e => { e.preventDefault(); onSelect(d); setOpen(false) }}
+              className="w-full text-left px-3 py-2 hover:bg-[#1a8a6e]/10 transition-colors border-b border-[var(--border)] last:border-0">
+              <div className="text-sm font-medium">{d.drug_name}{d.strength ? ` ${d.strength}` : ''}</div>
+              <div className="text-[11px] text-[var(--muted)] flex flex-wrap gap-x-2 mt-0.5">
+                {d.dosage && <span>{d.dosage}</span>}
+                {d.frequency && <span>{d.frequency}</span>}
+                {d.unit && <span>หน่วย: {d.unit}</span>}
+                {d.price != null && <span>฿{d.price}</span>}
+              </div>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  )
 }
 
 export default function ConsultationPage() {
@@ -359,10 +417,19 @@ export default function ConsultationPage() {
                 {rxItems.map((item, idx) => (
                   <div key={idx} className="bg-[var(--background)] rounded-[10px] p-3 space-y-2">
                     <div className="flex items-center gap-2">
-                      <input value={item.drug_name}
-                        onChange={e => setRxItems(prev => prev.map((x, i) => i === idx ? { ...x, drug_name: e.target.value } : x))}
-                        placeholder={'ชื่อยา *'}
-                        className="flex-1 min-w-0 px-2.5 py-1.5 text-sm border border-[var(--border)] rounded-[8px] bg-[var(--card-bg)] focus:outline-none focus:border-[#1a8a6e]" />
+                      <DrugAutocomplete
+                        value={item.drug_name}
+                        onChange={name => setRxItems(prev => prev.map((x, i) => i === idx ? { ...x, drug_name: name } : x))}
+                        onSelect={drug => setRxItems(prev => prev.map((x, i) => i === idx ? {
+                          ...x,
+                          drug_name: drug.strength ? `${drug.drug_name} ${drug.strength}` : drug.drug_name,
+                          dosage: drug.dosage ?? x.dosage,
+                          frequency: drug.frequency ?? x.frequency,
+                          duration: drug.duration ?? x.duration,
+                          instructions: drug.instructions ?? x.instructions,
+                          price: drug.price != null ? String(drug.price) : x.price,
+                        } : x))}
+                      />
                       {rxItems.length > 1 && (
                         <button onClick={() => setRxItems(prev => prev.filter((_, i) => i !== idx))}
                           className="text-[var(--muted)] hover:text-red-400 transition-colors flex-shrink-0">
