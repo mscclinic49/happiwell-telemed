@@ -6,12 +6,15 @@
 /* ── HappiWell Design Tokens · Light Mode ─────────────── */
 :root {
   /* Brand */
-  --hw-green:     #10B981;
-  --hw-green-dk:  #059669;
+  --hw-green:     #16BFA0;
+  --hw-green-dk:  #128F76;
   --hw-teal:      #14B8A6;
   --hw-orange:    #F59E0B;
   --hw-blue:      #3B82F6;
   --hw-blue-dk:   #1D4ED8;
+  --hw-brand-blue:    #4A63E0;
+  --hw-brand-blue-dk: #2F3FA8;
+  --hw-brand-red:     #E94B5C;
 
   /* Status backgrounds (light — solid tint) */
   --hw-mint-bg:   #DCFCE7;
@@ -37,9 +40,12 @@
 /* ── Dark Mode ─────────────────────────────────────────── */
 .dark {
   /* Brand (brighter for dark bg) */
-  --hw-green:     #34D399;
-  --hw-green-dk:  #6EE7B7;
+  --hw-green:     #3FE0BE;
+  --hw-green-dk:  #5FEAC9;
   --hw-teal:      #2DD4BF;
+  --hw-brand-blue:    #6B82F2;
+  --hw-brand-blue-dk: #4A63E0;
+  --hw-brand-red:     #F06B7A;
 
   /* Status backgrounds (dark — semi-transparent) */
   --hw-mint-bg:   rgb(20 83 45 / 0.20);
@@ -89,6 +95,10 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+}
+
+.font-display {
+  font-family: var(--font-kanit), sans-serif;
 }
 
 html {

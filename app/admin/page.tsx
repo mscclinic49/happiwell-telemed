@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useState } from 'react'
 import { createBrowserClient } from '@supabase/ssr'
@@ -94,8 +94,8 @@ export default function AdminDashboard() {
       {/* Stat cards */}
       <div className="grid grid-cols-2 gap-3 mb-6">
         <StatCard
-          icon={<IconCalendarClock size={20} className="text-[#1a8a6e]" />}
-          iconBg="bg-[#1a8a6e]/15"
+          icon={<IconCalendarClock size={20} className="text-[var(--hw-green-dk)]" />}
+          iconBg="bg-[var(--hw-green-dk)]/15"
           label={'นัดหมายวันนี้'} value={s.todayCount}
           href="/admin/appointments" />
         <StatCard

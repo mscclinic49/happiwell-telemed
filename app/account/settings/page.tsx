@@ -149,7 +149,7 @@ export default function AccountSettingsPage() {
                   onClick={() => setActiveSection(id)}
                   className={`flex items-center gap-2.5 w-full px-3 py-2.5 rounded-[10px] text-sm font-medium transition-colors text-left ${
                     activeSection === id
-                      ? 'text-[#1a8a6e] font-semibold'
+                      ? 'text-[var(--hw-green-dk)] font-semibold'
                       : 'text-[var(--muted)] hover:text-[var(--foreground)] hover:bg-[#e8f7f3]'
                   }`}
                   style={activeSection === id ? { background: '#e8f7f3' } : {}}
@@ -181,12 +181,12 @@ export default function AccountSettingsPage() {
                       type="text" value={username} onChange={e => handleUsernameChange(e.target.value)}
                       placeholder={'เช่น somchai_99'}
                       maxLength={30} autoCapitalize="none" autoCorrect="off" spellCheck={false}
-                      className="w-full pl-10 pr-10 py-3 rounded-[10px] border border-[var(--border)] bg-[var(--background)] text-sm focus:outline-none focus:border-[#1a8a6e] transition-colors"
+                      className="w-full pl-10 pr-10 py-3 rounded-[10px] border border-[var(--border)] bg-[var(--background)] text-sm focus:outline-none focus:border-[var(--hw-green-dk)] transition-colors"
                     />
                     <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--muted)] text-sm font-semibold select-none">{'@'}</span>
                     <span className="absolute right-3 top-1/2 -translate-y-1/2">
-                      {checking && <span className="w-4 h-4 border-2 border-[#1a8a6e] border-t-transparent rounded-full animate-spin block" />}
-                      {!checking && username && username !== currentUsername && !taken && username.length >= 3 && <IconCircleCheck size={17} className="text-[#1a8a6e]" />}
+                      {checking && <span className="w-4 h-4 border-2 border-[var(--hw-green-dk)] border-t-transparent rounded-full animate-spin block" />}
+                      {!checking && username && username !== currentUsername && !taken && username.length >= 3 && <IconCircleCheck size={17} className="text-[var(--hw-green-dk)]" />}
                       {!checking && taken && <IconAlertCircle size={17} className="text-red-500" />}
                     </span>
                   </div>
@@ -197,7 +197,7 @@ export default function AccountSettingsPage() {
                   )}
                   {taken && <p className="text-xs text-red-500 mt-1">{'Username นี้ถูกใช้แล้ว กรุณาเลือกใหม่'}</p>}
                   {!checking && !taken && username && username !== currentUsername && username.length >= 3 && (
-                    <p className="text-xs text-[#1a8a6e] mt-1">{'Username นี้ใช้ได้'}</p>
+                    <p className="text-xs text-[var(--hw-green-dk)] mt-1">{'Username นี้ใช้ได้'}</p>
                   )}
                   {username === currentUsername && username && (
                     <p className="text-xs text-[var(--muted)] mt-1">{'Username ปัจจุบันของคุณ'}</p>
@@ -208,7 +208,7 @@ export default function AccountSettingsPage() {
                   <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-[10px] px-4 py-3">{unError}</div>
                 )}
                 {savedUn && (
-                  <div className="text-sm text-[#1a8a6e] bg-[#e8f7f3] border border-[#b2dfd3] rounded-[10px] px-4 py-3 flex items-center gap-2">
+                  <div className="text-sm text-[var(--hw-green-dk)] bg-[#e8f7f3] border border-[#b2dfd3] rounded-[10px] px-4 py-3 flex items-center gap-2">
                     <IconCircleCheck size={16} />{'บันทึก Username เรียบร้อยแล้ว'}
                   </div>
                 )}
@@ -217,7 +217,7 @@ export default function AccountSettingsPage() {
                   onClick={saveUsername}
                   disabled={savingUn || !username || taken || checking || username.length < 3 || username === currentUsername}
                   className="w-full py-3 rounded-full font-semibold text-white text-sm hover:opacity-90 disabled:opacity-40 transition-opacity"
-                  style={{ background: '#1a8a6e' }}>
+                  style={{ background: 'var(--hw-green-dk)' }}>
                   {savingUn ? 'กำลังบันทึก...' : 'บันทึก Username'}
                 </button>
 
@@ -260,7 +260,7 @@ export default function AccountSettingsPage() {
                         title={active ? 'ถอนความยินยอม' : 'ยังไม่ได้ให้ความยินยอม'}
                       >
                         {active
-                          ? <IconToggleRight size={32} className="text-[#1a8a6e]" />
+                          ? <IconToggleRight size={32} className="text-[var(--hw-green-dk)]" />
                           : <IconToggleLeft size={32} className="text-[var(--muted)]" />
                         }
                       </button>

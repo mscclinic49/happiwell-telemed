@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { createBrowserClient } from '@supabase/ssr'
@@ -103,7 +103,7 @@ function VField({ label, value, onChange, placeholder, half, unit }: {
         <input
           type="text" inputMode="decimal" value={value} onChange={e => onChange(e.target.value)}
           placeholder={placeholder ?? '-'}
-          className="min-w-0 flex-1 px-3 py-2 text-sm border border-[var(--border)] rounded-lg bg-[var(--background)] focus:outline-none focus:border-[#1a8a6e]"
+          className="min-w-0 flex-1 px-3 py-2 text-sm border border-[var(--border)] rounded-lg bg-[var(--background)] focus:outline-none focus:border-[var(--hw-green-dk)]"
         />
         {unit && <span className="text-xs text-[var(--muted)] flex-shrink-0 w-7 text-right">{unit}</span>}
       </div>
@@ -369,12 +369,12 @@ export default function AdminChatPage() {
               <input type="text" inputMode="numeric" value={vitals.bp_systolic}
                 onChange={e => setVitals(p => ({ ...p, bp_systolic: e.target.value }))}
                 placeholder="120"
-                className="min-w-0 flex-1 px-3 py-2 text-sm border border-[var(--border)] rounded-lg bg-[var(--background)] focus:outline-none focus:border-[#1a8a6e] text-center" />
+                className="min-w-0 flex-1 px-3 py-2 text-sm border border-[var(--border)] rounded-lg bg-[var(--background)] focus:outline-none focus:border-[var(--hw-green-dk)] text-center" />
               <span className="text-[var(--muted)] font-bold flex-shrink-0">{'/'}</span>
               <input type="text" inputMode="numeric" value={vitals.bp_diastolic}
                 onChange={e => setVitals(p => ({ ...p, bp_diastolic: e.target.value }))}
                 placeholder="80"
-                className="min-w-0 flex-1 px-3 py-2 text-sm border border-[var(--border)] rounded-lg bg-[var(--background)] focus:outline-none focus:border-[#1a8a6e] text-center" />
+                className="min-w-0 flex-1 px-3 py-2 text-sm border border-[var(--border)] rounded-lg bg-[var(--background)] focus:outline-none focus:border-[var(--hw-green-dk)] text-center" />
               <span className="text-xs text-[var(--muted)] flex-shrink-0 w-10">{'mmHg'}</span>
             </div>
           </div>
@@ -397,7 +397,7 @@ export default function AdminChatPage() {
           <textarea value={vitals.drug_allergy} onChange={e => setVitals(p => ({ ...p, drug_allergy: e.target.value }))}
             placeholder="ระบุยาที่แพ้ หรือ ไม่มี"
             rows={2}
-            className="w-full px-3 py-2 text-sm border border-[var(--border)] rounded-lg bg-[var(--background)] focus:outline-none focus:border-[#1a8a6e] resize-none" />
+            className="w-full px-3 py-2 text-sm border border-[var(--border)] rounded-lg bg-[var(--background)] focus:outline-none focus:border-[var(--hw-green-dk)] resize-none" />
         </div>
 
         {/* CC */}
@@ -406,7 +406,7 @@ export default function AdminChatPage() {
           <textarea value={vitals.cc} onChange={e => setVitals(p => ({ ...p, cc: e.target.value }))}
             placeholder="อาการที่มาพบแพทย์..."
             rows={3}
-            className="w-full px-3 py-2 text-sm border border-[var(--border)] rounded-lg bg-[var(--background)] focus:outline-none focus:border-[#1a8a6e] resize-none" />
+            className="w-full px-3 py-2 text-sm border border-[var(--border)] rounded-lg bg-[var(--background)] focus:outline-none focus:border-[var(--hw-green-dk)] resize-none" />
         </div>
       </div>
 
@@ -438,11 +438,11 @@ export default function AdminChatPage() {
         {/* Mobile: tab toggle */}
         <div className="flex lg:hidden gap-1 text-xs">
           <button onClick={() => setVitalsTab('chat')}
-            className={`px-2.5 py-1 rounded-lg font-medium transition-colors ${vitalsTab === 'chat' ? 'bg-[#1a8a6e] text-white' : 'text-[var(--muted)] hover:bg-[#1a8a6e]/10'}`}>
+            className={`px-2.5 py-1 rounded-lg font-medium transition-colors ${vitalsTab === 'chat' ? 'bg-[var(--hw-green-dk)] text-white' : 'text-[var(--muted)] hover:bg-[var(--hw-green-dk)]/10'}`}>
             {'แชท'}
           </button>
           <button onClick={() => setVitalsTab('vitals')}
-            className={`px-2.5 py-1 rounded-lg font-medium transition-colors ${vitalsTab === 'vitals' ? 'bg-[#1a8a6e] text-white' : 'text-[var(--muted)] hover:bg-[#1a8a6e]/10'}`}>
+            className={`px-2.5 py-1 rounded-lg font-medium transition-colors ${vitalsTab === 'vitals' ? 'bg-[var(--hw-green-dk)] text-white' : 'text-[var(--muted)] hover:bg-[var(--hw-green-dk)]/10'}`}>
             {'Vitals'}
           </button>
         </div>
@@ -479,15 +479,15 @@ export default function AdminChatPage() {
           <div className="flex items-end gap-2 px-4 py-3 border-t border-[var(--border)] bg-[var(--card-bg)] flex-shrink-0">
             <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={uploadImage} />
             <button onClick={() => fileRef.current?.click()} disabled={uploading}
-              className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 border border-[var(--border)] bg-[var(--background)] text-[var(--muted)] hover:text-[#1a8a6e] hover:border-[#1a8a6e] transition-colors disabled:opacity-40">
+              className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 border border-[var(--border)] bg-[var(--background)] text-[var(--muted)] hover:text-[var(--hw-green-dk)] hover:border-[var(--hw-green-dk)] transition-colors disabled:opacity-40">
               {uploading
-                ? <span className="w-4 h-4 border-2 border-[#1a8a6e] border-t-transparent rounded-full animate-spin" />
+                ? <span className="w-4 h-4 border-2 border-[var(--hw-green-dk)] border-t-transparent rounded-full animate-spin" />
                 : <IconPhoto size={17} />}
             </button>
             <textarea value={input} onChange={e => setInput(e.target.value)} onKeyDown={handleKey}
               placeholder={'ตอบกลับ... (Enter ส่ง)'}
               rows={1}
-              className="flex-1 resize-none px-4 py-2.5 rounded-2xl border border-[var(--border)] bg-[var(--background)] text-sm focus:outline-none focus:border-[#1a8a6e] max-h-28 overflow-y-auto"
+              className="flex-1 resize-none px-4 py-2.5 rounded-2xl border border-[var(--border)] bg-[var(--background)] text-sm focus:outline-none focus:border-[var(--hw-green-dk)] max-h-28 overflow-y-auto"
             />
             <button onClick={sendMessage} disabled={!input.trim() || sending}
               className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 disabled:opacity-40 hover:opacity-80 transition-opacity"
@@ -570,7 +570,7 @@ export default function AdminChatPage() {
           )}
           {convs.map(c => (
             <button key={c.id} onClick={() => setActiveId(c.id)}
-              className={`w-full text-left px-4 py-3.5 border-b border-[var(--border)] hover:bg-[#1a8a6e]/10 transition-colors ${activeId === c.id ? 'bg-[#1a8a6e]/10' : ''}`}>
+              className={`w-full text-left px-4 py-3.5 border-b border-[var(--border)] hover:bg-[var(--hw-green-dk)]/10 transition-colors ${activeId === c.id ? 'bg-[var(--hw-green-dk)]/10' : ''}`}>
               <div className="flex items-center gap-2 mb-0.5">
                 <IconUser size={13} className="text-[var(--muted)] flex-shrink-0" />
                 <span className={`text-sm truncate flex-1 ${c.unreadCount > 0 ? 'font-bold' : 'font-semibold'}`}>{patientName(c)}</span>

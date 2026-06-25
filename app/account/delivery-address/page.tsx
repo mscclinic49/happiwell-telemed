@@ -64,19 +64,19 @@ export default function DeliveryAddressPage() {
     setSaving(false)
   }
 
-  const inputClass = 'w-full px-4 py-3 rounded-[10px] border border-[var(--border)] bg-[var(--card-bg)] text-base focus:outline-none focus:border-[#1a8a6e]'
+  const inputClass = 'w-full px-4 py-3 rounded-[10px] border border-[var(--border)] bg-[var(--card-bg)] text-base focus:outline-none focus:border-[var(--hw-green-dk)]'
 
   if (loading) return <div className="max-w-lg mx-auto px-5 py-10 text-[var(--muted)] text-sm">{'กำลังโหลด...'}</div>
 
   return (
     <div className="max-w-lg mx-auto px-5 py-8">
       <div className="flex items-center gap-3 mb-6">
-        <IconMapPin size={22} className="text-[#1a8a6e]" />
+        <IconMapPin size={22} className="text-[var(--hw-green-dk)]" />
         <h1 className="text-xl font-bold">{'ที่อยู่รับยา'}</h1>
       </div>
 
       {success && (
-        <div className="flex items-center gap-2 p-3 bg-[#e8f7f3] border border-[#1a8a6e] rounded-[14px] mb-4 text-[#1a8a6e] text-sm">
+        <div className="flex items-center gap-2 p-3 bg-[#e8f7f3] border border-[var(--hw-green-dk)] rounded-[14px] mb-4 text-[var(--hw-green-dk)] text-sm">
           <IconCheck size={16} /><span>{'บันทึกที่อยู่สำเร็จ'}</span>
         </div>
       )}
@@ -86,7 +86,7 @@ export default function DeliveryAddressPage() {
           <label className="block text-sm font-medium mb-1.5">{'ป้ายชื่อที่อยู่'}</label>
           <div className="flex gap-2">
             {LABELS.map(l => (
-              <label key={l} className={`flex-1 flex items-center justify-center py-2.5 rounded-[10px] border-2 cursor-pointer text-sm font-medium transition-colors ${form.label === l ? 'border-[#1a8a6e] bg-[#e8f7f3] text-[#1a8a6e]' : 'border-[var(--border)] text-[var(--muted)]'}`}>
+              <label key={l} className={`flex-1 flex items-center justify-center py-2.5 rounded-[10px] border-2 cursor-pointer text-sm font-medium transition-colors ${form.label === l ? 'border-[var(--hw-green-dk)] bg-[#e8f7f3] text-[var(--hw-green-dk)]' : 'border-[var(--border)] text-[var(--muted)]'}`}>
                 <input type="radio" className="hidden" checked={form.label === l} onChange={() => setForm(f => ({ ...f, label: l }))} />
                 {l}
               </label>

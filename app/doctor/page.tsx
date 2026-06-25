@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useState } from 'react'
 import { createBrowserClient } from '@supabase/ssr'
@@ -71,7 +71,7 @@ export default function DoctorDashboard() {
 
   if (loading) return (
     <div className="flex items-center justify-center py-20">
-      <div className="w-8 h-8 border-4 border-[#1a8a6e] border-t-transparent rounded-full animate-spin" />
+      <div className="w-8 h-8 border-4 border-[var(--hw-green-dk)] border-t-transparent rounded-full animate-spin" />
     </div>
   )
 
@@ -85,7 +85,7 @@ export default function DoctorDashboard() {
       {/* Stat cards */}
       <div className="grid grid-cols-3 gap-3 mb-6">
         {[
-          { icon: <IconCalendarClock size={20} className="text-[#1a8a6e]" />, iconBg: 'bg-[#1a8a6e]/15', label: 'นัดวันนี้', value: counts.today, href: '/doctor/appointments' },
+          { icon: <IconCalendarClock size={20} className="text-[var(--hw-green-dk)]" />, iconBg: 'bg-[var(--hw-green-dk)]/15', label: 'นัดวันนี้', value: counts.today, href: '/doctor/appointments' },
           { icon: <IconUserCheck size={20} className="text-yellow-500" />, iconBg: 'bg-yellow-500/15', label: 'รอยืนยัน', value: counts.pending, href: '/doctor/appointments' },
           { icon: <IconPill size={20} className="text-blue-400" />, iconBg: 'bg-blue-400/15', label: 'ตรวจแล้ว', value: counts.done, href: '/doctor/rx' },
         ].map(c => (
@@ -106,7 +106,7 @@ export default function DoctorDashboard() {
       <div className="bg-[var(--card-bg)] border border-[var(--border)] rounded-[14px] p-5">
         <div className="flex items-center justify-between mb-4">
           <h2 className="font-bold text-sm">{'นัดหมายวันนี้'}</h2>
-          <Link href="/doctor/appointments" className="text-xs text-[#1a8a6e] font-medium flex items-center gap-0.5">
+          <Link href="/doctor/appointments" className="text-xs text-[var(--hw-green-dk)] font-medium flex items-center gap-0.5">
             {'ดูทั้งหมด'}<IconChevronRight size={13} />
           </Link>
         </div>
@@ -123,7 +123,7 @@ export default function DoctorDashboard() {
               const name = a.hw_users?.full_name || a.hw_users?.first_name || '—'
               return (
                 <Link key={a.id} href={`/doctor/appointments/${a.id}`}
-                  className="flex items-center gap-3 py-2.5 px-3 rounded-[10px] hover:bg-[#1a8a6e]/5 transition-colors border border-transparent hover:border-[var(--border)]">
+                  className="flex items-center gap-3 py-2.5 px-3 rounded-[10px] hover:bg-[var(--hw-green-dk)]/5 transition-colors border border-transparent hover:border-[var(--border)]">
                   <div className="text-xs font-mono text-[var(--muted)] w-12 flex-shrink-0">
                     {dt.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })}
                   </div>

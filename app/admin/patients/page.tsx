@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useState } from 'react'
 import { createBrowserClient } from '@supabase/ssr'
@@ -62,7 +62,7 @@ export default function AdminPatientsPage() {
   return (
     <div className="max-w-2xl mx-auto px-5 py-6 pb-12">
       <div className="flex items-center gap-2 mb-1">
-        <IconUsers size={20} className="text-[#1a8a6e]" />
+        <IconUsers size={20} className="text-[var(--hw-green-dk)]" />
         <h1 className="text-lg font-bold">{'รายชื่อคนไข้'}</h1>
         <span className="text-xs text-[var(--muted)] bg-[var(--border)] px-2 py-0.5 rounded-full">{patients.length}</span>
       </div>
@@ -73,7 +73,7 @@ export default function AdminPatientsPage() {
         <input
           type="text" value={search} onChange={e => setSearch(e.target.value)}
           placeholder={'ค้นหาชื่อ หรือเบอร์โทร...'}
-          className="w-full pl-9 pr-4 py-2.5 rounded-[10px] border border-[var(--border)] bg-[var(--card-bg)] text-sm focus:outline-none focus:border-[#1a8a6e]"
+          className="w-full pl-9 pr-4 py-2.5 rounded-[10px] border border-[var(--border)] bg-[var(--card-bg)] text-sm focus:outline-none focus:border-[var(--hw-green-dk)]"
         />
       </div>
 
@@ -92,13 +92,13 @@ export default function AdminPatientsPage() {
             const age = calcAge(p.date_of_birth)
             return (
               <Link key={p.id} href={`/admin/patients/${p.id}`}
-                className="block bg-[var(--card-bg)] border border-[var(--border)] rounded-[14px] px-4 py-3 hover:border-[#1a8a6e] transition-colors">
+                className="block bg-[var(--card-bg)] border border-[var(--border)] rounded-[14px] px-4 py-3 hover:border-[var(--hw-green-dk)] transition-colors">
                 <div className="flex items-center gap-3">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
                       <span className="font-semibold text-sm">{displayName(p)}</span>
                       {p.identity_verified
-                        ? <IconShieldCheck size={14} className="text-[#1a8a6e] flex-shrink-0" />
+                        ? <IconShieldCheck size={14} className="text-[var(--hw-green-dk)] flex-shrink-0" />
                         : <IconShieldOff size={14} className="text-orange-400 flex-shrink-0" />}
                     </div>
                     <div className="flex flex-wrap gap-x-3 gap-y-0.5 mt-1">

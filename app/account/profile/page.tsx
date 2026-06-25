@@ -26,7 +26,7 @@ const TITLES     = ['นาย', 'นาง', 'น.ส.', 'ด.ช.', 'ด.ญ.'
 const GENDERS    = [{ value: 'male', label: 'ชาย' }, { value: 'female', label: 'หญิง' }, { value: 'other', label: 'อื่นๆ' }]
 const BLOOD_TYPES = ['A', 'B', 'AB', 'O', 'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']
 
-const inputClass = 'w-full px-4 py-3 rounded-[10px] border border-[var(--border)] bg-[var(--card-bg)] text-base focus:outline-none focus:border-[#1a8a6e]'
+const inputClass = 'w-full px-4 py-3 rounded-[10px] border border-[var(--border)] bg-[var(--card-bg)] text-base focus:outline-none focus:border-[var(--hw-green-dk)]'
 
 /* ─── KYC Section ─── */
 function KycSection({ userId, sb }: { userId: string; sb: ReturnType<typeof createBrowserClient> }) {
@@ -79,31 +79,31 @@ function KycSection({ userId, sb }: { userId: string; sb: ReturnType<typeof crea
   // Verified — read-only, no edit
   if (kyc?.status === 'verified') {
     return (
-      <div className="bg-[#e8f7f3] border border-[#1a8a6e]/30 rounded-[14px] p-5">
+      <div className="bg-[#e8f7f3] border border-[var(--hw-green-dk)]/30 rounded-[14px] p-5">
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-9 h-9 rounded-full bg-[#1a8a6e] flex items-center justify-center flex-shrink-0">
+          <div className="w-9 h-9 rounded-full bg-[var(--hw-green-dk)] flex items-center justify-center flex-shrink-0">
             <IconShieldCheck size={18} className="text-white" />
           </div>
           <div>
-            <div className="font-bold text-[#1a8a6e]">{'ยืนยันตัวตนแล้ว'}</div>
-            <div className="text-xs text-[#1a8a6e]/70">
+            <div className="font-bold text-[var(--hw-green-dk)]">{'ยืนยันตัวตนแล้ว'}</div>
+            <div className="text-xs text-[var(--hw-green-dk)]/70">
               {'ยืนยันเมื่อ '}{new Date(kyc.submitted_at).toLocaleDateString('th-TH', { dateStyle: 'medium' })}
             </div>
           </div>
         </div>
         <div className="space-y-2 text-sm">
           <div className="flex gap-2">
-            <span className="text-[#1a8a6e]/70 w-28 flex-shrink-0">{'ประเภทเอกสาร'}</span>
+            <span className="text-[var(--hw-green-dk)]/70 w-28 flex-shrink-0">{'ประเภทเอกสาร'}</span>
             <span className="font-semibold">{kyc.id_type === 'national_id' ? 'บัตรประชาชน' : 'พาสปอร์ต'}</span>
           </div>
           <div className="flex gap-2">
-            <span className="text-[#1a8a6e]/70 w-28 flex-shrink-0">{'เลขที่'}</span>
+            <span className="text-[var(--hw-green-dk)]/70 w-28 flex-shrink-0">{'เลขที่'}</span>
             <span className="font-semibold font-mono tracking-wider">
               {kyc.id_number.replace(/^(\d{1})(\d{4})(\d{5})(\d{2})(\d{1})$/, '$1-$2-$3-$4-$5')}
             </span>
           </div>
         </div>
-        <p className="text-xs text-[#1a8a6e]/60 mt-3">{'ข้อมูลยืนยันตัวตนไม่สามารถแก้ไขได้'}</p>
+        <p className="text-xs text-[var(--hw-green-dk)]/60 mt-3">{'ข้อมูลยืนยันตัวตนไม่สามารถแก้ไขได้'}</p>
       </div>
     )
   }
@@ -142,7 +142,7 @@ function KycSection({ userId, sb }: { userId: string; sb: ReturnType<typeof crea
   return (
     <div className="bg-[var(--card-bg)] border border-[var(--border)] rounded-[14px] p-5">
       <div className="flex items-center gap-2 mb-4">
-        <IconId size={18} className="text-[#1a8a6e]" />
+        <IconId size={18} className="text-[var(--hw-green-dk)]" />
         <span className="font-semibold">{'การยืนยันตัวตน'}</span>
         {!kyc && (
           <span className="ml-auto text-xs text-[var(--muted)] bg-[var(--border)] px-2 py-0.5 rounded-full">{'ยังไม่ยืนยัน'}</span>
@@ -166,7 +166,7 @@ function KycSection({ userId, sb }: { userId: string; sb: ReturnType<typeof crea
               key={value}
               className={`flex-1 flex items-center justify-center py-2.5 rounded-[10px] border-2 cursor-pointer text-sm font-medium transition-colors ${
                 idType === value
-                  ? 'border-[#1a8a6e] bg-[#e8f7f3] text-[#1a8a6e]'
+                  ? 'border-[var(--hw-green-dk)] bg-[#e8f7f3] text-[var(--hw-green-dk)]'
                   : 'border-[var(--border)] text-[var(--muted)]'
               }`}
             >
@@ -200,15 +200,15 @@ function KycSection({ userId, sb }: { userId: string; sb: ReturnType<typeof crea
           <div
             onClick={() => fileRef.current?.click()}
             className={`flex flex-col items-center gap-1.5 py-6 rounded-[10px] border-2 border-dashed cursor-pointer transition-colors ${
-              file ? 'border-[#1a8a6e] bg-[#e8f7f3]' : 'border-[var(--border)] hover:border-[#1a8a6e]'
+              file ? 'border-[var(--hw-green-dk)] bg-[#e8f7f3]' : 'border-[var(--border)] hover:border-[var(--hw-green-dk)]'
             }`}
           >
             <input ref={fileRef} type="file" accept="image/jpeg,image/png,image/webp,application/pdf" className="hidden"
               onChange={e => setFile(e.target.files?.[0] ?? null)} />
-            <IconUpload size={22} className={file ? 'text-[#1a8a6e]' : 'text-[var(--muted)]'} />
+            <IconUpload size={22} className={file ? 'text-[var(--hw-green-dk)]' : 'text-[var(--muted)]'} />
             {file ? (
               <div className="text-center">
-                <div className="text-sm font-medium text-[#1a8a6e]">{file.name}</div>
+                <div className="text-sm font-medium text-[var(--hw-green-dk)]">{file.name}</div>
                 <div className="text-xs text-[var(--muted)]">{(file.size / 1024).toFixed(0)} KB</div>
               </div>
             ) : (
@@ -387,7 +387,7 @@ export default function ProfilePage() {
           </div>
         )}
         {saved && (
-          <div className="flex items-center gap-2 p-3 bg-[#e8f7f3] border border-[#1a8a6e]/30 rounded-[10px] text-[#1a8a6e] text-sm">
+          <div className="flex items-center gap-2 p-3 bg-[#e8f7f3] border border-[var(--hw-green-dk)]/30 rounded-[10px] text-[var(--hw-green-dk)] text-sm">
             <IconCheck size={15} />{'บันทึกข้อมูลเรียบร้อยแล้ว'}
           </div>
         )}

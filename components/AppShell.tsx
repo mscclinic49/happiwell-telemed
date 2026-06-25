@@ -330,7 +330,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             const isChatWithBadge = href === '/chat' && unreadChat > 0
             return (
               <Link key={href} href={href}
-                className={`flex items-center gap-3 px-3 py-3 rounded-[10px] text-base font-medium transition-colors ${
+                className={`font-display flex items-center gap-3 px-3 py-3 rounded-[10px] text-base font-medium transition-colors ${
                   active ? 'text-[var(--hw-green)] font-semibold bg-[var(--hw-mint-bg)]' : 'text-[var(--muted)] hover:text-[var(--foreground)] hover:bg-[var(--hw-mint-bg)]'
                 }`}>
                 <div className="relative">

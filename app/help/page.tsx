@@ -52,7 +52,7 @@ export default function HelpPage() {
   return (
     <div className="max-w-2xl mx-auto px-5 py-8 pb-12">
       <div className="flex items-center gap-3 mb-2">
-        <IconHelp size={22} className="text-[#1a8a6e]" />
+        <IconHelp size={22} className="text-[var(--hw-green-dk)]" />
         <h1 className="text-2xl font-bold">{'ศูนย์ช่วยเหลือ'}</h1>
       </div>
       <p className="text-sm text-[var(--muted)] mb-8">{'คำถามที่พบบ่อย'}</p>

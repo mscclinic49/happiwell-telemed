@@ -48,7 +48,7 @@ export default function HistoryPage() {
   return (
     <div className="max-w-2xl mx-auto px-5 py-6 pb-8">
       <div className="flex items-center gap-3 mb-6">
-        <IconCalendarClock size={22} className="text-[#1a8a6e]" />
+        <IconCalendarClock size={22} className="text-[var(--hw-green-dk)]" />
         <h1 className="text-xl font-bold">{'ประวัติการปรึกษา'}</h1>
       </div>
 
@@ -77,7 +77,7 @@ export default function HistoryPage() {
               <div className="flex items-start justify-between gap-3 mb-3">
                 <div className="flex-1 min-w-0 space-y-1">
                   <div className="flex items-center gap-1.5 font-semibold text-sm">
-                    <IconStethoscope size={14} className="text-[#1a8a6e] flex-shrink-0" />
+                    <IconStethoscope size={14} className="text-[var(--hw-green-dk)] flex-shrink-0" />
                     <span className="truncate">{a.hw_doctors?.full_name ?? 'แพทย์'}</span>
                     {a.hw_doctors?.specialty && (
                       <span className="text-xs text-[var(--muted)] font-normal truncate">· {a.hw_doctors.specialty}</span>

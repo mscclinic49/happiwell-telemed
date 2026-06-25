@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
@@ -101,7 +101,7 @@ function PrescriptionButtons({ appt, onUploaded }: { appt: Appt; onUploaded: () 
           title={!hasAny ? 'ยังไม่มีใบสั่งยา' : 'อัพโหลดใบสั่งยาใหม่'}
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors whitespace-nowrap
             disabled:opacity-40 disabled:cursor-not-allowed
-            enabled:border-[var(--border)] enabled:text-[var(--muted)] enabled:hover:border-[#1a8a6e]/40 enabled:hover:text-[var(--foreground)]">
+            enabled:border-[var(--border)] enabled:text-[var(--muted)] enabled:hover:border-[var(--hw-green-dk)]/40 enabled:hover:text-[var(--foreground)]">
           <IconEdit size={12} />{'แก้ไขใบสั่งยา'}
         </button>
 
@@ -109,7 +109,7 @@ function PrescriptionButtons({ appt, onUploaded }: { appt: Appt; onUploaded: () 
         <button
           onClick={() => fileRef.current?.click()}
           disabled={uploading}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold text-white bg-[#1a8a6e] hover:opacity-90 disabled:opacity-50 transition-opacity whitespace-nowrap">
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold text-white bg-[var(--hw-green-dk)] hover:opacity-90 disabled:opacity-50 transition-opacity whitespace-nowrap">
           {uploading
             ? <span className="w-3 h-3 border border-white/60 border-t-white rounded-full animate-spin" />
             : <IconUpload size={12} />}
@@ -184,7 +184,7 @@ export default function AdminPrescriptionsPage() {
   return (
     <div className="max-w-3xl mx-auto px-5 py-6 pb-8">
       <div className="flex items-center gap-2 mb-5">
-        <IconPill size={20} className="text-[#1a8a6e]" />
+        <IconPill size={20} className="text-[var(--hw-green-dk)]" />
         <h1 className="text-lg font-bold">{'ใบสั่งยา'}</h1>
       </div>
 
@@ -200,8 +200,8 @@ export default function AdminPrescriptionsPage() {
             return (
               <div key={a.id}
                 className="bg-[var(--card-bg)] border border-[var(--border)] rounded-[14px] px-4 py-3 flex items-center gap-3">
-                <div className="w-9 h-9 rounded-full bg-[#1a8a6e]/10 flex items-center justify-center flex-shrink-0">
-                  <IconUser size={16} className="text-[#1a8a6e]" />
+                <div className="w-9 h-9 rounded-full bg-[var(--hw-green-dk)]/10 flex items-center justify-center flex-shrink-0">
+                  <IconUser size={16} className="text-[var(--hw-green-dk)]" />
                 </div>
 
                 <div className="flex-1 min-w-0">

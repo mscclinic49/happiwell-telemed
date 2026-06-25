@@ -39,19 +39,19 @@ export default function InsurancePage() {
     setSaving(false)
   }
 
-  const inputClass = 'w-full px-4 py-3 rounded-[10px] border border-[var(--border)] bg-[var(--card-bg)] text-base focus:outline-none focus:border-[#1a8a6e]'
+  const inputClass = 'w-full px-4 py-3 rounded-[10px] border border-[var(--border)] bg-[var(--card-bg)] text-base focus:outline-none focus:border-[var(--hw-green-dk)]'
 
   if (loading) return <div className="max-w-lg mx-auto px-5 py-10 text-[var(--muted)] text-sm">{'กำลังโหลด...'}</div>
 
   return (
     <div className="max-w-lg mx-auto px-5 py-8">
       <div className="flex items-center gap-3 mb-6">
-        <IconShield size={22} className="text-[#1a8a6e]" />
+        <IconShield size={22} className="text-[var(--hw-green-dk)]" />
         <h1 className="text-xl font-bold">{'สิทธิเบิกจ่าย'}</h1>
       </div>
 
       {success && (
-        <div className="flex items-center gap-2 p-3 bg-[#e8f7f3] border border-[#1a8a6e] rounded-[14px] mb-4 text-[#1a8a6e] text-sm">
+        <div className="flex items-center gap-2 p-3 bg-[#e8f7f3] border border-[var(--hw-green-dk)] rounded-[14px] mb-4 text-[var(--hw-green-dk)] text-sm">
           <IconCheck size={16} /><span>{'บันทึกข้อมูลสำเร็จ'}</span>
         </div>
       )}
@@ -61,12 +61,12 @@ export default function InsurancePage() {
           <label className="block text-sm font-medium mb-1.5">{'ประเภทสิทธิ์'}</label>
           <div className="space-y-2">
             {TYPES.map(t => (
-              <label key={t} className={`flex items-center gap-3 px-4 py-3 rounded-[10px] border-2 cursor-pointer transition-colors ${form.insurance_type === t ? 'border-[#1a8a6e] bg-[#e8f7f3]' : 'border-[var(--border)] hover:border-[#1a8a6e]'}`}>
+              <label key={t} className={`flex items-center gap-3 px-4 py-3 rounded-[10px] border-2 cursor-pointer transition-colors ${form.insurance_type === t ? 'border-[var(--hw-green-dk)] bg-[#e8f7f3]' : 'border-[var(--border)] hover:border-[var(--hw-green-dk)]'}`}>
                 <input type="radio" className="hidden" checked={form.insurance_type === t} onChange={() => setForm(f => ({ ...f, insurance_type: t }))} />
-                <span className={`w-4 h-4 rounded-full border-2 flex-shrink-0 flex items-center justify-center ${form.insurance_type === t ? 'border-[#1a8a6e] bg-[#1a8a6e]' : 'border-[var(--border)]'}`}>
+                <span className={`w-4 h-4 rounded-full border-2 flex-shrink-0 flex items-center justify-center ${form.insurance_type === t ? 'border-[var(--hw-green-dk)] bg-[var(--hw-green-dk)]' : 'border-[var(--border)]'}`}>
                   {form.insurance_type === t && <span className="w-1.5 h-1.5 rounded-full bg-white" />}
                 </span>
-                <span className={`text-sm font-medium ${form.insurance_type === t ? 'text-[#1a8a6e]' : ''}`}>{t}</span>
+                <span className={`text-sm font-medium ${form.insurance_type === t ? 'text-[var(--hw-green-dk)]' : ''}`}>{t}</span>
               </label>
             ))}
           </div>

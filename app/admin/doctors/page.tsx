@@ -27,7 +27,7 @@ const emptyForm = () => ({
 const emptySchedule = (): Schedule[] =>
   [1, 2, 3, 4, 5].map(d => ({ day_of_week: d, start_time: '09:00', end_time: '17:00', is_available: true }))
 
-const inputClass = 'w-full px-4 py-3 rounded-[10px] border border-[var(--border)] bg-[var(--card-bg)] text-sm focus:outline-none focus:border-[#1a8a6e]'
+const inputClass = 'w-full px-4 py-3 rounded-[10px] border border-[var(--border)] bg-[var(--card-bg)] text-sm focus:outline-none focus:border-[var(--hw-green-dk)]'
 
 export default function AdminDoctorsPage() {
   const { user } = useAuth()
@@ -188,7 +188,7 @@ export default function AdminDoctorsPage() {
       </div>
 
       {success && (
-        <div className="flex items-center gap-2 p-3 bg-[#1a8a6e]/10 border border-[#1a8a6e]/30 rounded-[10px] text-[#1a8a6e] text-sm mb-4">
+        <div className="flex items-center gap-2 p-3 bg-[var(--hw-green-dk)]/10 border border-[var(--hw-green-dk)]/30 rounded-[10px] text-[var(--hw-green-dk)] text-sm mb-4">
           <IconCheck size={15} />{success}
         </div>
       )}
@@ -205,26 +205,26 @@ export default function AdminDoctorsPage() {
                 <Image src={d.avatar_url} alt={d.full_name} width={48} height={48}
                   className="rounded-full object-cover flex-shrink-0" style={{ width: 48, height: 48 }} />
               ) : (
-                <div className="w-12 h-12 rounded-full bg-[#1a8a6e]/10 flex items-center justify-center flex-shrink-0">
-                  <IconUser size={22} className="text-[#1a8a6e]" />
+                <div className="w-12 h-12 rounded-full bg-[var(--hw-green-dk)]/10 flex items-center justify-center flex-shrink-0">
+                  <IconUser size={22} className="text-[var(--hw-green-dk)]" />
                 </div>
               )}
               <div className="flex-1 min-w-0">
                 <div className="font-semibold text-sm">{d.full_name}</div>
                 <div className="text-xs text-[var(--muted)]">{d.specialty || '—'}</div>
                 <div className="flex items-center gap-2 mt-1">
-                  <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${d.is_active ? 'bg-[#1a8a6e]/10 text-[#1a8a6e]' : 'bg-[var(--border)] text-[var(--muted)]'}`}>
+                  <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${d.is_active ? 'bg-[var(--hw-green-dk)]/10 text-[var(--hw-green-dk)]' : 'bg-[var(--border)] text-[var(--muted)]'}`}>
                     {d.is_active ? 'ใช้งาน' : 'ปิดใช้งาน'}
                   </span>
                   {d.is_online && (
-                    <span className="text-xs text-[#1a8a6e] flex items-center gap-0.5">
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#1a8a6e] inline-block" />{'ออนไลน์'}
+                    <span className="text-xs text-[var(--hw-green-dk)] flex items-center gap-0.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[var(--hw-green-dk)] inline-block" />{'ออนไลน์'}
                     </span>
                   )}
                 </div>
               </div>
               <button onClick={() => openEdit(d)}
-                className="p-2 rounded-[8px] border border-[var(--border)] hover:bg-[#1a8a6e]/10 transition-colors flex-shrink-0">
+                className="p-2 rounded-[8px] border border-[var(--border)] hover:bg-[var(--hw-green-dk)]/10 transition-colors flex-shrink-0">
                 <IconEdit size={16} className="text-[var(--muted)]" />
               </button>
             </div>
@@ -246,7 +246,7 @@ export default function AdminDoctorsPage() {
           <div>
             <label className="block text-sm font-medium mb-2">{'รูปประจำตัว'}</label>
             <div className="flex items-center gap-4">
-              <div onClick={() => fileRef.current?.click()} className="w-20 h-20 rounded-full border-2 border-dashed border-[var(--border)] flex items-center justify-center cursor-pointer hover:border-[#1a8a6e] transition-colors overflow-hidden flex-shrink-0">
+              <div onClick={() => fileRef.current?.click()} className="w-20 h-20 rounded-full border-2 border-dashed border-[var(--border)] flex items-center justify-center cursor-pointer hover:border-[var(--hw-green-dk)] transition-colors overflow-hidden flex-shrink-0">
                 {avatarPreview ? (
                   <Image src={avatarPreview} alt="preview" width={80} height={80} className="w-full h-full object-cover" />
                 ) : (
@@ -296,13 +296,13 @@ export default function AdminDoctorsPage() {
               <label className="flex items-center gap-2 cursor-pointer">
                 <input type="checkbox" checked={form.is_online}
                   onChange={e => setForm(f => ({ ...f, is_online: e.target.checked }))}
-                  className="w-4 h-4 accent-[#1a8a6e]" />
+                  className="w-4 h-4 accent-[var(--hw-green-dk)]" />
                 <span className="text-sm">{'ออนไลน์ตอนนี้'}</span>
               </label>
               <label className="flex items-center gap-2 cursor-pointer">
                 <input type="checkbox" checked={form.is_active}
                   onChange={e => setForm(f => ({ ...f, is_active: e.target.checked }))}
-                  className="w-4 h-4 accent-[#1a8a6e]" />
+                  className="w-4 h-4 accent-[var(--hw-green-dk)]" />
                 <span className="text-sm">{'เปิดใช้งาน'}</span>
               </label>
             </div>
@@ -319,18 +319,18 @@ export default function AdminDoctorsPage() {
                     <label className="flex items-center gap-2 w-28 flex-shrink-0 cursor-pointer">
                       <input type="checkbox" checked={s.is_available}
                         onChange={e => setScheduleField(day, 'is_available', e.target.checked)}
-                        className="w-4 h-4 accent-[#1a8a6e]" />
+                        className="w-4 h-4 accent-[var(--hw-green-dk)]" />
                       <span className="text-sm font-medium">{DAYS[day]}</span>
                     </label>
                     {s.is_available ? (
                       <div className="flex items-center gap-2 flex-1">
                         <input type="time" value={s.start_time}
                           onChange={e => setScheduleField(day, 'start_time', e.target.value)}
-                          className="flex-1 px-3 py-2 rounded-[8px] border border-[var(--border)] text-sm focus:outline-none focus:border-[#1a8a6e]" />
+                          className="flex-1 px-3 py-2 rounded-[8px] border border-[var(--border)] text-sm focus:outline-none focus:border-[var(--hw-green-dk)]" />
                         <span className="text-[var(--muted)] text-sm">{'–'}</span>
                         <input type="time" value={s.end_time}
                           onChange={e => setScheduleField(day, 'end_time', e.target.value)}
-                          className="flex-1 px-3 py-2 rounded-[8px] border border-[var(--border)] text-sm focus:outline-none focus:border-[#1a8a6e]" />
+                          className="flex-1 px-3 py-2 rounded-[8px] border border-[var(--border)] text-sm focus:outline-none focus:border-[var(--hw-green-dk)]" />
                       </div>
                     ) : (
                       <span className="text-xs text-[var(--muted)]">{'หยุด'}</span>

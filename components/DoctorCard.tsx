@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import Link from 'next/link'
 import Image from 'next/image'
@@ -63,7 +63,7 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
 
   return (
     <Link href={`/doctors/${doctor.id}`}
-      className="flex gap-0 rounded-[16px] bg-[var(--card-bg)] border border-[var(--border)] overflow-hidden hover:shadow-md hover:border-[#1a8a6e]/40 transition-all">
+      className="flex gap-0 rounded-[16px] bg-[var(--card-bg)] border border-[var(--border)] overflow-hidden hover:shadow-md hover:border-[var(--hw-green-dk)]/40 transition-all">
 
       {/* Photo */}
       <div className="w-[110px] flex-shrink-0 relative bg-[var(--hw-mint-bg)]">
@@ -81,7 +81,7 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
           </div>
         )}
         {doctor.is_online && (
-          <span className="absolute top-2 left-2 w-2.5 h-2.5 rounded-full bg-[#1a8a6e] border-2 border-white animate-pulse" />
+          <span className="absolute top-2 left-2 w-2.5 h-2.5 rounded-full bg-[var(--hw-green-dk)] border-2 border-white animate-pulse" />
         )}
       </div>
 

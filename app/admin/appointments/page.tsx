@@ -20,7 +20,7 @@ const STATUS_CFG: Record<string, { label: string; color: string }> = {
   cancelled: { label: 'ยกเลิก',    color: 'bg-red-500/15 text-red-400' },
 }
 
-const inputClass = 'w-full px-4 py-3 rounded-[10px] border border-[var(--border)] bg-[var(--card-bg)] text-sm focus:outline-none focus:border-[#1a8a6e]'
+const inputClass = 'w-full px-4 py-3 rounded-[10px] border border-[var(--border)] bg-[var(--card-bg)] text-sm focus:outline-none focus:border-[var(--hw-green-dk)]'
 
 export default function AdminAppointmentsPage() {
   const { user } = useAuth()
@@ -101,7 +101,7 @@ export default function AdminAppointmentsPage() {
     <div className="max-w-2xl mx-auto px-5 py-6 pb-12">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-2">
-          <IconCalendarClock size={20} className="text-[#1a8a6e]" />
+          <IconCalendarClock size={20} className="text-[var(--hw-green-dk)]" />
           <h1 className="text-lg font-bold">{'จัดการนัดหมาย'}</h1>
         </div>
         <button
@@ -115,7 +115,7 @@ export default function AdminAppointmentsPage() {
       </div>
 
       {success && (
-        <div className="flex items-center gap-2 p-3 bg-[#1a8a6e]/10 border border-[#1a8a6e]/30 rounded-[10px] text-[#1a8a6e] text-sm mb-4">
+        <div className="flex items-center gap-2 p-3 bg-[var(--hw-green-dk)]/10 border border-[var(--hw-green-dk)]/30 rounded-[10px] text-[var(--hw-green-dk)] text-sm mb-4">
           <IconCheck size={15} />{'สร้างนัดหมายเรียบร้อยแล้ว'}
         </div>
       )}

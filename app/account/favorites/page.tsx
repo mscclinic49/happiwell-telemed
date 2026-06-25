@@ -44,7 +44,7 @@ export default function FavoritesPage() {
   return (
     <div className="max-w-2xl mx-auto px-5 py-8">
       <div className="flex items-center gap-3 mb-6">
-        <IconHeart size={22} className="text-[#1a8a6e]" />
+        <IconHeart size={22} className="text-[var(--hw-green-dk)]" />
         <h1 className="text-xl font-bold">{'แพทย์ที่ชื่นชอบ'}</h1>
       </div>
 
@@ -73,7 +73,7 @@ export default function FavoritesPage() {
               {doc.avatar_url ? (
                 <img src={doc.avatar_url} alt={doc.full_name} className="w-14 h-14 rounded-full object-cover flex-shrink-0" />
               ) : (
-                <div className="w-14 h-14 rounded-full bg-[#1a8a6e] flex items-center justify-center text-white font-bold text-xl flex-shrink-0">
+                <div className="w-14 h-14 rounded-full bg-[var(--hw-green-dk)] flex items-center justify-center text-white font-bold text-xl flex-shrink-0">
                   {doc.full_name.replace(/^(นาย|นาง|น\.ส\.|ด\.ช\.|ด\.ญ\.|พญ\.|นพ\.)\s*/, '').slice(0, 1)}
                 </div>
               )}

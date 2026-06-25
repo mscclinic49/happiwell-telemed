@@ -59,7 +59,7 @@ export default function PrescriptionsPage() {
   return (
     <div className="max-w-2xl mx-auto px-5 py-6 pb-8">
       <div className="flex items-center gap-3 mb-6">
-        <IconPill size={22} className="text-[#1a8a6e]" />
+        <IconPill size={22} className="text-[var(--hw-green-dk)]" />
         <h1 className="text-xl font-bold">{'ใบสั่งยา'}</h1>
       </div>
 
@@ -90,7 +90,7 @@ export default function PrescriptionsPage() {
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1 min-w-0 space-y-1.5">
                   <div className="flex items-center gap-1.5">
-                    <IconStethoscope size={14} className="text-[#1a8a6e] flex-shrink-0" />
+                    <IconStethoscope size={14} className="text-[var(--hw-green-dk)] flex-shrink-0" />
                     <span className="text-sm font-semibold truncate">
                       {rx.hw_doctors?.full_name ?? 'แพทย์'}
                     </span>

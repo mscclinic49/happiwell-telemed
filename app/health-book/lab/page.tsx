@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 import { useEffect, useState, useMemo } from 'react'
 import { createBrowserClient } from '@supabase/ssr'
 import { useAuth } from '@/lib/auth-context'
@@ -250,7 +250,7 @@ export default function LabResultsPage() {
                       {chartData[0]?.ref_max && (
                         <ReferenceLine y={chartData[0].ref_max} stroke="#ef4444" strokeDasharray="4 4" label={{ value: 'เกณฑ์', fontSize: 9, fill: '#ef4444' }}/>
                       )}
-                      <Line type="monotone" dataKey="value" stroke="#1a8a6e" strokeWidth={2} dot={{ fill: '#1a8a6e', r: 4 }}/>
+                      <Line type="monotone" dataKey="value" stroke="var(--hw-green-dk)" strokeWidth={2} dot={{ fill: 'var(--hw-green-dk)', r: 4 }}/>
                     </LineChart>
                   </ResponsiveContainer>
                 </div>

@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState } from 'react'
 import Image from 'next/image'
@@ -58,7 +58,7 @@ export default function ForgotPasswordPage() {
     setLoading(false)
   }
 
-  const inputClass = 'w-full px-4 py-3 rounded-[10px] border border-[var(--border)] bg-[var(--card-bg)] text-sm focus:outline-none focus:border-[#1a8a6e] transition-colors'
+  const inputClass = 'w-full px-4 py-3 rounded-[10px] border border-[var(--border)] bg-[var(--card-bg)] text-sm focus:outline-none focus:border-[var(--hw-brand-blue)] transition-colors'
 
   return (
     <main className="min-h-screen flex items-center justify-center p-5 bg-[var(--background)]">
@@ -70,7 +70,7 @@ export default function ForgotPasswordPage() {
         {sent ? (
           <div className="text-center">
             <div className="w-16 h-16 rounded-full bg-[#e8f7f3] flex items-center justify-center mx-auto mb-4">
-              <IconCircleCheck size={36} className="text-[#1a8a6e]" />
+              <IconCircleCheck size={36} className="text-[var(--hw-brand-blue)]" />
             </div>
             <h2 className="text-lg font-bold mb-2">{'ส่งลิงก์แล้ว'}</h2>
             <p className="text-sm text-[var(--muted)] leading-relaxed mb-1">
@@ -81,13 +81,13 @@ export default function ForgotPasswordPage() {
               {'กรุณาตรวจสอบอีเมลและกดลิงก์ภายใน 1 ชั่วโมง หากไม่พบให้ตรวจสอบในโฟลเดอร์ Spam'}
             </p>
             <a href="/login"
-              className="inline-flex items-center gap-2 text-sm text-[#1a8a6e] font-medium hover:underline">
+              className="inline-flex items-center gap-2 text-sm text-[var(--hw-brand-blue)] font-medium hover:underline">
               <IconArrowLeft size={15} />{'กลับหน้าเข้าสู่ระบบ'}
             </a>
           </div>
         ) : (
           <>
-            <h1 className="text-xl font-bold mb-2 text-center">{'ลืมรหัสผ่าน'}</h1>
+            <h1 className="font-display text-xl font-bold mb-2 text-center">{'ลืมรหัสผ่าน'}</h1>
             <p className="text-sm text-[var(--muted)] text-center mb-6">
               {'กรอกอีเมลหรือ username ที่ลงทะเบียนไว้ ระบบจะส่งลิงก์รีเซ็ตให้ทางอีเมล'}
             </p>
@@ -114,13 +114,13 @@ export default function ForgotPasswordPage() {
 
               <button type="submit" disabled={loading || !identifier.trim()}
                 className="w-full py-3 rounded-full font-semibold text-white text-sm hover:opacity-90 disabled:opacity-50 transition-opacity"
-                style={{ background: '#1a8a6e' }}>
+                style={{ background: 'linear-gradient(120deg, var(--hw-brand-blue), var(--hw-brand-blue-dk))' }}>
                 {loading ? 'กำลังส่ง...' : 'ส่งลิงก์รีเซ็ตรหัสผ่าน'}
               </button>
             </form>
 
             <p className="mt-6 text-center text-sm text-[var(--muted)]">
-              <a href="/login" className="inline-flex items-center gap-1 text-[#1a8a6e] font-medium hover:underline">
+              <a href="/login" className="inline-flex items-center gap-1 text-[var(--hw-brand-blue)] font-medium hover:underline">
                 <IconArrowLeft size={14} />{'กลับหน้าเข้าสู่ระบบ'}
               </a>
             </p>

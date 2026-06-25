@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useState } from 'react'
 import { createBrowserClient } from '@supabase/ssr'
@@ -73,7 +73,7 @@ export default function DoctorAppointmentsPage() {
   return (
     <div className="max-w-2xl mx-auto px-5 py-6 pb-12">
       <div className="flex items-center gap-2 mb-5">
-        <IconCalendarClock size={20} className="text-[#1a8a6e]" />
+        <IconCalendarClock size={20} className="text-[var(--hw-green-dk)]" />
         <h1 className="text-lg font-bold">{'นัดหมาย'}</h1>
       </div>
 
@@ -83,7 +83,7 @@ export default function DoctorAppointmentsPage() {
           <button key={f.key} onClick={() => setFilter(f.key)}
             className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors border ${
               filter === f.key
-                ? 'bg-[#1a8a6e] text-white border-transparent'
+                ? 'bg-[var(--hw-green-dk)] text-white border-transparent'
                 : 'border-[var(--border)] text-[var(--muted)] hover:text-[var(--foreground)]'
             }`}>
             {f.label}
@@ -107,14 +107,14 @@ export default function DoctorAppointmentsPage() {
             const name = a.hw_users?.full_name || a.hw_users?.first_name || '—'
             return (
               <Link key={a.id} href={`/doctor/appointments/${a.id}`}
-                className="bg-[var(--card-bg)] border border-[var(--border)] rounded-[14px] p-4 flex items-center gap-4 hover:border-[#1a8a6e]/40 transition-colors">
+                className="bg-[var(--card-bg)] border border-[var(--border)] rounded-[14px] p-4 flex items-center gap-4 hover:border-[var(--hw-green-dk)]/40 transition-colors">
                 {/* Date block */}
                 <div className="text-center flex-shrink-0 w-12">
                   <div className="text-lg font-bold text-[var(--foreground)] leading-none">{dt.getDate()}</div>
                   <div className="text-[10px] text-[var(--muted)]">
                     {dt.toLocaleDateString('th-TH', { month: 'short' })}
                   </div>
-                  <div className="text-[10px] font-semibold text-[#1a8a6e] mt-0.5">
+                  <div className="text-[10px] font-semibold text-[var(--hw-green-dk)] mt-0.5">
                     {dt.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })}
                   </div>
                 </div>

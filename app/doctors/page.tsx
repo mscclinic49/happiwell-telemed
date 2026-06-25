@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useState } from 'react'
 import { createBrowserClient } from '@supabase/ssr'
@@ -52,7 +52,7 @@ export default function DoctorsPage() {
         <input
           type="text" value={search} onChange={e => setSearch(e.target.value)}
           placeholder={'ค้นหาชื่อแพทย์ หรือสาขา...'}
-          className="w-full pl-9 pr-4 py-2.5 rounded-[10px] border border-[var(--border)] bg-[var(--card-bg)] text-sm focus:outline-none focus:border-[#1a8a6e]"
+          className="w-full pl-9 pr-4 py-2.5 rounded-[10px] border border-[var(--border)] bg-[var(--card-bg)] text-sm focus:outline-none focus:border-[var(--hw-green-dk)]"
         />
       </div>
 

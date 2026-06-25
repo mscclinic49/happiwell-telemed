@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useCallback, useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -61,13 +61,13 @@ function DrugForm({
         value={(form[k] as string) ?? ''}
         onChange={e => set(k, e.target.value)}
         placeholder={placeholder}
-        className="w-full px-3 py-2 rounded-xl border border-[var(--border)] bg-[var(--input-bg)] text-sm focus:outline-none focus:border-[#1a8a6e]"
+        className="w-full px-3 py-2 rounded-xl border border-[var(--border)] bg-[var(--input-bg)] text-sm focus:outline-none focus:border-[var(--hw-green-dk)]"
       />
     </div>
   )
 
   return (
-    <form onSubmit={submit} className="bg-[var(--card-bg)] border border-[#1a8a6e]/40 rounded-2xl p-4 space-y-3">
+    <form onSubmit={submit} className="bg-[var(--card-bg)] border border-[var(--hw-green-dk)]/40 rounded-2xl p-4 space-y-3">
       <div className="grid grid-cols-2 gap-3">
         <div className="col-span-2">
           <label className="block text-xs text-[var(--muted)] mb-1">{'ชื่อยา *'}</label>
@@ -76,7 +76,7 @@ function DrugForm({
             onChange={e => set('drug_name', e.target.value)}
             placeholder="เช่น Paracetamol, Amoxicillin"
             required
-            className="w-full px-3 py-2 rounded-xl border border-[var(--border)] bg-[var(--input-bg)] text-sm focus:outline-none focus:border-[#1a8a6e]"
+            className="w-full px-3 py-2 rounded-xl border border-[var(--border)] bg-[var(--input-bg)] text-sm focus:outline-none focus:border-[var(--hw-green-dk)]"
           />
         </div>
         <Field label="ความแรง (strength)" k="strength" placeholder="เช่น 500mg, 10mg/5ml" />
@@ -95,7 +95,7 @@ function DrugForm({
             value={form.price ?? ''}
             onChange={e => setForm(f => ({ ...f, price: e.target.value ? Number(e.target.value) : null }))}
             placeholder="0.00"
-            className="w-full px-3 py-2 rounded-xl border border-[var(--border)] bg-[var(--input-bg)] text-sm focus:outline-none focus:border-[#1a8a6e]"
+            className="w-full px-3 py-2 rounded-xl border border-[var(--border)] bg-[var(--input-bg)] text-sm focus:outline-none focus:border-[var(--hw-green-dk)]"
           />
         </div>
       </div>
@@ -105,7 +105,7 @@ function DrugForm({
           {'ยกเลิก'}
         </button>
         <button type="submit" disabled={saving}
-          className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#1a8a6e] text-white text-sm font-medium hover:opacity-90 disabled:opacity-60 transition-opacity">
+          className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[var(--hw-green-dk)] text-white text-sm font-medium hover:opacity-90 disabled:opacity-60 transition-opacity">
           {saving ? <IconLoader2 size={15} className="animate-spin" /> : <IconCheck size={15} />}
           {'บันทึก'}
         </button>
@@ -184,13 +184,13 @@ export default function AdminDrugsPage() {
     <div className="max-w-3xl mx-auto px-5 py-6 pb-8">
       <div className="flex items-center justify-between mb-5">
         <div className="flex items-center gap-2">
-          <IconPill size={20} className="text-[#1a8a6e]" />
+          <IconPill size={20} className="text-[var(--hw-green-dk)]" />
           <h1 className="text-lg font-bold">{'คลังยา'}</h1>
           <span className="text-xs text-[var(--muted)] ml-1">({drugs.length} รายการ)</span>
         </div>
         <button
           onClick={() => { setAdding(true); setEditId(null) }}
-          className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#1a8a6e] text-white text-sm font-medium hover:opacity-90 transition-opacity">
+          className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[var(--hw-green-dk)] text-white text-sm font-medium hover:opacity-90 transition-opacity">
           <IconPlus size={15} />{'เพิ่มยา'}
         </button>
       </div>
@@ -202,7 +202,7 @@ export default function AdminDrugsPage() {
           value={search}
           onChange={e => setSearch(e.target.value)}
           placeholder="ค้นหาชื่อยา หรือหมวดหมู่..."
-          className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-[var(--border)] bg-[var(--card-bg)] text-sm focus:outline-none focus:border-[#1a8a6e]"
+          className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-[var(--border)] bg-[var(--card-bg)] text-sm focus:outline-none focus:border-[var(--hw-green-dk)]"
         />
       </div>
 
@@ -231,8 +231,8 @@ export default function AdminDrugsPage() {
                 />
               ) : (
                 <div className={`bg-[var(--card-bg)] border rounded-2xl px-4 py-3 flex items-start gap-3 transition-opacity ${!drug.is_active ? 'opacity-50' : 'border-[var(--border)]'}`}>
-                  <div className="w-9 h-9 rounded-full bg-[#1a8a6e]/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <IconPill size={16} className="text-[#1a8a6e]" />
+                  <div className="w-9 h-9 rounded-full bg-[var(--hw-green-dk)]/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <IconPill size={16} className="text-[var(--hw-green-dk)]" />
                   </div>
 
                   <div className="flex-1 min-w-0">
@@ -240,7 +240,7 @@ export default function AdminDrugsPage() {
                       <span className="font-semibold text-sm">{drug.drug_name}</span>
                       {drug.strength && <span className="text-xs text-[var(--muted)]">{drug.strength}</span>}
                       {drug.category && (
-                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#1a8a6e]/10 text-[#1a8a6e] font-medium">
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-[var(--hw-green-dk)]/10 text-[var(--hw-green-dk)] font-medium">
                           {drug.category}
                         </span>
                       )}

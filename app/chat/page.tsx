@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { createBrowserClient } from '@supabase/ssr'
@@ -203,7 +203,7 @@ export default function ChatPage() {
           return (
             <div key={msg.id} className={`flex ${mine ? 'justify-end' : 'justify-start'}`}>
               {!mine && (
-                <div className="w-7 h-7 rounded-full bg-[#1a8a6e] flex items-center justify-center text-white text-[10px] font-bold mr-2 flex-shrink-0 self-end mb-1">
+                <div className="w-7 h-7 rounded-full bg-[var(--hw-green-dk)] flex items-center justify-center text-white text-[10px] font-bold mr-2 flex-shrink-0 self-end mb-1">
                   HC
                 </div>
               )}
@@ -224,16 +224,16 @@ export default function ChatPage() {
         <button
           onClick={() => fileRef.current?.click()}
           disabled={uploading}
-          className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 border border-[var(--border)] bg-[var(--background)] text-[var(--muted)] hover:text-[#1a8a6e] hover:border-[#1a8a6e] transition-colors disabled:opacity-40"
+          className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 border border-[var(--border)] bg-[var(--background)] text-[var(--muted)] hover:text-[var(--hw-green-dk)] hover:border-[var(--hw-green-dk)] transition-colors disabled:opacity-40"
         >
           {uploading
-            ? <span className="w-4 h-4 border-2 border-[#1a8a6e] border-t-transparent rounded-full animate-spin" />
+            ? <span className="w-4 h-4 border-2 border-[var(--hw-green-dk)] border-t-transparent rounded-full animate-spin" />
             : <IconPhoto size={17} />}
         </button>
         <textarea value={input} onChange={e => setInput(e.target.value)} onKeyDown={handleKey}
           placeholder={'พิมพ์ข้อความ... (Enter ส่ง)'}
           rows={1}
-          className="flex-1 resize-none px-4 py-2.5 rounded-2xl border border-[var(--border)] bg-[var(--background)] text-sm focus:outline-none focus:border-[#1a8a6e]"
+          className="flex-1 resize-none px-4 py-2.5 rounded-2xl border border-[var(--border)] bg-[var(--background)] text-sm focus:outline-none focus:border-[var(--hw-green-dk)]"
           style={{ maxHeight: 96, overflowY: 'auto' }}
         />
         <button onClick={sendMessage} disabled={!input.trim() || sending}

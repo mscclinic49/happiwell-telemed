@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useState } from 'react'
 import { createBrowserClient } from '@supabase/ssr'
@@ -112,7 +112,7 @@ export default function AdminHealthBookPage() {
   return (
     <div className="max-w-2xl mx-auto px-5 py-6 pb-12">
       <div className="flex items-center gap-2 mb-1">
-        <IconBook2 size={20} className="text-[#1a8a6e]" />
+        <IconBook2 size={20} className="text-[var(--hw-green-dk)]" />
         <h1 className="text-lg font-bold">{'อนุมัติสมุดสุขภาพ'}</h1>
         {totalPending > 0 && (
           <span className="bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">{totalPending}</span>
@@ -224,7 +224,7 @@ function PendingCard({ patient, date, children, onApprove, onReject }: {
   return (
     <div className="bg-[var(--card-bg)] border border-[var(--border)] rounded-[14px] p-4">
       <div className="flex items-center gap-1.5 mb-2">
-        <span className="text-xs font-semibold text-[var(--hw-green)] bg-[#1a8a6e]/10 px-2 py-0.5 rounded-full">{patient}</span>
+        <span className="text-xs font-semibold text-[var(--hw-green)] bg-[var(--hw-green-dk)]/10 px-2 py-0.5 rounded-full">{patient}</span>
         <span className="flex items-center gap-1 text-[10px] text-[var(--muted)]">
           <IconClock size={10} />{new Date(date).toLocaleDateString('th-TH', { dateStyle: 'short' })}
         </span>
@@ -233,7 +233,7 @@ function PendingCard({ patient, date, children, onApprove, onReject }: {
       <div className="flex gap-2">
         <button disabled={busy}
           onClick={async () => { setBusy(true); await onApprove() }}
-          className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-full text-xs font-semibold text-white bg-[#1a8a6e] hover:opacity-90 disabled:opacity-40 transition-opacity">
+          className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-full text-xs font-semibold text-white bg-[var(--hw-green-dk)] hover:opacity-90 disabled:opacity-40 transition-opacity">
           <IconCheck size={13} />{'อนุมัติ'}
         </button>
         <button disabled={busy}

@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { Suspense, useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -56,7 +56,7 @@ function ResetPasswordContent() {
     setTimeout(() => router.push('/login'), 3000)
   }
 
-  const inputClass = 'w-full px-4 py-3 rounded-[10px] border border-[var(--border)] bg-[var(--card-bg)] text-sm focus:outline-none focus:border-[#1a8a6e] transition-colors'
+  const inputClass = 'w-full px-4 py-3 rounded-[10px] border border-[var(--border)] bg-[var(--card-bg)] text-sm focus:outline-none focus:border-[var(--hw-green-dk)] transition-colors'
 
   return (
     <main className="min-h-screen flex items-center justify-center p-5 bg-[var(--background)]">
@@ -67,8 +67,8 @@ function ResetPasswordContent() {
 
         {done && (
           <div className="text-center">
-            <div className="w-16 h-16 rounded-full bg-[#1a8a6e]/15 flex items-center justify-center mx-auto mb-4">
-              <IconCircleCheck size={36} className="text-[#1a8a6e]" />
+            <div className="w-16 h-16 rounded-full bg-[var(--hw-green-dk)]/15 flex items-center justify-center mx-auto mb-4">
+              <IconCircleCheck size={36} className="text-[var(--hw-green-dk)]" />
             </div>
             <h2 className="text-lg font-bold mb-2">{'เปลี่ยนรหัสผ่านสำเร็จ'}</h2>
             <p className="text-sm text-[var(--muted)]">{'กำลังพาไปหน้าเข้าสู่ระบบ...'}</p>
@@ -84,7 +84,7 @@ function ResetPasswordContent() {
             <p className="text-sm text-[var(--muted)] mb-5">{'ลิงก์นี้ใช้ได้เพียง 1 ชั่วโมง กรุณาขอลิงก์ใหม่'}</p>
             <a href="/forgot-password"
               className="inline-block px-6 py-2.5 rounded-full text-sm font-semibold text-white transition-opacity hover:opacity-90"
-              style={{ background: '#1a8a6e' }}>
+              style={{ background: 'var(--hw-green-dk)' }}>
               {'ขอลิงก์ใหม่'}
             </a>
           </div>
@@ -92,7 +92,7 @@ function ResetPasswordContent() {
 
         {!done && !invalid && !ready && (
           <div className="text-center py-12">
-            <div className="w-8 h-8 border-2 border-[#1a8a6e] border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+            <div className="w-8 h-8 border-2 border-[var(--hw-green-dk)] border-t-transparent rounded-full animate-spin mx-auto mb-3" />
             <p className="text-sm text-[var(--muted)]">{'กำลังตรวจสอบ...'}</p>
           </div>
         )}
@@ -138,7 +138,7 @@ function ResetPasswordContent() {
               )}
               <button type="submit" disabled={saving || password !== confirm || password.length < 8}
                 className="w-full py-3 rounded-full font-semibold text-white text-sm hover:opacity-90 disabled:opacity-50 transition-opacity"
-                style={{ background: '#1a8a6e' }}>
+                style={{ background: 'var(--hw-green-dk)' }}>
                 {saving ? 'กำลังบันทึก...' : 'บันทึกรหัสผ่านใหม่'}
               </button>
             </form>
@@ -153,7 +153,7 @@ export default function ResetPasswordPage() {
   return (
     <Suspense fallback={
       <main className="min-h-screen flex items-center justify-center bg-[var(--background)]">
-        <div className="w-8 h-8 border-2 border-[#1a8a6e] border-t-transparent rounded-full animate-spin" />
+        <div className="w-8 h-8 border-2 border-[var(--hw-green-dk)] border-t-transparent rounded-full animate-spin" />
       </main>
     }>
       <ResetPasswordContent />

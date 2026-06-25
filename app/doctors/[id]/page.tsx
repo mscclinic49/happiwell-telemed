@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
@@ -68,7 +68,7 @@ export default function DoctorDetailPage() {
             <Image src={doctor.avatar_url} alt={doctor.full_name} width={72} height={72}
               className="rounded-full object-cover flex-shrink-0" style={{ width: 72, height: 72 }} />
           ) : (
-            <div className="w-[72px] h-[72px] rounded-full bg-[#1a8a6e] flex items-center justify-center text-white font-bold text-xl flex-shrink-0">
+            <div className="w-[72px] h-[72px] rounded-full bg-[var(--hw-green-dk)] flex items-center justify-center text-white font-bold text-xl flex-shrink-0">
               {initials}
             </div>
           )}
@@ -76,8 +76,8 @@ export default function DoctorDetailPage() {
             <div className="font-bold text-lg leading-tight">{doctor.full_name}</div>
             {doctor.specialty && (
               <div className="flex items-center gap-1.5 mt-1">
-                <IconStethoscope size={13} className="text-[#1a8a6e]" />
-                <span className="text-sm text-[#1a8a6e] font-medium">{doctor.specialty}</span>
+                <IconStethoscope size={13} className="text-[var(--hw-green-dk)]" />
+                <span className="text-sm text-[var(--hw-green-dk)] font-medium">{doctor.specialty}</span>
               </div>
             )}
             <div className="flex items-center gap-3 mt-2">
@@ -86,8 +86,8 @@ export default function DoctorDetailPage() {
                   <IconStar size={14} fill="#ef9f27" />{Number(doctor.rating).toFixed(1)}
                 </span>
               )}
-              <span className={`flex items-center gap-1 text-xs font-medium ${doctor.is_online ? 'text-[#1a8a6e]' : 'text-[var(--muted)]'}`}>
-                <span className={`w-1.5 h-1.5 rounded-full inline-block ${doctor.is_online ? 'bg-[#1a8a6e] animate-pulse' : 'bg-[var(--muted)]'}`} />
+              <span className={`flex items-center gap-1 text-xs font-medium ${doctor.is_online ? 'text-[var(--hw-green-dk)]' : 'text-[var(--muted)]'}`}>
+                <span className={`w-1.5 h-1.5 rounded-full inline-block ${doctor.is_online ? 'bg-[var(--hw-green-dk)] animate-pulse' : 'bg-[var(--muted)]'}`} />
                 {doctor.is_online ? 'ออนไลน์' : 'ออฟไลน์'}
               </span>
             </div>
@@ -112,7 +112,7 @@ export default function DoctorDetailPage() {
                 <div key={day} className={`flex items-center justify-between py-2.5 px-3 rounded-[10px] ${s?.is_available ? 'bg-[#e8f7f3]' : 'bg-[var(--background)]'}`}>
                   <div className="flex items-center gap-3">
                     <span className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 ${
-                      s?.is_available ? 'bg-[#1a8a6e] text-white' : 'bg-[var(--border)] text-[var(--muted)]'
+                      s?.is_available ? 'bg-[var(--hw-green-dk)] text-white' : 'bg-[var(--border)] text-[var(--muted)]'
                     }`}>
                       {DAY_SHORT[day]}
                     </span>
@@ -121,7 +121,7 @@ export default function DoctorDetailPage() {
                     </span>
                   </div>
                   {s?.is_available ? (
-                    <span className="text-sm font-semibold text-[#1a8a6e]">
+                    <span className="text-sm font-semibold text-[var(--hw-green-dk)]">
                       {formatTime(s.start_time)} – {formatTime(s.end_time)}
                     </span>
                   ) : (
@@ -138,7 +138,7 @@ export default function DoctorDetailPage() {
       <Link
         href="/chat"
         className="flex items-center justify-center gap-2 w-full py-3.5 rounded-full font-semibold text-white text-base"
-        style={{ background: '#1a8a6e' }}
+        style={{ background: 'var(--hw-green-dk)' }}
       >
         <IconMessageCircle2 size={18} />
         {'แชทกับคลินิกเพื่อนัดหมาย'}

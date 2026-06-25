@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useState, useCallback, useRef } from 'react'
 import { useParams, useRouter, useSearchParams } from 'next/navigation'
@@ -144,7 +144,7 @@ export default function PatientDetailPage() {
           <div className="flex items-center gap-2">
             <h1 className="font-bold text-lg truncate">{displayName || '(ไม่ระบุชื่อ)'}</h1>
             {patient.identity_verified
-              ? <IconShieldCheck size={18} className="text-[#1a8a6e] flex-shrink-0" />
+              ? <IconShieldCheck size={18} className="text-[var(--hw-green-dk)] flex-shrink-0" />
               : <IconShieldOff size={18} className="text-orange-400 flex-shrink-0" />}
           </div>
           {age !== null && <p className="text-xs text-[var(--muted)]">{GENDER[patient.gender ?? ''] ?? ''} · {age} ปี</p>}
@@ -156,7 +156,7 @@ export default function PatientDetailPage() {
         {TABS.map(t => (
           <button key={t.key} onClick={() => setTab(t.key)}
             className={`flex items-center gap-1.5 px-3 py-2 rounded-[10px] text-xs font-medium whitespace-nowrap transition-colors flex-shrink-0
-              ${tab === t.key ? 'bg-[#1a8a6e] text-white' : 'bg-[var(--card-bg)] border border-[var(--border)] text-[var(--muted)] hover:text-[var(--foreground)]'}`}>
+              ${tab === t.key ? 'bg-[var(--hw-green-dk)] text-white' : 'bg-[var(--card-bg)] border border-[var(--border)] text-[var(--muted)] hover:text-[var(--foreground)]'}`}>
             <t.Icon size={14} />{t.label}
           </button>
         ))}
@@ -177,10 +177,10 @@ export default function PatientDetailPage() {
             <div className="space-y-4">
               {/* Status banner */}
               <div className={`rounded-[14px] p-4 flex items-center gap-3 ${
-                kyc.status === 'verified' ? 'bg-[#1a8a6e]/10 border border-[#1a8a6e]/30' :
+                kyc.status === 'verified' ? 'bg-[var(--hw-green-dk)]/10 border border-[var(--hw-green-dk)]/30' :
                 kyc.status === 'pending'  ? 'bg-[#ef9f27]/10 border border-[#ef9f27]/30' :
                                             'bg-red-500/10 border border-red-500/30'}`}>
-                {kyc.status === 'verified' ? <IconShieldCheck size={20} className="text-[#1a8a6e]" /> :
+                {kyc.status === 'verified' ? <IconShieldCheck size={20} className="text-[var(--hw-green-dk)]" /> :
                  kyc.status === 'pending'  ? <IconClock size={20} className="text-[#ef9f27]" /> :
                                              <IconX size={20} className="text-red-500" />}
                 <div>
@@ -233,7 +233,7 @@ export default function PatientDetailPage() {
                   {!showRejectInput ? (
                     <div className="flex gap-2">
                       <button onClick={approveKyc} disabled={saving === 'kyc' || !idCardUrl}
-                        className="flex-1 flex items-center justify-center gap-2 py-3 rounded-[12px] bg-[#1a8a6e] text-white text-sm font-semibold hover:opacity-90 disabled:opacity-40 transition-opacity">
+                        className="flex-1 flex items-center justify-center gap-2 py-3 rounded-[12px] bg-[var(--hw-green-dk)] text-white text-sm font-semibold hover:opacity-90 disabled:opacity-40 transition-opacity">
                         <IconShieldCheck size={16} />
                         {saving === 'kyc' ? 'กำลังบันทึก...' : 'ยืนยันตัวตน'}
                       </button>
@@ -366,7 +366,7 @@ function LabTab({ labs, patientId, onApprove, onUploaded, saving }: {
     }
   }
 
-  const ic = 'w-full border border-[var(--border)] rounded-[10px] px-3 py-2.5 text-sm bg-[var(--background)] focus:outline-none focus:border-[#1a8a6e]'
+  const ic = 'w-full border border-[var(--border)] rounded-[10px] px-3 py-2.5 text-sm bg-[var(--background)] focus:outline-none focus:border-[var(--hw-green-dk)]'
   const S: Record<string, string> = { approved: 'bg-emerald-500/15 text-emerald-500', rejected: 'bg-red-500/15 text-red-400', pending: 'bg-yellow-500/15 text-yellow-500' }
   const L: Record<string, string> = { approved: 'อนุมัติแล้ว', rejected: 'ปฏิเสธ', pending: 'รออนุมัติ' }
 
@@ -374,7 +374,7 @@ function LabTab({ labs, patientId, onApprove, onUploaded, saving }: {
     <div className="space-y-3">
       {/* Admin upload button */}
       <button onClick={() => { setShowForm(v => !v); setUploadErr(null) }}
-        className="w-full flex items-center justify-center gap-2 py-2.5 rounded-[10px] border border-dashed border-[#1a8a6e]/50 text-[#1a8a6e] text-sm font-medium hover:bg-[#1a8a6e]/5 transition-colors">
+        className="w-full flex items-center justify-center gap-2 py-2.5 rounded-[10px] border border-dashed border-[var(--hw-green-dk)]/50 text-[var(--hw-green-dk)] text-sm font-medium hover:bg-[var(--hw-green-dk)]/5 transition-colors">
         <IconUpload size={15} />{'อัพโหลดผลตรวจให้คนไข้'}
       </button>
 
@@ -393,7 +393,7 @@ function LabTab({ labs, patientId, onApprove, onUploaded, saving }: {
             <input ref={fileRef} type="file" accept="image/jpeg,image/png,image/webp,application/pdf" className="hidden"
               onChange={e => setFile(e.target.files?.[0] ?? null)} />
             <label onClick={() => fileRef.current?.click()}
-              className={"flex items-center gap-3 border-2 border-dashed rounded-[10px] p-3 cursor-pointer transition-colors " + (file ? 'border-[#1a8a6e] bg-[#1a8a6e]/5' : 'border-[var(--border)] hover:border-[#1a8a6e]')}>
+              className={"flex items-center gap-3 border-2 border-dashed rounded-[10px] p-3 cursor-pointer transition-colors " + (file ? 'border-[var(--hw-green-dk)] bg-[var(--hw-green-dk)]/5' : 'border-[var(--border)] hover:border-[var(--hw-green-dk)]')}>
               <span className="text-xl">{file ? '📄' : '📂'}</span>
               <span className="text-xs text-[var(--muted)] flex-1 min-w-0 truncate">{file ? file.name : 'เลือกไฟล์ PDF หรือรูปภาพ'}</span>
             </label>
@@ -403,7 +403,7 @@ function LabTab({ labs, patientId, onApprove, onUploaded, saving }: {
             <button onClick={() => { setShowForm(false); setFile(null); setUploadErr(null) }}
               className="flex-1 py-2 rounded-[8px] border border-[var(--border)] text-xs text-[var(--muted)]">{'ยกเลิก'}</button>
             <button onClick={handleUpload} disabled={!file || uploading}
-              className="flex-1 py-2 rounded-[8px] bg-[#1a8a6e] text-white text-xs font-medium disabled:opacity-40 hover:opacity-90">
+              className="flex-1 py-2 rounded-[8px] bg-[var(--hw-green-dk)] text-white text-xs font-medium disabled:opacity-40 hover:opacity-90">
               {uploading ? 'กำลังอัพโหลด...' : 'อัพโหลด'}
             </button>
           </div>
@@ -427,7 +427,7 @@ function LabTab({ labs, patientId, onApprove, onUploaded, saving }: {
                 </span>
                 {url && (
                   <a href={url} target="_blank" rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 text-xs text-[#1a8a6e] hover:underline mt-1">
+                    className="inline-flex items-center gap-1 text-xs text-[var(--hw-green-dk)] hover:underline mt-1">
                     <IconExternalLink size={12} />{'ดูไฟล์ผลตรวจ'}
                   </a>
                 )}
@@ -437,7 +437,7 @@ function LabTab({ labs, patientId, onApprove, onUploaded, saving }: {
             {status === 'pending' && (
               <div className="flex gap-2 mt-3">
                 <button onClick={() => onApprove(l.id, true)} disabled={saving === l.id}
-                  className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-[8px] bg-[#1a8a6e] text-white text-xs font-medium hover:opacity-90 disabled:opacity-50">
+                  className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-[8px] bg-[var(--hw-green-dk)] text-white text-xs font-medium hover:opacity-90 disabled:opacity-50">
                   <IconCheck size={13} />{'อนุมัติ'}
                 </button>
                 <button onClick={() => onApprove(l.id, false)} disabled={saving === l.id}
@@ -475,7 +475,7 @@ function HealthTab<T extends { id: string; status: string }>({
           {item.status === 'pending' && (
             <div className="flex gap-2 mt-3">
               <button onClick={() => onApprove(item.id, true)} disabled={saving === item.id}
-                className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-[8px] bg-[#1a8a6e] text-white text-xs font-medium hover:opacity-90 disabled:opacity-50 transition-opacity">
+                className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-[8px] bg-[var(--hw-green-dk)] text-white text-xs font-medium hover:opacity-90 disabled:opacity-50 transition-opacity">
                 <IconCheck size={13} />{'อนุมัติ'}
               </button>
               <button onClick={() => onApprove(item.id, false)} disabled={saving === item.id}

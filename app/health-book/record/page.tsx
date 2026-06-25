@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 import { useEffect, useState, useMemo } from 'react'
 import { createBrowserClient } from '@supabase/ssr'
 import { useAuth } from '@/lib/auth-context'
@@ -160,7 +160,7 @@ export default function RecordPage() {
                       <YAxis tick={{ fontSize: 10 }} domain={['auto', 'auto']}/>
                       <Tooltip formatter={(v) => [String(v ?? '') + ' mg/dL', 'น้ำตาล']}/>
                       <ReferenceLine y={70}  stroke="#3b82f6" strokeDasharray="4 4" label={{ value: '70',  fontSize: 9, fill: '#3b82f6' }}/>
-                      <ReferenceLine y={99}  stroke="#1a8a6e" strokeDasharray="4 4" label={{ value: '99',  fontSize: 9, fill: '#1a8a6e' }}/>
+                      <ReferenceLine y={99}  stroke="var(--hw-green-dk)" strokeDasharray="4 4" label={{ value: '99',  fontSize: 9, fill: 'var(--hw-green-dk)' }}/>
                       <ReferenceLine y={126} stroke="#ef4444" strokeDasharray="4 4" label={{ value: '126', fontSize: 9, fill: '#ef4444' }}/>
                       <Line type="monotone" dataKey="value" stroke="#ef9f27" strokeWidth={2} dot={{ fill: '#ef9f27', r: 3 }}/>
                     </LineChart>
@@ -168,7 +168,7 @@ export default function RecordPage() {
                 </div>
                 <div className="flex gap-4 mt-2 text-xs text-[var(--muted)]">
                   <span className="flex items-center gap-1"><span className="w-3 border-t-2 border-blue-400 border-dashed inline-block"/>{'<70 ต่ำ'}</span>
-                  <span className="flex items-center gap-1"><span className="w-3 border-t-2 border-[#1a8a6e] border-dashed inline-block"/>{'70-99 ปกติ'}</span>
+                  <span className="flex items-center gap-1"><span className="w-3 border-t-2 border-[var(--hw-green-dk)] border-dashed inline-block"/>{'70-99 ปกติ'}</span>
                   <span className="flex items-center gap-1"><span className="w-3 border-t-2 border-red-400 border-dashed inline-block">{'>126 สูง'}</span></span>
                 </div>
               </div>
@@ -239,7 +239,7 @@ export default function RecordPage() {
                       <XAxis dataKey="date" tick={{ fontSize: 10 }}/>
                       <YAxis tick={{ fontSize: 10 }} domain={['auto', 'auto']}/>
                       <Tooltip formatter={(v, name) => [String(v ?? '') + ' mmHg', name === 'systolic' ? 'ค่าบน' : 'ค่าล่าง']}/>
-                      <ReferenceLine y={120} stroke="#1a8a6e" strokeDasharray="4 4" label={{ value: '120', fontSize: 9, fill: '#1a8a6e' }}/>
+                      <ReferenceLine y={120} stroke="var(--hw-green-dk)" strokeDasharray="4 4" label={{ value: '120', fontSize: 9, fill: 'var(--hw-green-dk)' }}/>
                       <ReferenceLine y={140} stroke="#ef4444" strokeDasharray="4 4" label={{ value: '140', fontSize: 9, fill: '#ef4444' }}/>
                       <Line type="monotone" dataKey="systolic"  stroke="#378add" strokeWidth={2} dot={{ fill: '#378add', r: 3 }}/>
                       <Line type="monotone" dataKey="diastolic" stroke="#93c5fd" strokeWidth={2} dot={{ fill: '#93c5fd', r: 3 }}/>

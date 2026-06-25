@@ -27,17 +27,17 @@ export default function ChangePasswordPage() {
     setSuccess(true); setPassword(''); setConfirm(''); setLoading(false)
   }
 
-  const inputClass = 'w-full px-4 py-3 rounded-[10px] border border-[var(--border)] bg-[var(--card-bg)] text-base focus:outline-none focus:border-[#1a8a6e]'
+  const inputClass = 'w-full px-4 py-3 rounded-[10px] border border-[var(--border)] bg-[var(--card-bg)] text-base focus:outline-none focus:border-[var(--hw-green-dk)]'
 
   return (
     <div className="max-w-md mx-auto px-5 py-8">
       <div className="flex items-center gap-3 mb-6">
-        <IconLock size={22} className="text-[#1a8a6e]" />
+        <IconLock size={22} className="text-[var(--hw-green-dk)]" />
         <h1 className="text-xl font-bold">{'เปลี่ยนรหัสผ่าน'}</h1>
       </div>
 
       {success && (
-        <div className="flex items-center gap-2 p-4 bg-[#e8f7f3] border border-[#1a8a6e] rounded-[14px] mb-6 text-[#1a8a6e]">
+        <div className="flex items-center gap-2 p-4 bg-[#e8f7f3] border border-[var(--hw-green-dk)] rounded-[14px] mb-6 text-[var(--hw-green-dk)]">
           <IconCheck size={18} />
           <span className="font-medium">{'เปลี่ยนรหัสผ่านสำเร็จ'}</span>
         </div>

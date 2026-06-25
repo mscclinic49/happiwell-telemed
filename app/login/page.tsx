@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -53,14 +53,14 @@ export default function LoginPage() {
     window.location.href = dest
   }
 
-  const inputClass = 'w-full px-4 py-3 rounded-[10px] border border-[var(--border)] bg-[var(--card-bg)] text-sm focus:outline-none focus:border-[#1a8a6e] transition-colors'
+  const inputClass = 'w-full px-4 py-3 rounded-[10px] border border-[var(--border)] bg-[var(--card-bg)] text-sm focus:outline-none focus:border-[var(--hw-brand-blue)] transition-colors'
 
   return (
     <main className="min-h-screen flex items-center justify-center p-5 bg-[var(--background)]">
       <div className="w-full max-w-sm">
         <div className="flex flex-col items-center mb-8">
           <Image src="/logo-hc.png" alt="HappiWell Clinic" width={200} height={70} className="object-contain mb-2" priority />
-          <h1 className="text-xl font-bold mt-4">{'เข้าสู่ระบบ'}</h1>
+          <h1 className="font-display text-xl font-bold mt-4">{'เข้าสู่ระบบ'}</h1>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -81,7 +81,7 @@ export default function LoginPage() {
           <div>
             <div className="flex items-center justify-between mb-1.5">
               <label className="text-sm font-medium">{'รหัสผ่าน'}</label>
-              <a href="/forgot-password" className="text-xs text-[#1a8a6e] hover:underline">{'ลืมรหัสผ่าน?'}</a>
+              <a href="/forgot-password" className="text-xs text-[var(--hw-brand-blue)] hover:underline">{'ลืมรหัสผ่าน?'}</a>
             </div>
             <div className="relative">
               <input
@@ -110,14 +110,14 @@ export default function LoginPage() {
             type="submit"
             disabled={loading}
             className="w-full py-3 rounded-full font-semibold text-white text-sm hover:opacity-90 disabled:opacity-50 transition-opacity"
-            style={{ background: '#1a8a6e' }}>
+            style={{ background: 'linear-gradient(120deg, var(--hw-brand-blue), var(--hw-brand-blue-dk))' }}>
             {loading ? 'กำลังเข้าสู่ระบบ...' : 'เข้าสู่ระบบ'}
           </button>
         </form>
 
         <p className="mt-6 text-center text-sm text-[var(--muted)]">
           {'ยังไม่มีบัญชี? '}
-          <a href="/register" className="text-[#1a8a6e] font-medium hover:underline">{'สมัครใช้งาน'}</a>
+          <a href="/register" className="text-[var(--hw-brand-blue)] font-medium hover:underline">{'สมัครใช้งาน'}</a>
         </p>
       </div>
     </main>

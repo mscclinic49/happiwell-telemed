@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useRef, useState } from 'react'
 import { useParams } from 'next/navigation'
@@ -181,7 +181,7 @@ export default function RxPrintPage() {
       {/* Screen-only controls */}
       <div className="no-print fixed top-4 right-4 flex gap-2 z-50">
         <button onClick={generatePdf} disabled={generating}
-          className="px-4 py-2 bg-[#1a8a6e] text-white rounded-lg text-sm font-medium shadow disabled:opacity-60 flex items-center gap-2">
+          className="px-4 py-2 bg-[var(--hw-green-dk)] text-white rounded-lg text-sm font-medium shadow disabled:opacity-60 flex items-center gap-2">
           {generating
             ? <><span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />{'กำลัง Gen PDF...'}</>
             : '⬇️ ดาวน์โหลด PDF'}

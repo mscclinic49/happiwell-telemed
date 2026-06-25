@@ -66,7 +66,7 @@ export default function RegisterPage() {
       <main className="min-h-screen p-6 max-w-md mx-auto flex flex-col items-center justify-center text-center">
         <div className="text-5xl mb-4">📧</div>
         <h1 className="text-2xl font-bold mb-2">ตรวจสอบอีเมลของคุณ</h1>
-        <p className="text-gray-600 dark:text-gray-400">
+        <p className="text-[var(--muted)]">
           ส่งลิงก์ยืนยันไปที่ <strong>{email}</strong> แล้ว
           <br />
           กรุณาคลิกลิงก์ในอีเมลเพื่อเข้าสู่ระบบ
@@ -75,13 +75,13 @@ export default function RegisterPage() {
     )
   }
 
-  const inputClass = 'w-full p-3 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:border-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500'
+  const inputClass = 'w-full p-3 border border-[var(--border)] rounded-lg focus:outline-none focus:border-[var(--hw-brand-blue)] bg-[var(--card-bg)] text-[var(--foreground)] placeholder-[var(--muted)]'
 
   return (
     <main className="min-h-screen p-6 max-w-md mx-auto">
       <div className="mt-10 mb-8 flex flex-col items-center">
         <Image src="/logo-hc.png" alt="HappiWell Clinic" width={240} height={80} className="object-contain mb-6" priority />
-        <h1 className="text-2xl font-bold">สมัครใช้งาน</h1>
+        <h1 className="font-display text-2xl font-bold">สมัครใช้งาน</h1>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -183,15 +183,16 @@ export default function RegisterPage() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-blue-600 text-white py-3 rounded-full font-medium hover:bg-blue-700 disabled:opacity-50"
+          className="w-full text-white py-3 rounded-full font-medium hover:opacity-90 disabled:opacity-50 transition-opacity"
+          style={{ background: 'linear-gradient(120deg, var(--hw-brand-blue), var(--hw-brand-blue-dk))' }}
         >
           {loading ? 'กำลังสมัคร...' : 'สมัครใช้งาน'}
         </button>
       </form>
 
-      <p className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
+      <p className="mt-6 text-center text-sm text-[var(--muted)]">
         มีบัญชีแล้ว?{' '}
-        <a href="/login" className="text-blue-600 dark:text-blue-400 hover:underline">เข้าสู่ระบบ</a>
+        <a href="/login" className="text-[var(--hw-brand-blue)] hover:underline">เข้าสู่ระบบ</a>
       </p>
     </main>
   )

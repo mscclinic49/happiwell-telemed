@@ -74,13 +74,13 @@ export default function HealthJournalPage() {
     setDeleting(null)
   }
 
-  const inputClass = 'w-full px-4 py-3 rounded-[10px] border border-[var(--border)] bg-[var(--card-bg)] text-base focus:outline-none focus:border-[#1a8a6e]'
+  const inputClass = 'w-full px-4 py-3 rounded-[10px] border border-[var(--border)] bg-[var(--card-bg)] text-base focus:outline-none focus:border-[var(--hw-green-dk)]'
 
   return (
     <div className="max-w-2xl mx-auto px-5 py-6 pb-8">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
-          <IconBook2 size={22} className="text-[#1a8a6e]" />
+          <IconBook2 size={22} className="text-[var(--hw-green-dk)]" />
           <h1 className="text-xl font-bold">{'สมุดบันทึกสุขภาพ'}</h1>
         </div>
         <button

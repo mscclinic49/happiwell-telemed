@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -26,7 +26,7 @@ type Vitals = {
 const APPT_CFG: Record<string, { label: string; color: string; Icon: typeof IconClock }> = {
   pending:   { label: 'รอยืนยัน',  color: 'text-yellow-600 bg-yellow-50', Icon: IconClock  },
   confirmed: { label: 'ยืนยันแล้ว', color: 'text-blue-600 bg-blue-50',    Icon: IconCheck  },
-  completed: { label: 'เสร็จสิ้น',  color: 'text-[#1a8a6e] bg-[#e8f7f3]', Icon: IconCheck  },
+  completed: { label: 'เสร็จสิ้น',  color: 'text-[var(--hw-green-dk)] bg-[#e8f7f3]', Icon: IconCheck  },
   cancelled: { label: 'ยกเลิก',    color: 'text-red-600 bg-red-50',        Icon: IconX      },
 }
 
@@ -167,7 +167,7 @@ export default function Dashboard() {
       {/* ── 2. แชทกับคลินิก ── */}
       <Link href="/chat"
         className="flex items-center gap-4 p-5 rounded-[14px] text-white"
-        style={{ background: 'linear-gradient(135deg, #1a8a6e 0%, #14705a 100%)' }}>
+        style={{ background: 'linear-gradient(135deg, var(--hw-green-dk) 0%, #14705a 100%)' }}>
         <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
           <IconMessageCircle2 size={24} className="text-white" />
         </div>

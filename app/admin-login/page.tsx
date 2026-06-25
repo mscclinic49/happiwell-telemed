@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -48,14 +48,14 @@ export default function AdminLoginPage() {
     router.refresh()
   }
 
-  const inputBase = 'w-full pl-10 pr-4 py-3 rounded-[10px] border border-[var(--border)] bg-[var(--card-bg)] text-sm focus:outline-none focus:border-[#1a8a6e] transition-colors'
+  const inputBase = 'w-full pl-10 pr-4 py-3 rounded-[10px] border border-[var(--border)] bg-[var(--card-bg)] text-sm focus:outline-none focus:border-[var(--hw-green-dk)] transition-colors'
 
   return (
     <main className="min-h-screen bg-[var(--hw-mint-bg)] flex items-center justify-center p-5">
       <div className="w-full max-w-sm">
         <div className="flex flex-col items-center mb-8">
           <Image src="/logo-hc.png" alt="HappiWell Clinic" width={180} height={60} className="object-contain mb-4" priority />
-          <span className="text-xs font-semibold uppercase tracking-widest text-[#1a8a6e] bg-[#1a8a6e]/10 px-3 py-1 rounded-full">
+          <span className="text-xs font-semibold uppercase tracking-widest text-[var(--hw-green-dk)] bg-[var(--hw-green-dk)]/10 px-3 py-1 rounded-full">
             {'Admin Portal'}
           </span>
         </div>
@@ -97,7 +97,7 @@ export default function AdminLoginPage() {
 
             <button type="submit" disabled={loading}
               className="w-full py-3 rounded-full font-semibold text-white text-sm hover:opacity-90 disabled:opacity-50 transition-opacity"
-              style={{ background: '#1a8a6e' }}>
+              style={{ background: 'var(--hw-green-dk)' }}>
               {loading ? 'กำลังเข้าสู่ระบบ...' : 'เข้าสู่ระบบ'}
             </button>
           </form>

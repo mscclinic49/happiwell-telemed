@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useRef, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
@@ -137,7 +137,7 @@ function Mode2Input({ onDecode }: { onDecode: (d: DecodedRx) => void }) {
           }}
           onKeyDown={e => e.key === 'Enter' && apply()}
           placeholder="Mode 2 (เช่น 11pt, 13pt, edb4...)"
-          className="w-full px-2.5 py-1.5 text-xs border border-dashed border-[#1a8a6e]/50 rounded-[8px] bg-[#1a8a6e]/5 focus:outline-none focus:border-[#1a8a6e] font-mono placeholder:font-sans placeholder:text-[var(--muted)]"
+          className="w-full px-2.5 py-1.5 text-xs border border-dashed border-[var(--hw-green-dk)]/50 rounded-[8px] bg-[var(--hw-green-dk)]/5 focus:outline-none focus:border-[var(--hw-green-dk)] font-mono placeholder:font-sans placeholder:text-[var(--muted)]"
         />
         {code && (
           <button type="button" onClick={() => setCode('')}
@@ -145,7 +145,7 @@ function Mode2Input({ onDecode }: { onDecode: (d: DecodedRx) => void }) {
         )}
       </div>
       {preview && (
-        <div className="flex flex-wrap gap-x-3 gap-y-0.5 text-[10px] text-[#1a8a6e] px-0.5">
+        <div className="flex flex-wrap gap-x-3 gap-y-0.5 text-[10px] text-[var(--hw-green-dk)] px-0.5">
           {preview.dosage && <span>{'ขนาด: '}{preview.dosage}</span>}
           {preview.frequency && <span>{'ความถี่: '}{preview.frequency}</span>}
           {preview.instructions && <span>{'วิธีใช้: '}{preview.instructions}</span>}
@@ -189,14 +189,14 @@ function DrugAutocomplete({ value, onChange, onSelect }: {
         onChange={e => { onChange(e.target.value); setOpen(true) }}
         onFocus={() => { if (options.length > 0) setOpen(true) }}
         placeholder="ชื่อยา * (พิมพ์เพื่อค้นหา)"
-        className="w-full px-2.5 py-1.5 text-sm border border-[var(--border)] rounded-[8px] bg-[var(--card-bg)] focus:outline-none focus:border-[#1a8a6e]"
+        className="w-full px-2.5 py-1.5 text-sm border border-[var(--border)] rounded-[8px] bg-[var(--card-bg)] focus:outline-none focus:border-[var(--hw-green-dk)]"
       />
       {open && options.length > 0 && (
         <div className="absolute top-full left-0 right-0 mt-1 z-50 bg-[var(--card-bg)] border border-[var(--border)] rounded-[10px] shadow-lg overflow-hidden max-h-52 overflow-y-auto">
           {options.map(d => (
             <button key={d.id} type="button"
               onMouseDown={e => { e.preventDefault(); onSelect(d); setOpen(false) }}
-              className="w-full text-left px-3 py-2 hover:bg-[#1a8a6e]/10 transition-colors border-b border-[var(--border)] last:border-0">
+              className="w-full text-left px-3 py-2 hover:bg-[var(--hw-green-dk)]/10 transition-colors border-b border-[var(--border)] last:border-0">
               <div className="text-sm font-medium">{d.drug_name}{d.strength ? ` ${d.strength}` : ''}</div>
               <div className="text-[11px] text-[var(--muted)] flex flex-wrap gap-x-2 mt-0.5">
                 {d.dosage && <span>{d.dosage}</span>}
@@ -355,7 +355,7 @@ export default function ConsultationPage() {
 
   if (loading) return (
     <div className="flex items-center justify-center py-20">
-      <div className="w-8 h-8 border-4 border-[#1a8a6e] border-t-transparent rounded-full animate-spin" />
+      <div className="w-8 h-8 border-4 border-[var(--hw-green-dk)] border-t-transparent rounded-full animate-spin" />
     </div>
   )
   if (!appt) return <div className="p-8 text-center text-[var(--muted)]">{'ไม่พบนัดหมาย'}</div>
@@ -394,8 +394,8 @@ export default function ConsultationPage() {
         <aside className="hidden lg:flex flex-col w-64 flex-shrink-0 border-r border-[var(--border)] overflow-y-auto bg-[var(--card-bg)]">
           <div className="p-4 space-y-4">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-full bg-[#1a8a6e]/15 flex items-center justify-center flex-shrink-0">
-                <IconUser size={22} className="text-[#1a8a6e]" />
+              <div className="w-12 h-12 rounded-full bg-[var(--hw-green-dk)]/15 flex items-center justify-center flex-shrink-0">
+                <IconUser size={22} className="text-[var(--hw-green-dk)]" />
               </div>
               <div className="min-w-0">
                 <div className="font-semibold text-sm truncate text-[var(--foreground)]">{patientName}</div>
@@ -474,8 +474,8 @@ export default function ConsultationPage() {
             />
           ) : (
             <div className="flex-1 flex flex-col items-center justify-center gap-4 p-8">
-              <div className="w-20 h-20 rounded-full bg-[#1a8a6e]/10 flex items-center justify-center">
-                <IconVideo size={36} className="text-[#1a8a6e]" />
+              <div className="w-20 h-20 rounded-full bg-[var(--hw-green-dk)]/10 flex items-center justify-center">
+                <IconVideo size={36} className="text-[var(--hw-green-dk)]" />
               </div>
               <div className="text-center">
                 <div className="font-semibold text-[var(--foreground)] mb-1">{'วีดีโอคอล'}</div>
@@ -486,7 +486,7 @@ export default function ConsultationPage() {
               )}
               <button onClick={startCall} disabled={startingCall}
                 className="flex items-center gap-2 px-6 py-3 rounded-full font-semibold text-white text-sm hover:opacity-90 disabled:opacity-50 transition-opacity"
-                style={{ background: '#1a8a6e' }}>
+                style={{ background: 'var(--hw-green-dk)' }}>
                 <IconVideo size={18} />
                 {startingCall ? 'กำลังเปิดห้อง...' : 'เริ่มวีดีโอคอล'}
               </button>
@@ -498,7 +498,7 @@ export default function ConsultationPage() {
         <div className={`flex flex-col w-full lg:w-96 flex-shrink-0 border-l border-[var(--border)] overflow-y-auto bg-[var(--card-bg)] ${tab === 'video' ? 'hidden lg:flex' : 'flex'}`}>
           <div className="px-4 pt-4 pb-2 border-b border-[var(--border)]">
             <div className="flex items-center gap-2 mb-1">
-              <IconPill size={16} className="text-[#1a8a6e]" />
+              <IconPill size={16} className="text-[var(--hw-green-dk)]" />
               <span className="font-bold text-sm text-[var(--foreground)]">{'ใบสั่งยา'}</span>
               {existingRxId && (
                 <span className="text-[10px] bg-emerald-500/15 text-emerald-500 px-2 py-0.5 rounded-full font-medium ml-auto">{'บันทึกแล้ว'}</span>
@@ -511,14 +511,14 @@ export default function ConsultationPage() {
               <label className="block text-xs font-semibold text-[var(--muted)] mb-1.5 uppercase tracking-wide">{'วินิจฉัย'}</label>
               <textarea value={diagnosis} onChange={e => setDiagnosis(e.target.value)}
                 rows={2} placeholder={'การวินิจฉัยโรค...'}
-                className="w-full px-3 py-2 text-sm border border-[var(--border)] rounded-[10px] bg-[var(--background)] focus:outline-none focus:border-[#1a8a6e] resize-none" />
+                className="w-full px-3 py-2 text-sm border border-[var(--border)] rounded-[10px] bg-[var(--background)] focus:outline-none focus:border-[var(--hw-green-dk)] resize-none" />
             </div>
 
             <div>
               <div className="flex items-center justify-between mb-2">
                 <label className="text-xs font-semibold text-[var(--muted)] uppercase tracking-wide">{'รายการยา'}</label>
                 <button onClick={() => setRxItems(prev => [...prev, EMPTY_ITEM()])}
-                  className="flex items-center gap-1 text-xs text-[#1a8a6e] font-medium">
+                  className="flex items-center gap-1 text-xs text-[var(--hw-green-dk)] font-medium">
                   <IconPlus size={13} />{'เพิ่มยา'}
                 </button>
               </div>
@@ -564,14 +564,14 @@ export default function ConsultationPage() {
                           value={(item as Record<string, string>)[f.key]}
                           onChange={e => setRxItems(prev => prev.map((x, i) => i === idx ? { ...x, [f.key]: e.target.value } : x))}
                           placeholder={f.label}
-                          className="px-2.5 py-1.5 text-xs border border-[var(--border)] rounded-[8px] bg-[var(--card-bg)] focus:outline-none focus:border-[#1a8a6e]" />
+                          className="px-2.5 py-1.5 text-xs border border-[var(--border)] rounded-[8px] bg-[var(--card-bg)] focus:outline-none focus:border-[var(--hw-green-dk)]" />
                       ))}
                     </div>
                     <input
                       value={item.instructions}
                       onChange={e => setRxItems(prev => prev.map((x, i) => i === idx ? { ...x, instructions: e.target.value } : x))}
                       placeholder="วิธีใช้ยา / คำแนะนำ"
-                      className="w-full px-2.5 py-1.5 text-xs border border-[var(--border)] rounded-[8px] bg-[var(--card-bg)] focus:outline-none focus:border-[#1a8a6e]"
+                      className="w-full px-2.5 py-1.5 text-xs border border-[var(--border)] rounded-[8px] bg-[var(--card-bg)] focus:outline-none focus:border-[var(--hw-green-dk)]"
                     />
                   </div>
                 ))}
@@ -582,20 +582,20 @@ export default function ConsultationPage() {
               <label className="block text-xs font-semibold text-[var(--muted)] mb-1.5 uppercase tracking-wide">{'หมายเหตุ'}</label>
               <textarea value={rxNotes} onChange={e => setRxNotes(e.target.value)}
                 rows={2} placeholder={'หมายเหตุเพิ่มเติม...'}
-                className="w-full px-3 py-2 text-sm border border-[var(--border)] rounded-[10px] bg-[var(--background)] focus:outline-none focus:border-[#1a8a6e] resize-none" />
+                className="w-full px-3 py-2 text-sm border border-[var(--border)] rounded-[10px] bg-[var(--background)] focus:outline-none focus:border-[var(--hw-green-dk)] resize-none" />
             </div>
           </div>
 
           <div className="px-4 pb-4 flex-shrink-0 space-y-2">
             <button onClick={saveRx} disabled={savingRx}
               className="w-full py-3 rounded-full font-semibold text-white text-sm flex items-center justify-center gap-2 hover:opacity-90 disabled:opacity-50 transition-opacity"
-              style={{ background: '#1a8a6e' }}>
+              style={{ background: 'var(--hw-green-dk)' }}>
               {rxSaved ? <><IconCheck size={16} />{'บันทึกแล้ว'}</> : savingRx ? 'กำลังบันทึก...' : <><IconPill size={16} />{'บันทึกใบสั่งยา'}</>}
             </button>
             {existingRxId && (
               <button
                 onClick={() => window.open(`/rx/${existingRxId}/print`, '_blank')}
-                className="w-full py-3 rounded-full font-semibold text-sm flex items-center justify-center gap-2 border-2 border-gray-400 text-[var(--foreground)] hover:border-[#1a8a6e] hover:text-[#1a8a6e] transition-all">
+                className="w-full py-3 rounded-full font-semibold text-sm flex items-center justify-center gap-2 border-2 border-gray-400 text-[var(--foreground)] hover:border-[var(--hw-green-dk)] hover:text-[var(--hw-green-dk)] transition-all">
                 {'🖨️ พิมพ์ใบสั่งยา'}
               </button>
             )}
@@ -605,7 +605,7 @@ export default function ConsultationPage() {
                 router.push('/doctor/appointments')
               }}
               disabled={updatingStatus}
-              className="w-full py-3 rounded-full font-semibold text-sm flex items-center justify-center gap-2 border-2 border-[#1a8a6e] text-[#1a8a6e] hover:bg-[#1a8a6e] hover:text-white disabled:opacity-50 transition-all">
+              className="w-full py-3 rounded-full font-semibold text-sm flex items-center justify-center gap-2 border-2 border-[var(--hw-green-dk)] text-[var(--hw-green-dk)] hover:bg-[var(--hw-green-dk)] hover:text-white disabled:opacity-50 transition-all">
               <IconCheck size={16} />{'เสร็จสิ้นการรักษา'}
             </button>
           </div>
@@ -620,7 +620,7 @@ export default function ConsultationPage() {
         ].map(t => (
           <button key={t.key} onClick={() => setTab(t.key)}
             className={`flex-1 flex flex-col items-center gap-0.5 py-2.5 text-xs font-medium transition-colors ${
-              tab === t.key ? 'text-[#1a8a6e]' : 'text-[var(--muted)]'
+              tab === t.key ? 'text-[var(--hw-green-dk)]' : 'text-[var(--muted)]'
             }`}>
             <t.Icon size={20} strokeWidth={tab === t.key ? 2.2 : 1.6} />
             {t.label}

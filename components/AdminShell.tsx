@@ -256,7 +256,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
         const active = exact ? pathname === href : pathname.startsWith(href)
         return (
           <Link key={href} href={href} onClick={onClick}
-            className={`flex items-center gap-3 px-4 py-3 rounded-[10px] text-sm font-medium transition-colors
+            className={`font-display flex items-center gap-3 px-4 py-3 rounded-[10px] text-sm font-medium transition-colors
               ${active ? 'bg-[var(--hw-mint-bg)] text-[var(--hw-green)]' : 'text-[var(--muted)] hover:bg-[var(--hw-mint-bg)] hover:text-[var(--foreground)]'}`}>
             <Icon size={19} />
             {label}

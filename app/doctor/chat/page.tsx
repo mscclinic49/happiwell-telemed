@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useState, useRef, useCallback } from 'react'
 import { createBrowserClient } from '@supabase/ssr'
@@ -127,7 +127,7 @@ export default function DoctorChatPage() {
         ${active ? 'hidden md:flex md:w-72' : 'flex-1 md:w-72 md:flex-none'}`}>
         <div className="px-4 py-4 border-b border-[var(--border)] flex-shrink-0">
           <div className="flex items-center gap-2">
-            <IconMessageCircle2 size={18} className="text-[#1a8a6e]" />
+            <IconMessageCircle2 size={18} className="text-[var(--hw-green-dk)]" />
             <span className="font-bold text-sm">{'แชท'}</span>
           </div>
         </div>
@@ -151,9 +151,9 @@ export default function DoctorChatPage() {
                 return (
                   <button key={c.id} onClick={() => setActive(c)}
                     className={`w-full text-left flex items-center gap-3 px-3 py-3 rounded-[10px] transition-colors
-                      ${isActive ? 'bg-[#1a8a6e]/15' : 'hover:bg-[#1a8a6e]/10'}`}>
-                    <div className="w-10 h-10 rounded-full bg-[#1a8a6e]/15 flex items-center justify-center flex-shrink-0 relative">
-                      <IconUser size={18} className="text-[#1a8a6e]" />
+                      ${isActive ? 'bg-[var(--hw-green-dk)]/15' : 'hover:bg-[var(--hw-green-dk)]/10'}`}>
+                    <div className="w-10 h-10 rounded-full bg-[var(--hw-green-dk)]/15 flex items-center justify-center flex-shrink-0 relative">
+                      <IconUser size={18} className="text-[var(--hw-green-dk)]" />
                       {(c.unread ?? 0) > 0 && (
                         <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-red-500 text-white text-[9px] rounded-full flex items-center justify-center font-bold">
                           {(c.unread ?? 0) > 9 ? '9+' : c.unread}
@@ -161,7 +161,7 @@ export default function DoctorChatPage() {
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className={`text-sm truncate ${isActive ? 'text-[#1a8a6e] font-semibold' : 'text-[var(--foreground)] font-medium'}`}>
+                      <div className={`text-sm truncate ${isActive ? 'text-[var(--hw-green-dk)] font-semibold' : 'text-[var(--foreground)] font-medium'}`}>
                         {name}
                       </div>
                       {c.lastMsg && (
@@ -189,14 +189,14 @@ export default function DoctorChatPage() {
             <button className="md:hidden p-1.5 -ml-1 text-[var(--muted)]" onClick={() => setActive(null)}>
               ←
             </button>
-            <div className="w-9 h-9 rounded-full bg-[#1a8a6e]/15 flex items-center justify-center flex-shrink-0">
-              <IconUser size={16} className="text-[#1a8a6e]" />
+            <div className="w-9 h-9 rounded-full bg-[var(--hw-green-dk)]/15 flex items-center justify-center flex-shrink-0">
+              <IconUser size={16} className="text-[var(--hw-green-dk)]" />
             </div>
             <div className="flex-1 min-w-0">
               <div className="font-semibold text-sm text-[var(--foreground)] truncate">{patientName(active)}</div>
               {active.appointment_id && (
                 <a href={`/doctor/appointments/${active.appointment_id}`}
-                  className="text-[10px] text-[#1a8a6e] hover:underline">
+                  className="text-[10px] text-[var(--hw-green-dk)] hover:underline">
                   {'ดูห้องตรวจ →'}
                 </a>
               )}
@@ -214,7 +214,7 @@ export default function DoctorChatPage() {
                 <div key={m.id} className={`flex ${mine ? 'justify-end' : 'justify-start'}`}>
                   <div className={`max-w-[75%] px-3 py-2 rounded-[14px] text-sm ${
                     mine
-                      ? 'bg-[#1a8a6e] text-white rounded-br-[4px]'
+                      ? 'bg-[var(--hw-green-dk)] text-white rounded-br-[4px]'
                       : 'bg-[var(--card-bg)] border border-[var(--border)] rounded-bl-[4px] text-[var(--foreground)]'
                   }`}>
                     {m.content}
@@ -231,9 +231,9 @@ export default function DoctorChatPage() {
               onChange={e => setInput(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && !e.shiftKey && (e.preventDefault(), sendMessage())}
               placeholder={'พิมพ์ข้อความ...'}
-              className="flex-1 px-3 py-2 rounded-[10px] border border-[var(--border)] bg-[var(--background)] text-sm focus:outline-none focus:border-[#1a8a6e]" />
+              className="flex-1 px-3 py-2 rounded-[10px] border border-[var(--border)] bg-[var(--background)] text-sm focus:outline-none focus:border-[var(--hw-green-dk)]" />
             <button onClick={sendMessage} disabled={!input.trim() || sending}
-              className="w-9 h-9 rounded-[10px] bg-[#1a8a6e] text-white flex items-center justify-center disabled:opacity-40 flex-shrink-0">
+              className="w-9 h-9 rounded-[10px] bg-[var(--hw-green-dk)] text-white flex items-center justify-center disabled:opacity-40 flex-shrink-0">
               <IconSend size={16} />
             </button>
           </div>

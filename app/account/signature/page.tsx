@@ -106,7 +106,7 @@ export default function SignaturePage() {
   return (
     <div className="max-w-lg mx-auto px-5 py-8">
       <div className="flex items-center gap-3 mb-6">
-        <IconSignature size={22} className="text-[#1a8a6e]" />
+        <IconSignature size={22} className="text-[var(--hw-green-dk)]" />
         <h1 className="text-xl font-bold">{'ลายเซ็นดิจิทัล'}</h1>
       </div>
 
@@ -116,7 +116,7 @@ export default function SignaturePage() {
           <div className="bg-white rounded-[10px] border border-[var(--border)] p-4 flex items-center justify-center min-h-[80px]">
             <img src={existingUrl} alt="ลายเซ็น" className="max-h-20 object-contain" />
           </div>
-          <a href={existingUrl} download="signature.png" className="mt-3 flex items-center gap-1.5 text-xs text-[#1a8a6e] hover:underline">
+          <a href={existingUrl} download="signature.png" className="mt-3 flex items-center gap-1.5 text-xs text-[var(--hw-green-dk)] hover:underline">
             <IconDownload size={13} />{'ดาวน์โหลดลายเซ็น'}
           </a>
         </div>
@@ -159,7 +159,7 @@ export default function SignaturePage() {
             </div>
           )}
           {success && (
-            <div className="flex items-center gap-2 mt-3 p-3 bg-[#e8f7f3] border border-[#1a8a6e] rounded-[10px] text-[#1a8a6e] text-sm">
+            <div className="flex items-center gap-2 mt-3 p-3 bg-[#e8f7f3] border border-[var(--hw-green-dk)] rounded-[10px] text-[var(--hw-green-dk)] text-sm">
               <IconCheck size={15} />{'บันทึกลายเซ็นสำเร็จ'}
             </div>
           )}
