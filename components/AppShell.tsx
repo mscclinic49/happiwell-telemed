@@ -120,7 +120,7 @@ const PROFILE_SECTIONS = [
   },
 ]
 
-const NO_SHELL = ['/login', '/register', '/consent', '/auth', '/consult', '/admin', '/admin-login', '/forgot-password', '/rx/']
+const NO_SHELL = ['/login', '/register', '/consent', '/auth', '/consult', '/admin', '/admin-login', '/forgot-password', '/rx/', '/welcome']
 // doctor routes: /doctor exactly or /doctor/* — but NOT /doctors
 function noShell(pathname: string) {
   if (NO_SHELL.some(p => pathname.startsWith(p))) return true
