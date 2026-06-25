@@ -89,6 +89,19 @@ export default function RxPrintPage() {
         useCORS: true,
         backgroundColor: '#ffffff',
         logging: false,
+        onclone: (doc) => {
+          doc.documentElement.classList.remove('dark')
+          doc.documentElement.style.colorScheme = 'light'
+          const el = doc.getElementById('rx-print')
+          if (el) {
+            el.style.color = '#000'
+            el.style.backgroundColor = '#fff'
+            el.querySelectorAll<HTMLElement>('*').forEach(n => {
+              n.style.color = '#000'
+              if (n.style.borderColor) n.style.borderColor = '#000'
+            })
+          }
+        },
       })
 
       const imgData = canvas.toDataURL('image/jpeg', 0.95)
