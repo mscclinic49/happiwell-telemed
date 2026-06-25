@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useParams } from 'next/navigation'
 import { createBrowserClient } from '@supabase/ssr'
 
@@ -48,6 +48,8 @@ export default function RxPrintPage() {
   const [rx, setRx] = useState<RxData | null>(null)
   const [vitals, setVitals] = useState<{ cc: string | null; drug_allergy: string | null } | null>(null)
   const [loading, setLoading] = useState(true)
+  const [generating, setGenerating] = useState(false)
+  const printRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     sb.from('hw_rx')
@@ -75,9 +77,48 @@ export default function RxPrintPage() {
       })
   }, [rxId])
 
+  async function generatePdf() {
+    if (!printRef.current || generating) return
+    setGenerating(true)
+    try {
+      const html2canvas = (await import('html2canvas')).default
+      const { jsPDF } = await import('jspdf')
+
+      const canvas = await html2canvas(printRef.current, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#ffffff',
+        logging: false,
+      })
+
+      const imgData = canvas.toDataURL('image/jpeg', 0.95)
+      const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' })
+      const pageW = pdf.internal.pageSize.getWidth()
+      const pageH = pdf.internal.pageSize.getHeight()
+      const ratio = canvas.width / canvas.height
+      const imgH = pageW / ratio
+      let y = 0
+      if (imgH <= pageH) {
+        pdf.addImage(imgData, 'JPEG', 0, 0, pageW, imgH)
+      } else {
+        // multi-page
+        while (y < imgH) {
+          pdf.addImage(imgData, 'JPEG', 0, -y, pageW, imgH)
+          y += pageH
+          if (y < imgH) pdf.addPage()
+        }
+      }
+
+      const patientName = rx?.hw_appointments?.hw_users?.first_name ?? rx?.hw_appointments?.hw_users?.full_name ?? 'rx'
+      pdf.save(`ใบสั่งยา_${patientName}_${new Date().toLocaleDateString('th-TH').replace(/\//g, '-')}.pdf`)
+    } finally {
+      setGenerating(false)
+    }
+  }
+
   useEffect(() => {
     if (!loading && rx) {
-      setTimeout(() => window.print(), 400)
+      setTimeout(() => generatePdf(), 600)
     }
   }, [loading, rx])
 
@@ -119,9 +160,15 @@ export default function RxPrintPage() {
 
       {/* Screen-only controls */}
       <div className="no-print fixed top-4 right-4 flex gap-2 z-50">
+        <button onClick={generatePdf} disabled={generating}
+          className="px-4 py-2 bg-[#1a8a6e] text-white rounded-lg text-sm font-medium shadow disabled:opacity-60 flex items-center gap-2">
+          {generating
+            ? <><span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />{'กำลัง Gen PDF...'}</>
+            : '⬇️ ดาวน์โหลด PDF'}
+        </button>
         <button onClick={() => window.print()}
-          className="px-4 py-2 bg-[#1a8a6e] text-white rounded-lg text-sm font-medium shadow">
-          {'🖨️ พิมพ์ / บันทึก PDF'}
+          className="px-4 py-2 bg-gray-500 text-white rounded-lg text-sm font-medium shadow">
+          {'🖨️ พิมพ์'}
         </button>
         <button onClick={() => window.close()}
           className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium shadow">
@@ -129,7 +176,7 @@ export default function RxPrintPage() {
         </button>
       </div>
 
-      <div id="rx-print">
+      <div id="rx-print" ref={printRef}>
         {/* Clinic header */}
         <div style={{ textAlign: 'center', borderBottom: '3px double #000', paddingBottom: 6, marginBottom: 6 }}>
           <div style={{ fontSize: 16, fontWeight: 'bold' }}>{'แฮปปี้เวลล์ คลินิกเวชกรรม'}</div>
