@@ -309,6 +309,22 @@ export default function ConsultationPage() {
   async function updateStatus(status: string) {
     setUpdatingStatus(true)
     await sb.from('hw_appointments').update({ status }).eq('id', apptId)
+
+    // Write treatment history entry when doctor marks as completed (only first time)
+    if (status === 'completed' && appt?.status !== 'completed' && appt?.hw_users?.id) {
+      const { data: doc } = await sb.from('hw_doctors').select('full_name').eq('id', doctorId ?? '').single()
+      await sb.from('hw_medical_history').insert({
+        user_id: appt.hw_users.id,
+        visit_date: appt.scheduled_at.slice(0, 10),
+        hospital: 'HappiWell Clinic',
+        doctor: doc?.full_name ?? null,
+        chief_complaint: appt.symptoms ?? null,
+        diagnosis: diagnosis || null,
+        status: 'approved',
+        source: 'clinic',
+      })
+    }
+
     setAppt(prev => prev ? { ...prev, status } : prev)
     setUpdatingStatus(false)
   }

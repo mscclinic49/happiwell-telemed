@@ -16,6 +16,7 @@ type Appt = {
   symptoms: string | null
   hw_doctors: { full_name: string; specialty: string | null } | null
   hw_prescriptions: { id: string }[]
+  hw_rx: { id: string }[]
 }
 
 const STATUS_CFG: Record<string, { label: string; color: string; bg: string; Icon: typeof IconClock }> = {
@@ -39,7 +40,7 @@ export default function HistoryPage() {
     if (!user) return
     supabase
       .from('hw_appointments')
-      .select('id, scheduled_at, status, symptoms, hw_doctors(full_name, specialty), hw_prescriptions(id)')
+      .select('id, scheduled_at, status, symptoms, hw_doctors(full_name, specialty), hw_prescriptions(id), hw_rx(id)')
       .eq('user_id', user.id)
       .order('scheduled_at', { ascending: false })
       .then(({ data }) => { setAppts((data as unknown as Appt[]) || []); setLoading(false) })
@@ -70,7 +71,8 @@ export default function HistoryPage() {
           const cfg = STATUS_CFG[a.status] ?? STATUS_CFG.pending
           const dt = new Date(a.scheduled_at)
           const isUpcoming = dt > new Date() && a.status !== 'cancelled'
-          const hasPrescription = a.hw_prescriptions.length > 0
+          const hasDigitalRx = a.hw_rx.length > 0
+          const hasPrescription = hasDigitalRx || a.hw_prescriptions.length > 0
 
           return (
             <div key={a.id} className="bg-[var(--card-bg)] border border-[var(--border)] rounded-[14px] p-4">
@@ -112,7 +114,8 @@ export default function HistoryPage() {
                 )}
                 {hasPrescription && (
                   <Link
-                    href="/prescriptions"
+                    href={hasDigitalRx ? `/rx/${a.hw_rx[0].id}/print` : '/prescriptions'}
+                    target={hasDigitalRx ? '_blank' : undefined}
                     className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border border-[var(--border)] text-[var(--foreground)] hover:bg-[var(--hw-mint-bg)] transition-colors"
                   >
                     <IconPill size={13} />

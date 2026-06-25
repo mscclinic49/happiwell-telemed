@@ -11,6 +11,7 @@ import {
 
 type Dtx      = { id: string; value: number; meal_status: string; measured_at: string }
 type Bp       = { id: string; systolic: number; diastolic: number; pulse: number | null; measured_at: string }
+type VitalSnap = { weight_kg: number | null; height_cm: number | null; spo2: number | null; temperature: number | null; pulse: number | null; recorded_at: string }
 type Med      = { id: string; name: string; dosage: string | null; frequency: string | null; times: string[] | null; reminder_enabled: boolean; source: string }
 type Vaccine  = { id: string; vaccine_name: string; dose_number: number; vaccinated_date: string; next_due_date: string | null; hospital: string | null }
 type Lab      = { id: string; test_name: string; value: number | null; unit: string | null; status: 'normal' | 'warning' | 'critical'; test_date: string }
@@ -105,13 +106,14 @@ export default function HealthBookDashboard() {
   const [labFile, setLabFile] = useState<File | null>(null)
   const [labMode, setLabMode] = useState<'file'|'manual'>('file')
   const [visF,  setVisF]  = useState({ date: today0(), hospital: '', doctor: '', complaint: '', diagnosis: '', treatment: '' })
+  const [vitalSnap, setVitalSnap] = useState<VitalSnap | null>(null)
 
   useEffect(() => {
     if (authLoading) return
     if (!user) { router.push('/login'); return }
     ;(async () => {
       const uid = user.id
-      const [d, b, m, mp, v, vp, l, lp, vis] = await Promise.all([
+      const [d, b, m, mp, v, vp, l, lp, vis, vs] = await Promise.all([
         sb.from('hw_dtx_records').select('id,value,meal_status,measured_at').eq('user_id', uid).order('measured_at', { ascending: false }).limit(2),
         sb.from('hw_bp_records').select('id,systolic,diastolic,pulse,measured_at').eq('user_id', uid).order('measured_at', { ascending: false }).limit(2),
         sb.from('hw_medications').select('id,name,dosage,frequency,times,reminder_enabled,source').eq('user_id', uid).eq('is_active', true).eq('status', 'approved'),
@@ -121,6 +123,7 @@ export default function HealthBookDashboard() {
         sb.from('hw_lab_results').select('id,test_name,value,unit,status,test_date').eq('user_id', uid).eq('approval_status', 'approved').order('test_date', { ascending: false }).limit(20),
         sb.from('hw_lab_results').select('id').eq('user_id', uid).eq('approval_status', 'pending'),
         sb.from('hw_medical_history').select('id,hospital,visit_date,doctor,chief_complaint,diagnosis,status').eq('user_id', uid).order('visit_date', { ascending: false }).limit(3),
+        sb.from('hw_vitals').select('weight_kg,height_cm,spo2,temperature,pulse,recorded_at').eq('patient_id', uid).not('weight_kg', 'is', null).order('recorded_at', { ascending: false }).limit(1).maybeSingle(),
       ])
       setDtxList((d.data ?? []) as Dtx[])
       setBpList((b.data ?? []) as Bp[])
@@ -134,6 +137,7 @@ export default function HealthBookDashboard() {
       setLabList(ld ? labs.filter(x => x.test_date === ld) : [])
       setLabPend((lp.data ?? []).length)
       setVisitList((vis.data ?? []) as Visit[])
+      setVitalSnap(vs.data as VitalSnap | null)
       setLoading(false)
     })()
   }, [user, authLoading, router])
@@ -209,6 +213,15 @@ export default function HealthBookDashboard() {
   const dt = (d0 && d1) ? trend(d0.value, d1.value) : null
   const bt = (b0 && b1) ? trend(b0.systolic, b1.systolic) : null
 
+  const bmiVal = (vitalSnap?.weight_kg && vitalSnap?.height_cm)
+    ? vitalSnap.weight_kg / ((vitalSnap.height_cm / 100) ** 2)
+    : null
+  const bmiSt = bmiVal == null ? null
+    : bmiVal < 18.5 ? { l: 'น้ำหนักน้อย', c: 'text-[var(--hw-blue)]',   b: 'bg-blue-50' }
+    : bmiVal < 23   ? { l: 'ปกติ',          c: 'text-[var(--hw-green)]',  b: 'bg-[var(--hw-mint-bg)]' }
+    : bmiVal < 27.5 ? { l: 'น้ำหนักเกิน',  c: 'text-yellow-600',         b: 'bg-yellow-50' }
+    :                 { l: 'อ้วน',           c: 'text-red-600',            b: 'bg-red-50' }
+
   const saveBtnClass = 'flex-1 text-white rounded-full py-2.5 text-xs font-semibold disabled:opacity-50'
   const cancelBtnClass = 'flex-1 border border-[var(--border)] rounded-full py-2.5 text-xs text-[var(--muted)]'
 
@@ -278,6 +291,49 @@ export default function HealthBookDashboard() {
           </div>
         ) : <EmptyCard emoji="💙" text="ยังไม่มีข้อมูลความดัน"/>}
       </section>
+
+      {/* ── BMI & Vitals (from clinic) ── */}
+      {vitalSnap && (
+        <section>
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="font-semibold text-sm">{'BMI & ข้อมูลสุขภาพ'}</h2>
+            <span className="text-xs text-[var(--muted)]">
+              {new Date(vitalSnap.recorded_at).toLocaleDateString('th-TH', { dateStyle: 'medium' })}
+            </span>
+          </div>
+
+          {bmiVal !== null && bmiSt && (
+            <div className={"rounded-[14px] p-4 mb-3 " + bmiSt.b}>
+              <p className="text-xs text-[var(--muted)] mb-1">
+                {`น้ำหนัก ${vitalSnap.weight_kg} กก. · ส่วนสูง ${vitalSnap.height_cm} ซม.`}
+              </p>
+              <p className={"text-4xl font-bold " + bmiSt.c}>{bmiVal.toFixed(1)} <span className="text-sm font-normal text-[var(--muted)]">BMI</span></p>
+              <span className={"text-xs px-2.5 py-0.5 rounded-full mt-2 inline-block " + bmiSt.c + " bg-white/30"}>{bmiSt.l}</span>
+            </div>
+          )}
+
+          <div className="grid grid-cols-3 gap-2">
+            {vitalSnap.spo2 != null && (
+              <div className="bg-[var(--card-bg)] border border-[var(--border)] rounded-[14px] px-3 py-3 text-center">
+                <p className="text-[10px] text-[var(--muted)] mb-1">{'SpO₂'}</p>
+                <p className="text-xl font-bold text-[var(--hw-blue)]">{vitalSnap.spo2}<span className="text-xs font-normal text-[var(--muted)]"> %</span></p>
+              </div>
+            )}
+            {vitalSnap.temperature != null && (
+              <div className="bg-[var(--card-bg)] border border-[var(--border)] rounded-[14px] px-3 py-3 text-center">
+                <p className="text-[10px] text-[var(--muted)] mb-1">{'อุณหภูมิ'}</p>
+                <p className="text-xl font-bold text-[var(--hw-orange)]">{vitalSnap.temperature}<span className="text-xs font-normal text-[var(--muted)]"> °C</span></p>
+              </div>
+            )}
+            {vitalSnap.pulse != null && (
+              <div className="bg-[var(--card-bg)] border border-[var(--border)] rounded-[14px] px-3 py-3 text-center">
+                <p className="text-[10px] text-[var(--muted)] mb-1">{'ชีพจร'}</p>
+                <p className="text-xl font-bold text-[var(--hw-green)]">{vitalSnap.pulse}<span className="text-xs font-normal text-[var(--muted)]"> bpm</span></p>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
 
       {/* ── ยา ── */}
       <section>
