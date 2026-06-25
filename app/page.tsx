@@ -10,7 +10,6 @@ import {
   IconVideo, IconClock, IconCheck, IconX,
   IconTrendingUp, IconTrendingDown, IconMinus, IconChevronRight,
 } from '@tabler/icons-react'
-import { WalkinButton } from '@/components/WalkinButton'
 
 type Appointment = {
   id: string; scheduled_at: string; status: string; symptoms: string | null
@@ -238,9 +237,6 @@ export default function Dashboard() {
             <IconCalendarClock size={16} className="text-[var(--hw-green)]" />
             <h2 className="font-semibold text-sm">{'นัดหมาย'}</h2>
           </div>
-          <div className="mb-3">
-            <WalkinButton compact onSuccess={() => { router.refresh() }} />
-          </div>
           <div className="space-y-2">
             {upcoming.map(a => {
               const dt = new Date(a.scheduled_at)
@@ -273,13 +269,10 @@ export default function Dashboard() {
           </div>
         </section>
       ) : (
-        <div className="space-y-3">
-          <WalkinButton onSuccess={() => { router.refresh() }} />
-          <div className="bg-[var(--card-bg)] border border-[var(--border)] rounded-[14px] p-5 text-center">
-            <IconCalendarClock size={32} className="mx-auto mb-2 text-[var(--muted)] opacity-40" />
-            <p className="text-sm text-[var(--muted)]">{'ยังไม่มีนัดหมาย'}</p>
-            <p className="text-xs text-[var(--muted)] mt-1">{'หรือแชทกับคลินิกเพื่อนัดหมายล่วงหน้า'}</p>
-          </div>
+        <div className="bg-[var(--card-bg)] border border-[var(--border)] rounded-[14px] p-5 text-center">
+          <IconCalendarClock size={32} className="mx-auto mb-2 text-[var(--muted)] opacity-40" />
+          <p className="text-sm text-[var(--muted)]">{'ยังไม่มีนัดหมาย'}</p>
+          <p className="text-xs text-[var(--muted)] mt-1">{'แชทกับคลินิกเพื่อนัดหมายพบแพทย์'}</p>
         </div>
       )}
 

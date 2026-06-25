@@ -8,6 +8,7 @@ import {
   IconUser, IconPhoto, IconHeart, IconCheck, IconPlus, IconX, IconSearch,
 } from '@tabler/icons-react'
 import { useAuth } from '@/lib/auth-context'
+import { WalkinButton } from '@/components/WalkinButton'
 
 // ── Types ──────────────────────────────────────────────
 type Conversation = {
@@ -409,8 +410,8 @@ export default function AdminChatPage() {
         </div>
       </div>
 
-      {/* Save */}
-      <div className="px-5 py-4 border-t border-[var(--border)] flex-shrink-0">
+      {/* Save + Walk-in */}
+      <div className="px-5 py-4 border-t border-[var(--border)] flex-shrink-0 space-y-2">
         <button onClick={saveVitals} disabled={saving}
           className="w-full py-2 rounded-xl text-sm font-semibold text-white flex items-center justify-center gap-2 disabled:opacity-50 transition-all"
           style={{ background: saved ? '#059669' : 'var(--hw-green)' }}>
@@ -418,6 +419,7 @@ export default function AdminChatPage() {
                   : saved ? <IconCheck size={15} /> : null}
           {saving ? 'กำลังบันทึก...' : saved ? 'บันทึกแล้ว' : 'บันทึก Vitals'}
         </button>
+        <WalkinButton compact onSuccess={() => {}} />
       </div>
     </div>
   )
