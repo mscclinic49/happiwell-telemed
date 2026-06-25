@@ -419,7 +419,7 @@ export default function AdminChatPage() {
                   : saved ? <IconCheck size={15} /> : null}
           {saving ? 'กำลังบันทึก...' : saved ? 'บันทึกแล้ว' : 'บันทึก Vitals'}
         </button>
-        <WalkinButton compact onSuccess={() => {}} />
+        <WalkinButton compact patientId={active?.patient_id} onSuccess={() => {}} />
       </div>
     </div>
   )

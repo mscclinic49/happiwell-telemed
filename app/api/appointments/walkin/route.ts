@@ -9,6 +9,8 @@ export async function POST(req: NextRequest) {
 
     const body = await req.json().catch(() => ({}))
     const symptoms: string | null = body.symptoms ?? null
+    // admin can specify a patientId; otherwise default to the caller
+    const targetUserId: string = body.patientId ?? user.id
 
     // Bangkok time (UTC+7)
     const now = new Date()
@@ -57,7 +59,7 @@ export async function POST(req: NextRequest) {
     const { data: appt, error } = await sb
       .from('hw_appointments')
       .insert({
-        user_id: user.id,
+        user_id: targetUserId,
         doctor_id: doctorId,
         scheduled_at: now.toISOString(),
         status: 'pending',

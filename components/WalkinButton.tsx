@@ -6,10 +6,11 @@ import { IconBolt, IconAlertCircle } from '@tabler/icons-react'
 
 type Props = {
   compact?: boolean
+  patientId?: string
   onSuccess?: (apptId: string) => void
 }
 
-export function WalkinButton({ compact = false, onSuccess }: Props) {
+export function WalkinButton({ compact = false, patientId, onSuccess }: Props) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [err, setErr] = useState<string | null>(null)
@@ -18,7 +19,7 @@ export function WalkinButton({ compact = false, onSuccess }: Props) {
     setLoading(true)
     setErr(null)
     try {
-      const res = await fetch('/api/appointments/walkin', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}) })
+      const res = await fetch('/api/appointments/walkin', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ patientId }) })
       const data = await res.json()
       if (!res.ok) { setErr(data.error ?? 'เกิดข้อผิดพลาด'); return }
       if (onSuccess) {
