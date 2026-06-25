@@ -26,14 +26,14 @@ type Appt = {
   hw_doctors: { id: string } | null
 }
 
-type RxItem = { id?: string; drug_name: string; dosage: string; frequency: string; duration: string; instructions: string; quantity: string }
+type RxItem = { id?: string; drug_name: string; dosage: string; frequency: string; duration: string; instructions: string; quantity: string; price: string }
 type Vitals = {
   bp_systolic: number | null; bp_diastolic: number | null; pulse: number | null
   rr: number | null; spo2: number | null; temperature: number | null; dtx: number | null
   drug_allergy: string | null; cc: string | null
 }
 
-const EMPTY_ITEM = (): RxItem => ({ drug_name: '', dosage: '', frequency: '', duration: '', instructions: '', quantity: '' })
+const EMPTY_ITEM = (): RxItem => ({ drug_name: '', dosage: '', frequency: '', duration: '', instructions: '', quantity: '', price: '' })
 
 const STATUS_LABEL: Record<string, string> = {
   pending: 'รอยืนยัน', confirmed: 'ยืนยันแล้ว', completed: 'เสร็จสิ้น', cancelled: 'ยกเลิก',
@@ -116,7 +116,7 @@ export default function ConsultationPage() {
         setRxNotes(data.notes ?? '')
         const items = ((data as unknown as { hw_rx_items: (RxItem & { sort_order: number })[] }).hw_rx_items ?? [])
           .sort((a, b) => a.sort_order - b.sort_order)
-          .map(i => ({ ...i, quantity: String(i.quantity ?? '') }))
+          .map(i => ({ ...i, quantity: String(i.quantity ?? ''), price: String((i as unknown as { price: number | null }).price ?? '') }))
         if (items.length > 0) setRxItems(items)
       })
   }, [doctorId, apptId])
@@ -159,7 +159,8 @@ export default function ConsultationPage() {
           validItems.map((i, idx) => ({
             rx_id: existingRxId, drug_name: i.drug_name, dosage: i.dosage,
             frequency: i.frequency, duration: i.duration, instructions: i.instructions,
-            quantity: i.quantity ? parseInt(i.quantity) : null, sort_order: idx,
+            quantity: i.quantity ? parseInt(i.quantity) : null,
+            price: i.price ? parseFloat(i.price) : null, sort_order: idx,
           }))
         )
       }
@@ -174,7 +175,8 @@ export default function ConsultationPage() {
           validItems.map((i, idx) => ({
             rx_id: rxData.id, drug_name: i.drug_name, dosage: i.dosage,
             frequency: i.frequency, duration: i.duration, instructions: i.instructions,
-            quantity: i.quantity ? parseInt(i.quantity) : null, sort_order: idx,
+            quantity: i.quantity ? parseInt(i.quantity) : null,
+            price: i.price ? parseFloat(i.price) : null, sort_order: idx,
           }))
         )
       }
@@ -374,6 +376,7 @@ export default function ConsultationPage() {
                         { key: 'frequency', label: 'ความถี่' },
                         { key: 'duration', label: 'จำนวนวัน' },
                         { key: 'quantity', label: 'จำนวน' },
+                        { key: 'price', label: 'ราคา (บาท)' },
                       ].map(f => (
                         <input key={f.key}
                           value={(item as Record<string, string>)[f.key]}
@@ -405,6 +408,13 @@ export default function ConsultationPage() {
               style={{ background: '#1a8a6e' }}>
               {rxSaved ? <><IconCheck size={16} />{'บันทึกแล้ว'}</> : savingRx ? 'กำลังบันทึก...' : <><IconPill size={16} />{'บันทึกใบสั่งยา'}</>}
             </button>
+            {existingRxId && (
+              <button
+                onClick={() => window.open(`/doctor/rx/${existingRxId}/print`, '_blank')}
+                className="w-full py-3 rounded-full font-semibold text-sm flex items-center justify-center gap-2 border-2 border-gray-400 text-[var(--foreground)] hover:border-[#1a8a6e] hover:text-[#1a8a6e] transition-all">
+                {'🖨️ พิมพ์ใบสั่งยา'}
+              </button>
+            )}
             <button
               onClick={async () => {
                 await updateStatus('completed')
