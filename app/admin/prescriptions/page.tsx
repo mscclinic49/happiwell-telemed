@@ -38,7 +38,7 @@ function PrescriptionButtons({ appt, onUploaded }: { appt: Appt; onUploaded: () 
 
   async function handleView() {
     if (hasRx) {
-      window.open(`/doctor/rx/${appt.hw_rx[0].id}/print`, '_blank')
+      window.open(`/rx/${appt.hw_rx[0].id}/print`, '_blank')
       return
     }
     if (hasFile) {

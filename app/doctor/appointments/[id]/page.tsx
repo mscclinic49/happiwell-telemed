@@ -410,7 +410,7 @@ export default function ConsultationPage() {
             </button>
             {existingRxId && (
               <button
-                onClick={() => window.open(`/doctor/rx/${existingRxId}/print`, '_blank')}
+                onClick={() => window.open(`/rx/${existingRxId}/print`, '_blank')}
                 className="w-full py-3 rounded-full font-semibold text-sm flex items-center justify-center gap-2 border-2 border-gray-400 text-[var(--foreground)] hover:border-[#1a8a6e] hover:text-[#1a8a6e] transition-all">
                 {'🖨️ พิมพ์ใบสั่งยา'}
               </button>
