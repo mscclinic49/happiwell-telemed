@@ -26,15 +26,105 @@ type Appt = {
   hw_doctors: { id: string } | null
 }
 
-type RxItem = { id?: string; drug_name: string; dosage: string; frequency: string; duration: string; instructions: string; quantity: string; price: string }
+type RxItem = { id?: string; drug_name: string; dosage: string; frequency: string; duration: string; instructions: string; quantity: string }
 type DrugOption = { id: string; drug_name: string; strength: string | null; dosage: string | null; frequency: string | null; duration: string | null; instructions: string | null; unit: string | null; price: number | null }
+
+// ── Mode 2 decoder ──────────────────────────────────────────────────────────
+function timeSched(n: number, bedtime = false): string {
+  if (bedtime) return 'ก่อนนอน'
+  return (['', 'เช้า', 'เช้า-เย็น', 'เช้า-กลางวัน-เย็น', 'เช้า-กลางวัน-เย็น-ก่อนนอน'] as const)[n] ?? `${n} ครั้ง/วัน`
+}
+function decodeMode2(raw: string): string {
+  const code = raw.trim()
+  if (!code) return ''
+  const lc = code.toLowerCase()
+
+  if (lc === 'troche') return 'อมครั้งละ 1 เม็ด ทุก 6 ชม. เวลามีอาการเจ็บคอ'
+  if (lc === 'drp') return 'จิบเวลาไอ'
+
+  // edeq4
+  const edeq = lc.match(/^edeq(\d+)$/)
+  if (edeq) return `หยอดตาข้างที่เป็น ครั้งละ 1-2 หยด ทุก ${edeq[1]} ชั่วโมง`
+
+  // eye drops: ed[side][times][hs]
+  const ed = lc.match(/^ed([rblq]?)(\d+)(hs|h)?$/)
+  if (ed) {
+    const sides: Record<string, string> = { r: 'ขวา', l: 'ซ้าย', b: 'ทั้ง 2 ข้าง', q: 'ข้างที่เป็น', '': '' }
+    const n = parseInt(ed[2])
+    return `หยอดตา${sides[ed[1]] ?? ''}ครั้งละ 1-2 หยด วันละ ${n} ครั้ง ${timeSched(n, !!ed[3])}`
+  }
+  // ear drops: ea[side][times]
+  const ea = lc.match(/^ea([rbl]?)(\d+)$/)
+  if (ea) {
+    const sides: Record<string, string> = { r: 'ขวา', l: 'ซ้าย', b: 'ทั้ง 2 ข้าง', '': 'ข้างที่เป็น' }
+    const n = parseInt(ea[2])
+    return `หยอดหู${sides[ea[1]] ?? 'ข้างที่เป็น'}ครั้งละ 1-2 หยด วันละ ${n} ครั้ง ${timeSched(n)}`
+  }
+  // eye ointment: ep[side][times]
+  const ep = lc.match(/^ep([rbl]?)(\d+)$/)
+  if (ep) {
+    const sides: Record<string, string> = { r: 'ขวา', l: 'ซ้าย', b: 'ทั้ง 2 ข้าง', '': 'ข้างที่เป็น' }
+    const n = parseInt(ep[2])
+    return `ป้ายตา${sides[ep[1]] ?? 'ข้างที่เป็น'} วันละ ${n} ครั้ง ${timeSched(n)}`
+  }
+  // topical mouth: apm[times]
+  const apm = lc.match(/^apm(\d+)$/)
+  if (apm) return `ป้ายแผลในปาก วันละ ${apm[1]} ครั้ง ${timeSched(parseInt(apm[1]))}`
+  // topical: ap[times]
+  const ap = lc.match(/^ap(\d+)$/)
+  if (ap) return `ทาบางๆ เฉพาะที่ วันละ ${ap[1]} ครั้ง ${timeSched(parseInt(ap[1]))}`
+  // nasal spray: ns[1|2][times]
+  const ns = lc.match(/^ns(\d)(\d+)$/)
+  if (ns) return `พ่นจมูก ${ns[1] === '1' ? '1 ข้าง' : '2 ข้าง'} วันละ ${ns[2]} เวลา ${timeSched(parseInt(ns[2]))}`
+  // inhaler: mdi[n]x[times]
+  const mdi = lc.match(/^mdi(\d+)x(\d+)$/)
+  if (mdi) return `พ่นยา ${mdi[1]} ที วันละ ${mdi[2]} ครั้ง ${timeSched(parseInt(mdi[2]))}`
+  // rectal
+  if (lc.startsWith('rect')) return 'เหน็บทวารตามคำแนะนำของแพทย์'
+  // vaginal: [qty][times]vgsp
+  const vg = lc.match(/^(\d+)(\d+)\s*vgsp?$/)
+  if (vg) return `สอดช่องคลอด ครั้งละ ${vg[1]} เม็ด วันละ ${vg[2]} ครั้ง ${parseInt(vg[2]) === 1 ? 'ก่อนนอน' : timeSched(parseInt(vg[2]))}`
+  // injections
+  if (lc.startsWith('im')) return `ฉีดเข้ากล้ามเนื้อ${lc.slice(2).trim() ? ' ' + lc.slice(2).trim() : ''}`
+  if (lc.startsWith('iv')) return `ฉีดเข้าเส้นเลือดดำ${lc.slice(2).trim() ? ' ' + lc.slice(2).trim() : ''}`
+  if (lc.startsWith('sc')) return `ฉีดเข้าใต้ผิวหนัง${lc.slice(2).trim() ? ' ' + lc.slice(2).trim() : ''}`
+  // prn/prs (as needed)
+  if (lc.includes('prn') || lc.includes('prs')) {
+    const m = lc.match(/^([\d.]+)/)
+    const q = m ? parseFloat(m[1]) : 1
+    const qText = q === 0.5 ? 'ครึ่ง' : String(q)
+    return `รับประทานครั้งละ ${qText} ช้อนชา เมื่อมีอาการ`
+  }
+  // oral: [qty][times][timing][ad?][form]
+  const oral = lc.match(/^([\d.]+)\s*(\d+)\s*(hs|h|a|p)?\s*(ad)?\s*(hs|h|a|p)?\s*(t|s|j|z)?$/)
+  if (oral) {
+    const qty = parseFloat(oral[1]), times = parseInt(oral[2])
+    const timing = (oral[3] || oral[5])?.toLowerCase()
+    const ad = !!oral[4], form = oral[6]?.toLowerCase()
+    const qText = qty === 0.5 ? 'ครึ่ง' : qty === 1.5 ? '1 ครึ่ง' : String(qty)
+    const fText: Record<string, string> = { t: 'เม็ด', s: 'ช้อนชา', j: 'ช้อนโต๊ะ', z: 'ซีซี' }
+    const unit = fText[form ?? ''] ?? 'เม็ด'
+    const isBed = timing === 'h' || timing === 'hs'
+    const tText: Record<string, string> = { a: 'ก่อนอาหาร', p: 'หลังอาหาร', h: 'ก่อนนอน', hs: 'ก่อนนอน' }
+    const when = tText[timing ?? ''] ?? ''
+    let out = `รับประทานครั้งละ ${qText} ${unit} วันละ ${times} ครั้ง`
+    if (isBed) { out += ' ก่อนนอน' }
+    else {
+      if (when) out += ` ${when}`
+      if (ad) out += ' วันเว้นวัน'
+      out += ` ${timeSched(times)}`
+    }
+    return out.replace(/\s+/g, ' ').trim()
+  }
+  return code
+}
 type Vitals = {
   bp_systolic: number | null; bp_diastolic: number | null; pulse: number | null
   rr: number | null; spo2: number | null; temperature: number | null; dtx: number | null
   drug_allergy: string | null; cc: string | null
 }
 
-const EMPTY_ITEM = (): RxItem => ({ drug_name: '', dosage: '', frequency: '', duration: '', instructions: '', quantity: '', price: '' })
+const EMPTY_ITEM = (): RxItem => ({ drug_name: '', dosage: '', frequency: '', duration: '', instructions: '', quantity: '' })
 
 const STATUS_LABEL: Record<string, string> = {
   pending: 'รอยืนยัน', confirmed: 'ยืนยันแล้ว', completed: 'เสร็จสิ้น', cancelled: 'ยกเลิก',
@@ -44,6 +134,49 @@ const GENDER: Record<string, string> = { male: 'ชาย', female: 'หญิ�
 function calcAge(dob: string | null) {
   if (!dob) return null
   return Math.floor((Date.now() - new Date(dob).getTime()) / (365.25 * 24 * 3600 * 1000))
+}
+
+function Mode2Input({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  const [code, setCode] = useState('')
+  const decoded = decodeMode2(code)
+  const isDecoded = code.trim() !== '' && decoded !== code.trim()
+
+  function apply(text: string) {
+    onChange(text)
+    setCode('')
+  }
+
+  return (
+    <div className="space-y-1">
+      <div className="flex gap-1.5 items-center">
+        <input
+          value={code}
+          onChange={e => {
+            const v = e.target.value
+            setCode(v)
+            const d = decodeMode2(v)
+            if (d !== v.trim()) onChange(d)   // live-apply decoded
+            else if (!v.trim()) onChange('')
+          }}
+          placeholder="Mode 2 (เช่น 11pt, edb4) หรือพิมพ์วิธีใช้โดยตรง"
+          className="flex-1 px-2.5 py-1.5 text-xs border border-[var(--border)] rounded-[8px] bg-[var(--card-bg)] focus:outline-none focus:border-[#1a8a6e]"
+        />
+        {code.trim() && (
+          <button type="button" onClick={() => setCode('')}
+            className="text-[10px] text-[var(--muted)] hover:text-red-400 px-1">✕</button>
+        )}
+      </div>
+      {isDecoded && (
+        <div className="text-[11px] px-2.5 py-1 bg-[#1a8a6e]/10 text-[#1a8a6e] rounded-[6px] cursor-pointer"
+          onClick={() => apply(decoded)}>
+          {'→ '}{decoded}
+        </div>
+      )}
+      {value && !isDecoded && (
+        <div className="text-[11px] text-[var(--muted)] px-1">{value}</div>
+      )}
+    </div>
+  )
 }
 
 function DrugAutocomplete({ value, onChange, onSelect }: {
@@ -174,7 +307,7 @@ export default function ConsultationPage() {
         setRxNotes(data.notes ?? '')
         const items = ((data as unknown as { hw_rx_items: (RxItem & { sort_order: number })[] }).hw_rx_items ?? [])
           .sort((a, b) => a.sort_order - b.sort_order)
-          .map(i => ({ ...i, quantity: String(i.quantity ?? ''), price: String((i as unknown as { price: number | null }).price ?? '') }))
+          .map(i => ({ ...i, quantity: String(i.quantity ?? '') }))
         if (items.length > 0) setRxItems(items)
       })
   }, [doctorId, apptId])
@@ -218,7 +351,7 @@ export default function ConsultationPage() {
             rx_id: existingRxId, drug_name: i.drug_name, dosage: i.dosage,
             frequency: i.frequency, duration: i.duration, instructions: i.instructions,
             quantity: i.quantity ? parseInt(i.quantity) : null,
-            price: i.price ? parseFloat(i.price) : null, sort_order: idx,
+            sort_order: idx,
           }))
         )
       }
@@ -234,7 +367,7 @@ export default function ConsultationPage() {
             rx_id: rxData.id, drug_name: i.drug_name, dosage: i.dosage,
             frequency: i.frequency, duration: i.duration, instructions: i.instructions,
             quantity: i.quantity ? parseInt(i.quantity) : null,
-            price: i.price ? parseFloat(i.price) : null, sort_order: idx,
+            sort_order: idx,
           }))
         )
       }
@@ -427,7 +560,6 @@ export default function ConsultationPage() {
                           frequency: drug.frequency ?? x.frequency,
                           duration: drug.duration ?? x.duration,
                           instructions: drug.instructions ?? x.instructions,
-                          price: drug.price != null ? String(drug.price) : x.price,
                         } : x))}
                       />
                       {rxItems.length > 1 && (
@@ -443,7 +575,6 @@ export default function ConsultationPage() {
                         { key: 'frequency', label: 'ความถี่' },
                         { key: 'duration', label: 'จำนวนวัน' },
                         { key: 'quantity', label: 'จำนวน' },
-                        { key: 'price', label: 'ราคา (บาท)' },
                       ].map(f => (
                         <input key={f.key}
                           value={(item as Record<string, string>)[f.key]}
@@ -452,10 +583,10 @@ export default function ConsultationPage() {
                           className="px-2.5 py-1.5 text-xs border border-[var(--border)] rounded-[8px] bg-[var(--card-bg)] focus:outline-none focus:border-[#1a8a6e]" />
                       ))}
                     </div>
-                    <input value={item.instructions}
-                      onChange={e => setRxItems(prev => prev.map((x, i) => i === idx ? { ...x, instructions: e.target.value } : x))}
-                      placeholder={'คำแนะนำเพิ่มเติม...'}
-                      className="w-full px-2.5 py-1.5 text-xs border border-[var(--border)] rounded-[8px] bg-[var(--card-bg)] focus:outline-none focus:border-[#1a8a6e]" />
+                    <Mode2Input
+                      value={item.instructions}
+                      onChange={v => setRxItems(prev => prev.map((x, i) => i === idx ? { ...x, instructions: v } : x))}
+                    />
                   </div>
                 ))}
               </div>

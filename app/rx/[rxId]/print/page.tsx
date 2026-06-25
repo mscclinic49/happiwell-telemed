@@ -10,8 +10,8 @@ const sb = createBrowserClient(
 )
 
 type RxItem = {
-  id: string; drug_name: string; dosage: string; frequency: string
-  duration: string; instructions: string; quantity: number | null; price: number | null; sort_order: number
+  id: string; drug_name: string; instructions: string | null
+  quantity: number | null; sort_order: number
 }
 type RxData = {
   id: string; diagnosis: string | null; notes: string | null; created_at: string
@@ -54,7 +54,7 @@ export default function RxPrintPage() {
   useEffect(() => {
     sb.from('hw_rx')
       .select(`id, diagnosis, notes, created_at,
-        hw_rx_items(id, drug_name, dosage, frequency, duration, instructions, quantity, price, sort_order),
+        hw_rx_items(id, drug_name, instructions, quantity, sort_order),
         hw_appointments(scheduled_at, symptoms,
           hw_users(id, full_name, first_name, last_name, title, date_of_birth, blood_type, allergies, hn, cid, insurance_type),
           hw_doctors(full_name, license_no)
@@ -114,7 +114,6 @@ export default function RxPrintPage() {
       if (imgH <= pageH) {
         pdf.addImage(imgData, 'JPEG', 0, 0, pageW, imgH)
       } else {
-        // multi-page
         while (y < imgH) {
           pdf.addImage(imgData, 'JPEG', 0, -y, pageW, imgH)
           y += pageH
@@ -147,7 +146,6 @@ export default function RxPrintPage() {
   const patientName = [patient?.title, patient?.first_name ?? patient?.full_name, patient?.last_name].filter(Boolean).join('')
   const allergy = vitals?.drug_allergy || patient?.allergies || ''
   const cc = vitals?.cc || appt?.symptoms || ''
-  const total = rx.hw_rx_items.reduce((s, i) => s + (i.price ?? 0), 0)
 
   return (
     <>
@@ -177,7 +175,6 @@ export default function RxPrintPage() {
         .rx-table th { border-bottom: 2px solid #000; padding: 4px 6px; text-align: left; font-weight: bold; }
         .rx-table td { border-bottom: 1px dashed #666; padding: 4px 6px; vertical-align: top; }
         .rx-table .num { text-align: center; }
-        .rx-table .price { text-align: right; }
       `}</style>
 
       {/* Screen-only controls */}
@@ -253,32 +250,22 @@ export default function RxPrintPage() {
               <th style={{ width: 28 }}>{'Rx'}</th>
               <th>{'ชื่อยา / วิธีรับประทาน'}</th>
               <th className="num" style={{ width: 60 }}>{'จำนวน'}</th>
-              <th className="price" style={{ width: 80 }}>{'รวมราคา'}</th>
             </tr>
           </thead>
           <tbody>
-            {rx.hw_rx_items.map((item, idx) => {
-              const sig = [item.dosage, item.frequency, item.duration].filter(Boolean).join(' ')
-              return (
-                <tr key={item.id}>
-                  <td className="num">{idx + 1}</td>
-                  <td>
-                    <div style={{ fontWeight: 'bold' }}>{item.drug_name}</div>
-                    {sig && <div style={{ fontSize: 11.5 }}>{sig}</div>}
-                    {item.instructions && <div style={{ fontSize: 11 }}>{item.instructions}</div>}
-                  </td>
-                  <td className="num">{item.quantity ?? '—'}</td>
-                  <td className="price">{item.price != null ? item.price.toFixed(2) : '—'}</td>
-                </tr>
-              )
-            })}
+            {rx.hw_rx_items.map((item, idx) => (
+              <tr key={item.id}>
+                <td className="num">{idx + 1}</td>
+                <td>
+                  <div style={{ fontWeight: 'bold' }}>{item.drug_name}</div>
+                  {item.instructions && <div style={{ fontSize: 11.5 }}>{item.instructions}</div>}
+                </td>
+                <td className="num">{item.quantity ?? '—'}</td>
+              </tr>
+            ))}
           </tbody>
         </table>
-
-        {/* Total */}
-        <div style={{ textAlign: 'right', borderTop: '2px solid #000', paddingTop: 6, marginTop: 4, fontSize: 14, fontWeight: 'bold' }}>
-          {'รวมมูลค่า'}{' '}{total > 0 ? `${total.toFixed(2)} บาท` : '— บาท'}
-        </div>
+        <div style={{ borderTop: '2px solid #000', marginTop: 4 }} />
 
         {/* Signatures + Diagnosis */}
         <div style={{ borderTop: '2px solid #000', marginTop: 10, paddingTop: 8, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 24px', fontSize: 12 }}>
@@ -302,15 +289,14 @@ export default function RxPrintPage() {
           </div>
         </div>
 
-        {/* CC + notes + footer */}
         {cc && (
           <div style={{ fontSize: 12, marginTop: 6 }}>
-            <b>{'อาการสำคัญ'}</b>{' '}{cc}
+            <b>{'อาการสำคัญ'}</b>{' '}{cc}
           </div>
         )}
         {rx.notes && (
           <div style={{ fontSize: 12, marginTop: 4 }}>
-            <b>{'หมายเหตุ'}</b>{' '}{rx.notes}
+            <b>{'หมายเหตุ'}</b>{' '}{rx.notes}
           </div>
         )}
         <div style={{ marginTop: 16, fontSize: 11, textAlign: 'right' }}>{'หน้า 1 / 1'}</div>
