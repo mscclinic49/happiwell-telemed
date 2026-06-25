@@ -138,43 +138,27 @@ function calcAge(dob: string | null) {
 
 function Mode2Input({ value, onChange }: { value: string; onChange: (v: string) => void }) {
   const [code, setCode] = useState('')
-  const decoded = decodeMode2(code)
-  const isDecoded = code.trim() !== '' && decoded !== code.trim()
-
-  function apply(text: string) {
-    onChange(text)
-    setCode('')
-  }
 
   return (
-    <div className="space-y-1">
-      <div className="flex gap-1.5 items-center">
-        <input
-          value={code}
-          onChange={e => {
-            const v = e.target.value
-            setCode(v)
-            const d = decodeMode2(v)
-            if (d !== v.trim()) onChange(d)   // live-apply decoded
-            else if (!v.trim()) onChange('')
-          }}
-          placeholder="Mode 2 (เช่น 11pt, edb4) หรือพิมพ์วิธีใช้โดยตรง"
-          className="flex-1 px-2.5 py-1.5 text-xs border border-[var(--border)] rounded-[8px] bg-[var(--card-bg)] focus:outline-none focus:border-[#1a8a6e]"
-        />
-        {code.trim() && (
-          <button type="button" onClick={() => setCode('')}
-            className="text-[10px] text-[var(--muted)] hover:text-red-400 px-1">✕</button>
-        )}
-      </div>
-      {isDecoded && (
-        <div className="text-[11px] px-2.5 py-1 bg-[#1a8a6e]/10 text-[#1a8a6e] rounded-[6px] cursor-pointer"
-          onClick={() => apply(decoded)}>
-          {'→ '}{decoded}
-        </div>
-      )}
-      {value && !isDecoded && (
-        <div className="text-[11px] text-[var(--muted)] px-1">{value}</div>
-      )}
+    <div className="flex gap-1.5">
+      <input
+        value={code}
+        onChange={e => {
+          const v = e.target.value
+          setCode(v)
+          const d = decodeMode2(v)
+          onChange(d !== v.trim() ? d : v)
+        }}
+        placeholder="Mode 2"
+        title="พิมพ์รหัส เช่น 11pt, 13pt, edb4, ap2"
+        className="w-24 flex-shrink-0 px-2.5 py-1.5 text-xs border border-[var(--border)] rounded-[8px] bg-[var(--card-bg)] focus:outline-none focus:border-[#1a8a6e] font-mono placeholder:font-sans"
+      />
+      <input
+        value={value}
+        onChange={e => onChange(e.target.value)}
+        placeholder="วิธีใช้ยา (แก้ไขได้)"
+        className="flex-1 px-2.5 py-1.5 text-xs border border-[var(--border)] rounded-[8px] bg-[var(--card-bg)] focus:outline-none focus:border-[#1a8a6e]"
+      />
     </div>
   )
 }
