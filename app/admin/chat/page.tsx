@@ -5,7 +5,7 @@ import { createBrowserClient } from '@supabase/ssr'
 import Image from 'next/image'
 import {
   IconMessageCircle2, IconSend, IconChevronLeft, IconCalendarClock,
-  IconUser, IconPhoto, IconHeart, IconCheck,
+  IconUser, IconPhoto, IconHeart, IconCheck, IconPlus, IconX, IconSearch,
 } from '@tabler/icons-react'
 import { useAuth } from '@/lib/auth-context'
 
@@ -124,6 +124,12 @@ export default function AdminChatPage() {
   const [sending, setSending]   = useState(false)
   const [uploading, setUploading] = useState(false)
 
+  // new chat modal
+  const [showNew, setShowNew]       = useState(false)
+  const [patSearch, setPatSearch]   = useState('')
+  const [patResults, setPatResults] = useState<{ id: string; first_name: string | null; last_name: string | null; phone: string | null }[]>([])
+  const [searching, setSearching]   = useState(false)
+
   // vitals panel
   const [patInfo, setPatInfo]   = useState<PatientInfo | null>(null)
   const [vitals, setVitals]     = useState<VitalsForm>(EMPTY_VITALS)
@@ -150,19 +156,16 @@ export default function AdminChatPage() {
     ])
     const userMap = Object.fromEntries((usersRes.data ?? []).map(u => [u.id, u]))
 
-    const patientSent = new Set<string>()
     const unreadMap: Record<string, number> = {}
     for (const msg of msgsRes.data ?? []) {
       const conv = convData.find(c => c.id === msg.conversation_id)
       if (!conv) continue
-      if (msg.sender_id === conv.patient_id) {
-        patientSent.add(msg.conversation_id)
-        if (!msg.read_at) unreadMap[msg.conversation_id] = (unreadMap[msg.conversation_id] ?? 0) + 1
+      if (msg.sender_id === conv.patient_id && !msg.read_at) {
+        unreadMap[msg.conversation_id] = (unreadMap[msg.conversation_id] ?? 0) + 1
       }
     }
     setConvs(
       convData
-        .filter(c => patientSent.has(c.id))
         .sort((a, b) => new Date(b.last_message_at).getTime() - new Date(a.last_message_at).getTime())
         .map(c => ({ ...c, hw_users: userMap[c.patient_id] ?? null, unreadCount: unreadMap[c.id] ?? 0 })) as Conversation[]
     )
@@ -284,6 +287,35 @@ export default function AdminChatPage() {
 
   function handleKey(e: React.KeyboardEvent) {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage() }
+  }
+
+  async function searchPatients(q: string) {
+    setPatSearch(q)
+    if (q.trim().length < 1) { setPatResults([]); return }
+    setSearching(true)
+    const { data } = await sb.from('hw_users')
+      .select('id, first_name, last_name, phone')
+      .or(`first_name.ilike.%${q}%,last_name.ilike.%${q}%,phone.ilike.%${q}%`)
+      .limit(10)
+    setPatResults(data ?? [])
+    setSearching(false)
+  }
+
+  async function startChat(patientId: string) {
+    const { data: existing } = await sb.from('hw_conversations')
+      .select('id').eq('patient_id', patientId).eq('type', 'support').maybeSingle()
+    let convId = existing?.id
+    if (!convId) {
+      const { data: created } = await sb.from('hw_conversations')
+        .insert({ type: 'support', patient_id: patientId, title: 'ติดต่อคลินิก' })
+        .select('id').single()
+      convId = created?.id
+    }
+    if (convId) {
+      setShowNew(false); setPatSearch(''); setPatResults([])
+      await loadConvs()
+      setActiveId(convId)
+    }
   }
 
   // ── Vitals Panel ───────────────────────────────────
@@ -469,13 +501,59 @@ export default function AdminChatPage() {
 
       {/* Conversation list */}
       <div className={`flex flex-col border-r border-[var(--border)] bg-[var(--card-bg)] flex-shrink-0 w-full md:w-64 ${activeId ? 'hidden md:flex' : 'flex'}`}>
-        <div className="px-5 py-4 border-b border-[var(--border)]">
+        <div className="px-4 py-3 border-b border-[var(--border)]">
           <div className="flex items-center gap-2">
-            <IconMessageCircle2 size={18} className="text-[#1a8a6e]" />
+            <IconMessageCircle2 size={18} className="text-[var(--hw-green)]" />
             <h1 className="text-base font-bold">{'กล่องข้อความ'}</h1>
-            <span className="ml-auto text-xs bg-[#1a8a6e] text-white px-2 py-0.5 rounded-full">{convs.length}</span>
+            <span className="ml-auto text-xs bg-[var(--hw-green)] text-white px-2 py-0.5 rounded-full">{convs.length}</span>
+            <button onClick={() => { setShowNew(true); setPatSearch(''); setPatResults([]) }}
+              title="เริ่มแชทใหม่"
+              className="w-7 h-7 rounded-full flex items-center justify-center text-white flex-shrink-0 hover:opacity-80 transition-opacity"
+              style={{ background: 'var(--hw-green)' }}>
+              <IconPlus size={15} />
+            </button>
           </div>
         </div>
+
+        {/* New chat modal */}
+        {showNew && (
+          <div className="absolute inset-0 z-50 flex items-start justify-center pt-16 px-4 bg-black/40" onClick={() => setShowNew(false)}>
+            <div className="bg-[var(--card-bg)] rounded-2xl shadow-xl w-full max-w-sm overflow-hidden" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center gap-2 px-4 py-3 border-b border-[var(--border)]">
+                <span className="font-semibold text-sm flex-1">{'เริ่มแชทกับคนไข้'}</span>
+                <button onClick={() => setShowNew(false)} className="text-[var(--muted)] hover:text-[var(--foreground)]">
+                  <IconX size={18} />
+                </button>
+              </div>
+              <div className="p-3">
+                <div className="relative">
+                  <IconSearch size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--muted)]" />
+                  <input
+                    autoFocus
+                    value={patSearch}
+                    onChange={e => searchPatients(e.target.value)}
+                    placeholder="ค้นหาชื่อ หรือเบอร์โทร..."
+                    className="w-full pl-8 pr-3 py-2 text-sm rounded-xl border border-[var(--border)] bg-[var(--background)] focus:outline-none focus:border-[var(--hw-green)]"
+                  />
+                </div>
+                <div className="mt-2 space-y-0.5 max-h-56 overflow-y-auto">
+                  {searching && <p className="text-xs text-center text-[var(--muted)] py-3">{'กำลังค้นหา...'}</p>}
+                  {!searching && patSearch && patResults.length === 0 && (
+                    <p className="text-xs text-center text-[var(--muted)] py-3">{'ไม่พบผลลัพธ์'}</p>
+                  )}
+                  {patResults.map(p => (
+                    <button key={p.id} onClick={() => startChat(p.id)}
+                      className="w-full text-left px-3 py-2.5 rounded-xl hover:bg-[var(--hw-mint-bg)] transition-colors">
+                      <div className="text-sm font-medium">{`${p.first_name ?? ''} ${p.last_name ?? ''}`.trim() || 'ไม่ระบุชื่อ'}</div>
+                      {p.phone && <div className="text-xs text-[var(--muted)]">{p.phone}</div>}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className="flex-1 overflow-y-auto">
           {convs.length === 0 && (
             <div className="text-center py-12 text-[var(--muted)] text-sm">{'ยังไม่มีการสนทนา'}</div>
