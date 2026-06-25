@@ -2,6 +2,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Kanit, Sarabun } from "next/font/google";
+import { createSupabaseServerClient } from "@/lib/supabase-server";
 
 const kanit = Kanit({
   subsets: ["thai", "latin"],
@@ -20,13 +21,23 @@ const sarabun = Sarabun({
 const LOGO_SRC = "/logo-hc.png";
 const BOOKING_HREF = "/doctors";
 
-export default function WelcomePage() {
+type Doctor = { id: string; full_name: string; specialty: string | null; rating: number | null; is_online: boolean | null }
+
+export default async function WelcomePage() {
+  const sb = await createSupabaseServerClient()
+  const { data } = await sb.from('hw_doctors')
+    .select('id, full_name, specialty, rating, is_online')
+    .eq('is_active', true)
+    .order('rating', { ascending: false })
+    .limit(4)
+  const doctors: Doctor[] = (data as Doctor[]) ?? []
+
   return (
     <div className={`hw-page ${kanit.variable} ${sarabun.variable}`}>
       <Nav />
       <Hero />
       <HowItWorks />
-      <Doctors />
+      <Doctors doctors={doctors} />
       <TrustStrip />
       <FAQ />
       <FinalCTA />
@@ -201,14 +212,13 @@ function HowItWorks() {
   );
 }
 
-const DOCTORS = [
-  { initials: "นพ.", name: "นพ. สมชาย เวชกุล", spec: "อายุรกรรมทั่วไป", rating: "4.9", slot: "ว่าง 10:00" },
-  { initials: "พญ.", name: "พญ. กานดา ใจเย็น", spec: "กุมารเวชศาสตร์", rating: "4.8", slot: "ว่าง 11:30" },
-  { initials: "นพ.", name: "นพ. ธีระ สุขสันต์", spec: "ผิวหนัง", rating: "4.9", slot: "ว่าง 13:00" },
-  { initials: "พญ.", name: "พญ. มาลี วงศ์สุข", spec: "สุขภาพจิต", rating: "5.0", slot: "ว่าง 14:30" },
-];
+function doctorInitials(name: string) {
+  if (name.startsWith('พญ.')) return 'พญ.'
+  if (name.startsWith('นพ.')) return 'นพ.'
+  return name.slice(0, 2)
+}
 
-function Doctors() {
+function Doctors({ doctors }: { doctors: Doctor[] }) {
   return (
     <section className="hw-section-white">
       <div className="hw-wrap">
@@ -218,20 +228,22 @@ function Doctors() {
           <p>ทุกท่านผ่านการยืนยันตัวตนและใบอนุญาตประกอบวิชาชีพ</p>
         </div>
         <div className="hw-doc-scroll">
-          {DOCTORS.map((d) => (
-            <div className="hw-doc-card" key={d.name}>
+          {doctors.map((d) => (
+            <Link href={`/doctors/${d.id}`} className="hw-doc-card" key={d.id}>
               <div className="hw-doc-photo">
-                <div className="hw-avatar">{d.initials}</div>
+                <div className="hw-avatar">{doctorInitials(d.full_name)}</div>
               </div>
               <div className="hw-doc-info">
-                <div className="hw-name">{d.name}</div>
-                <div className="hw-spec">{d.spec}</div>
+                <div className="hw-name">{d.full_name}</div>
+                <div className="hw-spec">{d.specialty ?? 'แพทย์ทั่วไป'}</div>
                 <div className="hw-meta">
-                  <span>⭐ {d.rating}</span>
-                  <span>{d.slot}</span>
+                  <span>{d.rating ? `⭐ ${d.rating.toFixed(1)}` : '—'}</span>
+                  <span style={{ color: d.is_online ? '#22c7a0' : undefined }}>
+                    {d.is_online ? '● ออนไลน์' : 'นัดหมาย'}
+                  </span>
                 </div>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       </div>
