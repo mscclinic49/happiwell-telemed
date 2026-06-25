@@ -30,70 +30,58 @@ type RxItem = { id?: string; drug_name: string; dosage: string; frequency: strin
 type DrugOption = { id: string; drug_name: string; strength: string | null; dosage: string | null; frequency: string | null; duration: string | null; instructions: string | null; unit: string | null; price: number | null }
 
 // ── Mode 2 decoder ──────────────────────────────────────────────────────────
+type DecodedRx = { dosage: string; frequency: string; instructions: string }
+
 function timeSched(n: number, bedtime = false): string {
   if (bedtime) return 'ก่อนนอน'
   return (['', 'เช้า', 'เช้า-เย็น', 'เช้า-กลางวัน-เย็น', 'เช้า-กลางวัน-เย็น-ก่อนนอน'] as const)[n] ?? `${n} ครั้ง/วัน`
 }
-function decodeMode2(raw: string): string {
+function decodeMode2(raw: string): DecodedRx | null {
   const code = raw.trim()
-  if (!code) return ''
+  if (!code) return null
   const lc = code.toLowerCase()
 
-  if (lc === 'troche') return 'อมครั้งละ 1 เม็ด ทุก 6 ชม. เวลามีอาการเจ็บคอ'
-  if (lc === 'drp') return 'จิบเวลาไอ'
+  if (lc === 'troche') return { dosage: '1 เม็ด', frequency: 'ทุก 6 ชม.', instructions: 'อม เวลามีอาการเจ็บคอ' }
+  if (lc === 'drp') return { dosage: '', frequency: '', instructions: 'จิบเวลาไอ' }
 
-  // edeq4
   const edeq = lc.match(/^edeq(\d+)$/)
-  if (edeq) return `หยอดตาข้างที่เป็น ครั้งละ 1-2 หยด ทุก ${edeq[1]} ชั่วโมง`
+  if (edeq) return { dosage: '1-2 หยด', frequency: `ทุก ${edeq[1]} ชั่วโมง`, instructions: 'หยอดตาข้างที่เป็น' }
 
-  // eye drops: ed[side][times][hs]
   const ed = lc.match(/^ed([rblq]?)(\d+)(hs|h)?$/)
   if (ed) {
     const sides: Record<string, string> = { r: 'ขวา', l: 'ซ้าย', b: 'ทั้ง 2 ข้าง', q: 'ข้างที่เป็น', '': '' }
-    const n = parseInt(ed[2])
-    return `หยอดตา${sides[ed[1]] ?? ''}ครั้งละ 1-2 หยด วันละ ${n} ครั้ง ${timeSched(n, !!ed[3])}`
+    const n = parseInt(ed[2]), hs = !!ed[3]
+    return { dosage: '1-2 หยด', frequency: `วันละ ${n} ครั้ง`, instructions: `หยอดตา${sides[ed[1]] ?? ''} ${hs ? 'ก่อนนอน' : timeSched(n)}`.trim() }
   }
-  // ear drops: ea[side][times]
   const ea = lc.match(/^ea([rbl]?)(\d+)$/)
   if (ea) {
     const sides: Record<string, string> = { r: 'ขวา', l: 'ซ้าย', b: 'ทั้ง 2 ข้าง', '': 'ข้างที่เป็น' }
     const n = parseInt(ea[2])
-    return `หยอดหู${sides[ea[1]] ?? 'ข้างที่เป็น'}ครั้งละ 1-2 หยด วันละ ${n} ครั้ง ${timeSched(n)}`
+    return { dosage: '1-2 หยด', frequency: `วันละ ${n} ครั้ง`, instructions: `หยอดหู${sides[ea[1]] ?? 'ข้างที่เป็น'} ${timeSched(n)}`.trim() }
   }
-  // eye ointment: ep[side][times]
   const ep = lc.match(/^ep([rbl]?)(\d+)$/)
   if (ep) {
     const sides: Record<string, string> = { r: 'ขวา', l: 'ซ้าย', b: 'ทั้ง 2 ข้าง', '': 'ข้างที่เป็น' }
     const n = parseInt(ep[2])
-    return `ป้ายตา${sides[ep[1]] ?? 'ข้างที่เป็น'} วันละ ${n} ครั้ง ${timeSched(n)}`
+    return { dosage: '', frequency: `วันละ ${n} ครั้ง`, instructions: `ป้ายตา${sides[ep[1]] ?? 'ข้างที่เป็น'} ${timeSched(n)}`.trim() }
   }
-  // topical mouth: apm[times]
   const apm = lc.match(/^apm(\d+)$/)
-  if (apm) return `ป้ายแผลในปาก วันละ ${apm[1]} ครั้ง ${timeSched(parseInt(apm[1]))}`
-  // topical: ap[times]
+  if (apm) return { dosage: '', frequency: `วันละ ${apm[1]} ครั้ง`, instructions: `ป้ายแผลในปาก ${timeSched(parseInt(apm[1]))}` }
   const ap = lc.match(/^ap(\d+)$/)
-  if (ap) return `ทาบางๆ เฉพาะที่ วันละ ${ap[1]} ครั้ง ${timeSched(parseInt(ap[1]))}`
-  // nasal spray: ns[1|2][times]
+  if (ap) return { dosage: '', frequency: `วันละ ${ap[1]} ครั้ง`, instructions: `ทาบางๆ เฉพาะที่ ${timeSched(parseInt(ap[1]))}` }
   const ns = lc.match(/^ns(\d)(\d+)$/)
-  if (ns) return `พ่นจมูก ${ns[1] === '1' ? '1 ข้าง' : '2 ข้าง'} วันละ ${ns[2]} เวลา ${timeSched(parseInt(ns[2]))}`
-  // inhaler: mdi[n]x[times]
+  if (ns) return { dosage: '', frequency: `วันละ ${ns[2]} เวลา`, instructions: `พ่นจมูก ${ns[1] === '1' ? '1 ข้าง' : '2 ข้าง'} ${timeSched(parseInt(ns[2]))}` }
   const mdi = lc.match(/^mdi(\d+)x(\d+)$/)
-  if (mdi) return `พ่นยา ${mdi[1]} ที วันละ ${mdi[2]} ครั้ง ${timeSched(parseInt(mdi[2]))}`
-  // rectal
-  if (lc.startsWith('rect')) return 'เหน็บทวารตามคำแนะนำของแพทย์'
-  // vaginal: [qty][times]vgsp
+  if (mdi) return { dosage: `${mdi[1]} ที`, frequency: `วันละ ${mdi[2]} ครั้ง`, instructions: timeSched(parseInt(mdi[2])) }
+  if (lc.startsWith('rect')) return { dosage: '1 เม็ด', frequency: 'ตามแพทย์สั่ง', instructions: 'เหน็บทวาร' }
   const vg = lc.match(/^(\d+)(\d+)\s*vgsp?$/)
-  if (vg) return `สอดช่องคลอด ครั้งละ ${vg[1]} เม็ด วันละ ${vg[2]} ครั้ง ${parseInt(vg[2]) === 1 ? 'ก่อนนอน' : timeSched(parseInt(vg[2]))}`
-  // injections
-  if (lc.startsWith('im')) return `ฉีดเข้ากล้ามเนื้อ${lc.slice(2).trim() ? ' ' + lc.slice(2).trim() : ''}`
-  if (lc.startsWith('iv')) return `ฉีดเข้าเส้นเลือดดำ${lc.slice(2).trim() ? ' ' + lc.slice(2).trim() : ''}`
-  if (lc.startsWith('sc')) return `ฉีดเข้าใต้ผิวหนัง${lc.slice(2).trim() ? ' ' + lc.slice(2).trim() : ''}`
-  // prn/prs (as needed)
+  if (vg) return { dosage: `${vg[1]} เม็ด`, frequency: `วันละ ${vg[2]} ครั้ง`, instructions: parseInt(vg[2]) === 1 ? 'สอดช่องคลอด ก่อนนอน' : `สอดช่องคลอด ${timeSched(parseInt(vg[2]))}` }
+  if (lc.startsWith('im')) return { dosage: '', frequency: '', instructions: `ฉีดเข้ากล้ามเนื้อ${lc.slice(2).trim() ? ' ' + lc.slice(2).trim() : ''}` }
+  if (lc.startsWith('iv')) return { dosage: '', frequency: '', instructions: `ฉีดเข้าเส้นเลือดดำ${lc.slice(2).trim() ? ' ' + lc.slice(2).trim() : ''}` }
+  if (lc.startsWith('sc')) return { dosage: '', frequency: '', instructions: `ฉีดเข้าใต้ผิวหนัง${lc.slice(2).trim() ? ' ' + lc.slice(2).trim() : ''}` }
   if (lc.includes('prn') || lc.includes('prs')) {
-    const m = lc.match(/^([\d.]+)/)
-    const q = m ? parseFloat(m[1]) : 1
-    const qText = q === 0.5 ? 'ครึ่ง' : String(q)
-    return `รับประทานครั้งละ ${qText} ช้อนชา เมื่อมีอาการ`
+    const m = lc.match(/^([\d.]+)/); const q = m ? parseFloat(m[1]) : 1
+    return { dosage: `${q === 0.5 ? 'ครึ่ง' : String(q)} ช้อนชา`, frequency: 'เมื่อมีอาการ', instructions: '' }
   }
   // oral: [qty][times][timing][ad?][form]
   const oral = lc.match(/^([\d.]+)\s*(\d+)\s*(hs|h|a|p)?\s*(ad)?\s*(hs|h|a|p)?\s*(t|s|j|z)?$/)
@@ -107,16 +95,10 @@ function decodeMode2(raw: string): string {
     const isBed = timing === 'h' || timing === 'hs'
     const tText: Record<string, string> = { a: 'ก่อนอาหาร', p: 'หลังอาหาร', h: 'ก่อนนอน', hs: 'ก่อนนอน' }
     const when = tText[timing ?? ''] ?? ''
-    let out = `รับประทานครั้งละ ${qText} ${unit} วันละ ${times} ครั้ง`
-    if (isBed) { out += ' ก่อนนอน' }
-    else {
-      if (when) out += ` ${when}`
-      if (ad) out += ' วันเว้นวัน'
-      out += ` ${timeSched(times)}`
-    }
-    return out.replace(/\s+/g, ' ').trim()
+    const instParts = isBed ? ['ก่อนนอน'] : [when, ad ? 'วันเว้นวัน' : '', timeSched(times)].filter(Boolean)
+    return { dosage: `${qText} ${unit}`, frequency: `วันละ ${times} ครั้ง`, instructions: instParts.join(' ').trim() }
   }
-  return code
+  return null
 }
 type Vitals = {
   bp_systolic: number | null; bp_diastolic: number | null; pulse: number | null
@@ -136,29 +118,39 @@ function calcAge(dob: string | null) {
   return Math.floor((Date.now() - new Date(dob).getTime()) / (365.25 * 24 * 3600 * 1000))
 }
 
-function Mode2Input({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+function Mode2Input({ onDecode }: { onDecode: (d: DecodedRx) => void }) {
   const [code, setCode] = useState('')
+  const preview = code.trim() ? decodeMode2(code) : null
+
+  function apply() { if (preview) { onDecode(preview); setCode('') } }
 
   return (
-    <div className="flex gap-1.5">
-      <input
-        value={code}
-        onChange={e => {
-          const v = e.target.value
-          setCode(v)
-          const d = decodeMode2(v)
-          onChange(d !== v.trim() ? d : v)
-        }}
-        placeholder="Mode 2"
-        title="พิมพ์รหัส เช่น 11pt, 13pt, edb4, ap2"
-        className="w-24 flex-shrink-0 px-2.5 py-1.5 text-xs border border-[var(--border)] rounded-[8px] bg-[var(--card-bg)] focus:outline-none focus:border-[#1a8a6e] font-mono placeholder:font-sans"
-      />
-      <input
-        value={value}
-        onChange={e => onChange(e.target.value)}
-        placeholder="วิธีใช้ยา (แก้ไขได้)"
-        className="flex-1 px-2.5 py-1.5 text-xs border border-[var(--border)] rounded-[8px] bg-[var(--card-bg)] focus:outline-none focus:border-[#1a8a6e]"
-      />
+    <div className="space-y-1">
+      <div className="relative">
+        <input
+          value={code}
+          onChange={e => {
+            const v = e.target.value
+            setCode(v)
+            const d = decodeMode2(v)
+            if (d) onDecode(d)
+          }}
+          onKeyDown={e => e.key === 'Enter' && apply()}
+          placeholder="Mode 2 (เช่น 11pt, 13pt, edb4...)"
+          className="w-full px-2.5 py-1.5 text-xs border border-dashed border-[#1a8a6e]/50 rounded-[8px] bg-[#1a8a6e]/5 focus:outline-none focus:border-[#1a8a6e] font-mono placeholder:font-sans placeholder:text-[var(--muted)]"
+        />
+        {code && (
+          <button type="button" onClick={() => setCode('')}
+            className="absolute right-2 top-1/2 -translate-y-1/2 text-[var(--muted)] hover:text-red-400 text-[10px]">✕</button>
+        )}
+      </div>
+      {preview && (
+        <div className="flex flex-wrap gap-x-3 gap-y-0.5 text-[10px] text-[#1a8a6e] px-0.5">
+          {preview.dosage && <span>{'ขนาด: '}{preview.dosage}</span>}
+          {preview.frequency && <span>{'ความถี่: '}{preview.frequency}</span>}
+          {preview.instructions && <span>{'วิธีใช้: '}{preview.instructions}</span>}
+        </div>
+      )}
     </div>
   )
 }
@@ -553,6 +545,14 @@ export default function ConsultationPage() {
                         </button>
                       )}
                     </div>
+                    <Mode2Input
+                      onDecode={d => setRxItems(prev => prev.map((x, i) => i === idx ? {
+                        ...x,
+                        dosage: d.dosage || x.dosage,
+                        frequency: d.frequency || x.frequency,
+                        instructions: d.instructions || x.instructions,
+                      } : x))}
+                    />
                     <div className="grid grid-cols-2 gap-2">
                       {[
                         { key: 'dosage', label: 'ขนาด' },
@@ -567,9 +567,11 @@ export default function ConsultationPage() {
                           className="px-2.5 py-1.5 text-xs border border-[var(--border)] rounded-[8px] bg-[var(--card-bg)] focus:outline-none focus:border-[#1a8a6e]" />
                       ))}
                     </div>
-                    <Mode2Input
+                    <input
                       value={item.instructions}
-                      onChange={v => setRxItems(prev => prev.map((x, i) => i === idx ? { ...x, instructions: v } : x))}
+                      onChange={e => setRxItems(prev => prev.map((x, i) => i === idx ? { ...x, instructions: e.target.value } : x))}
+                      placeholder="วิธีใช้ยา / คำแนะนำ"
+                      className="w-full px-2.5 py-1.5 text-xs border border-[var(--border)] rounded-[8px] bg-[var(--card-bg)] focus:outline-none focus:border-[#1a8a6e]"
                     />
                   </div>
                 ))}
