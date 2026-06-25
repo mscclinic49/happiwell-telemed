@@ -63,16 +63,29 @@
   --muted:         #9CA3AF;
 }
 
-/* ── Dark mode: override hardcoded status colors ─────────── */
+/*
+ * ── Dark mode: override hardcoded status colors ───────────────────────────
+ * หมายเหตุ: ถ้าเพิ่มสี Tailwind ใหม่ (bg-X-50, text-X-600 ฯลฯ) ใน
+ * component ไหน ต้องเพิ่ม .dark override ที่นี่ด้วยทุกครั้ง มิฉะนั้นจะ
+ * อ่านไม่ออกใน Dark Mode — ทางที่ดีกว่าคือใช้ตัวแปร --hw-* ที่มี dark
+ * mode รองรับอยู่แล้วแทนสี Tailwind ดิบๆ ถ้าเป็นไปได้
+ */
+
 /* text */
 .dark .text-yellow-600,
-.dark .text-yellow-700 { color: #FACC15; }
+.dark .text-yellow-700  { color: #FACC15; }
 .dark .text-red-600,
-.dark .text-red-700    { color: #F87171; }
+.dark .text-red-700     { color: #F87171; }
 .dark .text-blue-600,
-.dark .text-blue-700   { color: #60A5FA; }
+.dark .text-blue-700    { color: #60A5FA; }
 .dark .text-green-600,
-.dark .text-green-700  { color: #4ADE80; }
+.dark .text-green-700   { color: #4ADE80; }
+.dark .text-purple-600,
+.dark .text-purple-700  { color: #C084FC; }
+.dark .text-emerald-500,
+.dark .text-emerald-600 { color: #34D399; }
+.dark .text-orange-400,
+.dark .text-orange-500  { color: #FB923C; }
 
 /* badge / card backgrounds */
 .dark .bg-yellow-50,
@@ -83,6 +96,14 @@
 .dark .bg-blue-100     { background-color: rgb(30 58 138 / 0.20); }
 .dark .bg-green-50,
 .dark .bg-green-100    { background-color: rgb(20 83 45 / 0.20); }
+.dark .bg-purple-50,
+.dark .bg-purple-100   { background-color: rgb(88 28 135 / 0.20); }
+.dark .bg-emerald-50,
+.dark .bg-emerald-100  { background-color: rgb(6 78 59 / 0.20); }
+.dark .bg-orange-50,
+.dark .bg-orange-100   { background-color: rgb(124 45 18 / 0.20); }
+.dark .bg-gray-50,
+.dark .bg-gray-100     { background-color: var(--card-elevated); }
 
 /* text that must contrast against dark card backgrounds */
 .dark .text-gray-900,
