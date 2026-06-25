@@ -59,6 +59,7 @@ export default function Dashboard() {
   const router = useRouter()
   const [firstName, setFirstName] = useState('')
   const [upcoming, setUpcoming] = useState<Appointment[]>([])
+  const [activeRooms, setActiveRooms] = useState<Set<string>>(new Set())
   const [latestRx, setLatestRx] = useState<Prescription | null>(null)
   const [vitals, setVitals] = useState<Vitals>({ lastBp: null, prevBpSystolic: null, lastDtx: null, prevDtx: null, weight: null, height: null })
   const [loadingData, setLoadingData] = useState(true)
@@ -84,7 +85,18 @@ export default function Dashboard() {
 
       const profile = profileRes.data as { first_name: string | null; weight: number | null; height: number | null } | null
       if (profile?.first_name) setFirstName(profile.first_name)
-      setUpcoming((apptRes.data as unknown as Appointment[]) || [])
+      const appts = (apptRes.data as unknown as Appointment[]) || []
+      setUpcoming(appts)
+
+      // fetch active rooms for all appointments
+      if (appts.length > 0) {
+        const { data: rooms } = await supabase
+          .from('hw_consultations')
+          .select('appointment_id')
+          .in('appointment_id', appts.map(a => a.id))
+          .not('room_url', 'is', null)
+        if (rooms?.length) setActiveRooms(new Set(rooms.map(r => r.appointment_id)))
+      }
       if (rxRes.data) setLatestRx(rxRes.data as unknown as Prescription)
 
       const dtx = (dtxRes.data ?? []) as { value: number }[]
@@ -97,6 +109,15 @@ export default function Dashboard() {
       setLoadingData(false)
     }
     load()
+
+    // Realtime: when doctor opens a room, update immediately
+    const ch = supabase.channel('patient-consult-watch')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'hw_consultations' }, payload => {
+        const apptId = (payload.new as { appointment_id: string }).appointment_id
+        setActiveRooms(prev => new Set([...prev, apptId]))
+      })
+      .subscribe()
+    return () => { supabase.removeChannel(ch) }
   }, [user, authLoading, router])
 
   if (authLoading || loadingData) {
@@ -241,9 +262,17 @@ export default function Dashboard() {
             {upcoming.map(a => {
               const dt = new Date(a.scheduled_at)
               const cfg = APPT_CFG[a.status] ?? APPT_CFG.pending
-              const isNow = Math.abs(dt.getTime() - Date.now()) < 30 * 60000
+              const roomReady = activeRooms.has(a.id)
+              const canJoin = roomReady || a.status === 'confirmed' || a.status === 'pending'
               return (
-                <div key={a.id} className="bg-[var(--card-bg)] border border-[var(--border)] rounded-[14px] p-4">
+                <div key={a.id}
+                  className={`border rounded-[14px] p-4 ${roomReady ? 'border-[var(--hw-green)] bg-[var(--hw-mint-bg)]' : 'bg-[var(--card-bg)] border-[var(--border)]'}`}>
+                  {roomReady && (
+                    <div className="flex items-center gap-1.5 mb-2">
+                      <span className="inline-block w-2 h-2 rounded-full bg-[var(--hw-green)] animate-pulse" />
+                      <span className="text-xs font-semibold text-[var(--hw-green)]">{'แพทย์พร้อมให้บริการแล้ว'}</span>
+                    </div>
+                  )}
                   <div className="flex items-start justify-between gap-2 mb-3">
                     <div>
                       <div className="font-semibold text-sm">{a.hw_doctors?.full_name}</div>
@@ -256,11 +285,11 @@ export default function Dashboard() {
                     <span className={`text-xs px-2.5 py-1 rounded-full font-medium flex-shrink-0 ${cfg.color}`}>{cfg.label}</span>
                   </div>
                   {a.symptoms && <p className="text-xs text-[var(--muted)] mb-3 truncate">{'อาการ: '}{a.symptoms}</p>}
-                  {(a.status === 'confirmed' || isNow) && (
+                  {canJoin && a.status !== 'completed' && (
                     <Link href={`/consult/${a.id}`}
-                      className="flex items-center justify-center gap-2 w-full py-2.5 rounded-full text-sm font-semibold text-white"
-                      style={{ background: 'var(--hw-green)' }}>
-                      <IconVideo size={16} />{'เข้าห้องปรึกษา'}
+                      className="flex items-center justify-center gap-2 w-full py-2.5 rounded-full text-sm font-semibold text-white transition-all"
+                      style={{ background: roomReady ? 'var(--hw-green)' : '#6B7280' }}>
+                      <IconVideo size={16} />{roomReady ? 'เข้าห้องปรึกษาเลย!' : 'เข้าห้องปรึกษา'}
                     </Link>
                   )}
                 </div>
