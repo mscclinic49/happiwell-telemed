@@ -253,14 +253,14 @@ function useUnreadChat(userId: string | undefined, isViewingChat: boolean) {
   const [unread, setUnread] = useState(0)
 
   useEffect(() => {
-    if (isViewingChat) { setUnread(0); return }
     if (!userId || !sbChat) return
     const check = async () => {
       const { count } = await sbChat
         .from('hw_messages')
-        .select('id', { count: 'exact', head: true })
+        .select('id, hw_conversations!inner(patient_id)', { count: 'exact', head: true })
         .neq('sender_id', userId)
         .is('read_at', null)
+        .eq('hw_conversations.patient_id', userId)
       setUnread(count ?? 0)
     }
     check()
@@ -268,8 +268,9 @@ function useUnreadChat(userId: string | undefined, isViewingChat: boolean) {
       .on('postgres_changes', { event: '*', schema: 'public', table: 'hw_messages' }, check)
       .subscribe()
     return () => { sbChat.removeChannel(ch) }
-  }, [userId, isViewingChat])
-  return unread
+  }, [userId])
+
+  return isViewingChat ? 0 : unread
 }
 
 export function AppShell({ children }: { children: React.ReactNode }) {
