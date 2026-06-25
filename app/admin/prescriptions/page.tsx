@@ -27,6 +27,7 @@ type Appt = {
 
 function PrescriptionButtons({ appt, onUploaded }: { appt: Appt; onUploaded: () => void }) {
   const { user } = useAuth()
+  const router = useRouter()
   const fileRef = useRef<HTMLInputElement>(null)
   const [uploading, setUploading] = useState(false)
   const [viewing, setViewing] = useState(false)
@@ -94,16 +95,25 @@ function PrescriptionButtons({ appt, onUploaded }: { appt: Appt; onUploaded: () 
           <IconEye size={12} />{'ดูใบสั่งยา'}
         </button>
 
-        {/* แก้ไขใบสั่งยา */}
-        <button
-          onClick={() => fileRef.current?.click()}
-          disabled={!hasAny || uploading}
-          title={!hasAny ? 'ยังไม่มีใบสั่งยา' : 'อัพโหลดใบสั่งยาใหม่'}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors whitespace-nowrap
-            disabled:opacity-40 disabled:cursor-not-allowed
-            enabled:border-[var(--border)] enabled:text-[var(--muted)] enabled:hover:border-[var(--hw-green-dk)]/40 enabled:hover:text-[var(--foreground)]">
-          <IconEdit size={12} />{'แก้ไขใบสั่งยา'}
-        </button>
+        {/* แก้ไขใบสั่งยา — digital Rx ไปหน้า edit, scanned ไปอัพโหลด */}
+        {hasRx ? (
+          <button
+            onClick={() => router.push(`/admin/rx/${appt.hw_rx[0].id}/edit`)}
+            title="แก้ไขรายละเอียดยา"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border border-[var(--border)] text-[var(--muted)] hover:border-[var(--hw-green-dk)]/40 hover:text-[var(--foreground)] transition-colors whitespace-nowrap">
+            <IconEdit size={12} />{'แก้ไขใบสั่งยา'}
+          </button>
+        ) : (
+          <button
+            onClick={() => fileRef.current?.click()}
+            disabled={!hasFile || uploading}
+            title={!hasFile ? 'ยังไม่มีใบสั่งยา' : 'อัพโหลดใบสั่งยาใหม่'}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors whitespace-nowrap
+              disabled:opacity-40 disabled:cursor-not-allowed
+              enabled:border-[var(--border)] enabled:text-[var(--muted)] enabled:hover:border-[var(--hw-green-dk)]/40 enabled:hover:text-[var(--foreground)]">
+            <IconEdit size={12} />{'แก้ไขใบสั่งยา'}
+          </button>
+        )}
 
         {/* อัพโหลด */}
         <button

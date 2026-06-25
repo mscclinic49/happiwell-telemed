@@ -24,7 +24,7 @@ type RxDrug = {
   duration: string | null; instructions: string | null; quantity: number | null
 }
 type Prescription = {
-  id: string; issued_at: string | null; diagnosis: string | null
+  id: string; created_at: string | null; diagnosis: string | null
   hw_rx_items: RxDrug[]
   hw_doctors: { full_name: string | null } | null
 }
@@ -53,10 +53,10 @@ export default function MedsPage() {
       sb.from('hw_medications').select('id,name,status').eq('user_id', user.id).eq('status', 'pending'),
       sb.from('hw_vaccines').select('id,vaccine_name,dose_number,vaccinated_date,hospital,next_due_date,status').eq('user_id', user.id).eq('status', 'approved').order('vaccinated_date', { ascending: false }),
       sb.from('hw_vaccines').select('id,vaccine_name,status').eq('user_id', user.id).eq('status', 'pending'),
-      sb.from('hw_prescriptions')
-        .select('id,issued_at,diagnosis,hw_rx_items(id,drug_name,dosage,frequency,duration,instructions,quantity),hw_doctors(full_name)')
+      sb.from('hw_rx')
+        .select('id,created_at,diagnosis,hw_rx_items(id,drug_name,dosage,frequency,duration,instructions,quantity),hw_doctors(full_name)')
         .eq('patient_id', user.id)
-        .order('issued_at', { ascending: false })
+        .order('created_at', { ascending: false })
         .limit(10),
     ]).then(([m, mp, v, vp, rx]) => {
       setMeds((m.data ?? []) as Medication[])
@@ -118,9 +118,9 @@ export default function MedsPage() {
                           {rx.hw_doctors?.full_name && (
                             <p className="text-xs font-medium text-[var(--hw-green-dk)]">{rx.hw_doctors.full_name}</p>
                           )}
-                          {rx.issued_at && (
+                          {rx.created_at && (
                             <p className="text-xs text-[var(--muted)]">
-                              {new Date(rx.issued_at).toLocaleDateString('th-TH', { dateStyle: 'medium' })}
+                              {new Date(rx.created_at).toLocaleDateString('th-TH', { dateStyle: 'medium' })}
                             </p>
                           )}
                         </div>
