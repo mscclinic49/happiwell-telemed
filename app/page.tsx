@@ -66,7 +66,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     if (authLoading) return
-    if (!user) { router.push('/login'); return }
+    if (!user) { router.push('/welcome'); return }
 
     async function load() {
       const [profileRes, apptRes, rxRes, dtxRes, bpRes] = await Promise.all([
