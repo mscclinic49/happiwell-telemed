@@ -139,6 +139,11 @@ export default function RxPrintPage() {
   return (
     <>
       <style>{`
+        html, body {
+          color-scheme: light !important;
+          background: #e5e7eb !important;
+          color: #000 !important;
+        }
         @media print {
           @page { size: A4; margin: 12mm; }
           body * { visibility: hidden !important; }
@@ -147,12 +152,11 @@ export default function RxPrintPage() {
           .no-print { display: none !important; }
         }
         @media screen {
-          body { background: #e5e7eb; }
-          #rx-print { width: 210mm; min-height: 297mm; margin: 20px auto; background: #fff; padding: 16mm; box-shadow: 0 4px 24px rgba(0,0,0,.15); }
+          #rx-print { width: 210mm; min-height: 297mm; margin: 20px auto; padding: 16mm; box-shadow: 0 4px 24px rgba(0,0,0,.15); }
         }
         #rx-print, #rx-print * {
           color: #000 !important;
-          background-color: transparent;
+          background-color: transparent !important;
           font-family: 'Sarabun', 'TH Sarabun New', 'Noto Sans Thai', sans-serif;
         }
         #rx-print { background-color: #fff !important; }
