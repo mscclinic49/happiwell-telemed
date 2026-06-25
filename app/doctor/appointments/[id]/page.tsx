@@ -399,11 +399,20 @@ export default function ConsultationPage() {
             </div>
           </div>
 
-          <div className="px-4 pb-4 flex-shrink-0">
+          <div className="px-4 pb-4 flex-shrink-0 space-y-2">
             <button onClick={saveRx} disabled={savingRx}
               className="w-full py-3 rounded-full font-semibold text-white text-sm flex items-center justify-center gap-2 hover:opacity-90 disabled:opacity-50 transition-opacity"
               style={{ background: '#1a8a6e' }}>
               {rxSaved ? <><IconCheck size={16} />{'บันทึกแล้ว'}</> : savingRx ? 'กำลังบันทึก...' : <><IconPill size={16} />{'บันทึกใบสั่งยา'}</>}
+            </button>
+            <button
+              onClick={async () => {
+                await updateStatus('completed')
+                router.push('/doctor/appointments')
+              }}
+              disabled={updatingStatus}
+              className="w-full py-3 rounded-full font-semibold text-sm flex items-center justify-center gap-2 border-2 border-[#1a8a6e] text-[#1a8a6e] hover:bg-[#1a8a6e] hover:text-white disabled:opacity-50 transition-all">
+              <IconCheck size={16} />{'เสร็จสิ้นการรักษา'}
             </button>
           </div>
         </div>
