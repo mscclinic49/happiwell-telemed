@@ -18,7 +18,7 @@ type Lab      = { id: string; test_name: string; value: number | null; unit: str
 type Visit    = { id: string; hospital: string; visit_date: string; doctor: string | null; chief_complaint: string | null; diagnosis: string | null; status: string }
 type Pending  = { id: string }
 
-type AForm = 'dtx' | 'bp' | 'med' | 'vaccine' | 'lab' | 'visit' | null
+type AForm = 'dtx' | 'bp' | 'med' | 'vaccine' | 'lab' | null
 
 const MEAL: Record<string, string> = { fasting: 'อดอาหาร', before_meal: 'ก่อนอาหาร', after_meal: 'หลังอาหาร', bedtime: 'ก่อนนอน' }
 const dtxSt = (v: number) => v < 70 ? { l:'ต่ำ',   c:'text-[var(--hw-blue)]',    b:'bg-blue-50',               bd:'bg-blue-100 text-[var(--hw-blue)]'    }
@@ -105,7 +105,6 @@ export default function HealthBookDashboard() {
   const [labF,  setLabF]  = useState({ date: today0(), hospital: '', test: '', value: '', unit: '', status: 'normal' as 'normal'|'warning'|'critical' })
   const [labFile, setLabFile] = useState<File | null>(null)
   const [labMode, setLabMode] = useState<'file'|'manual'>('file')
-  const [visF,  setVisF]  = useState({ date: today0(), hospital: '', doctor: '', complaint: '', diagnosis: '', treatment: '' })
   const [vitalSnap, setVitalSnap] = useState<VitalSnap | null>(null)
 
   useEffect(() => {
@@ -195,13 +194,6 @@ export default function HealthBookDashboard() {
     setLabF({ date: today0(), hospital: '', test: '', value: '', unit: '', status: 'normal' })
     setAForm(null); setSaving(false)
   }
-  async function svis() {
-    if (!visF.hospital || !user) return; setSaving(true)
-    const { data } = await sb.from('hw_medical_history').insert({ user_id: user.id, visit_date: visF.date, hospital: visF.hospital, doctor: visF.doctor || null, chief_complaint: visF.complaint || null, diagnosis: visF.diagnosis || null, treatment: visF.treatment || null, status: 'pending', source: 'patient' }).select('id,hospital,visit_date,doctor,chief_complaint,diagnosis,status').single()
-    if (data) setVisitList(p => [data as Visit, ...p])
-    setVisF({ date: today0(), hospital: '', doctor: '', complaint: '', diagnosis: '', treatment: '' }); setAForm(null); setSaving(false)
-  }
-
   if (authLoading || loading) return (
     <div className="h-full flex items-center justify-center">
       <div className="w-8 h-8 border-4 border-[var(--hw-green)] border-t-transparent rounded-full animate-spin"/>
@@ -477,37 +469,23 @@ export default function HealthBookDashboard() {
         ) : labPend === 0 && <EmptyCard emoji="🔬" text="ยังไม่มีผลตรวจ"/>}
       </section>
 
-      {/* ── ประวัติการรักษา ── */}
+      {/* ── ประวัติการรักษา (read-only, auto from clinic) ── */}
       <section>
-        <SectionHead title="ประวัติการรักษา" href="/health-book/record" fKey="visit" label="บันทึก" color="#7c3aed" active={aForm} toggle={toggle}/>
-        {aForm === 'visit' && (
-          <div className="bg-[var(--card-bg)] border border-[var(--border)] rounded-[14px] p-4 mb-3 space-y-3">
-            <p className="text-xs text-purple-600">⏳ รอการยืนยันจากคลินิกก่อนแสดงผล</p>
-            <div><label className={lc}>วันที่พบแพทย์ *</label><input type="date" value={visF.date} onChange={e => setVisF({...visF, date: e.target.value})} className={ic}/></div>
-            <div><label className={lc}>โรงพยาบาล/คลินิก *</label><input value={visF.hospital} onChange={e => setVisF({...visF, hospital: e.target.value})} placeholder="เช่น HappiWell Clinic" className={ic}/></div>
-            <div><label className={lc}>แพทย์ผู้รักษา</label><input value={visF.doctor} onChange={e => setVisF({...visF, doctor: e.target.value})} placeholder="เช่น นพ.สมชาย" className={ic}/></div>
-            <div><label className={lc}>อาการที่มา</label><input value={visF.complaint} onChange={e => setVisF({...visF, complaint: e.target.value})} placeholder="เช่น ปวดหัว มีไข้" className={ic}/></div>
-            <div><label className={lc}>การวินิจฉัย</label><input value={visF.diagnosis} onChange={e => setVisF({...visF, diagnosis: e.target.value})} className={ic}/></div>
-            <div className="flex gap-3">
-              <button onClick={() => setAForm(null)} className={cancelBtnClass}>ยกเลิก</button>
-              <button onClick={svis} disabled={saving} className={saveBtnClass} style={{ background: '#7c3aed' }}>{saving ? 'กำลังบันทึก...' : 'ส่งเพื่อยืนยัน'}</button>
-            </div>
-          </div>
-        )}
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="font-semibold text-sm">{'ประวัติการรักษา'}</h2>
+          <Link href="/history" className="flex items-center text-xs text-[var(--muted)] hover:text-[var(--hw-green)]">{'ทั้งหมด'}<IconChevronRight size={12}/></Link>
+        </div>
         {visitList.length > 0 ? (
           <div className="space-y-2">
             {visitList.map(v => (
               <div key={v.id} className="bg-[var(--card-bg)] border border-[var(--border)] rounded-[14px] px-4 py-3">
                 <div className="flex items-center justify-between gap-2">
                   <p className="text-sm font-semibold truncate">{v.hospital}</p>
-                  <div className="flex items-center gap-2 flex-shrink-0">
-                    {v.status === 'pending' && <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full">รอยืนยัน</span>}
-                    <span className="text-xs text-[var(--muted)]">{new Date(v.visit_date).toLocaleDateString('th-TH', { dateStyle: 'medium' })}</span>
-                  </div>
+                  <span className="text-xs text-[var(--muted)] flex-shrink-0">{new Date(v.visit_date).toLocaleDateString('th-TH', { dateStyle: 'medium' })}</span>
                 </div>
-                {v.doctor && <p className="text-xs text-[var(--muted)] mt-0.5">👨‍⚕️ {v.doctor}</p>}
+                {v.doctor && <p className="text-xs text-[var(--muted)] mt-0.5">{'👨‍⚕️ '}{v.doctor}</p>}
                 {v.chief_complaint && <p className="text-xs text-[var(--muted)] mt-0.5">{v.chief_complaint}</p>}
-                {v.diagnosis && <p className="text-xs text-[var(--muted)] mt-0.5">🔍 {v.diagnosis}</p>}
+                {v.diagnosis && <p className="text-xs text-[var(--muted)] mt-0.5">{'🔍 '}{v.diagnosis}</p>}
               </div>
             ))}
           </div>
