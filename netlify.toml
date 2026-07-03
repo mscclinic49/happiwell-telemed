@@ -1,5 +1,5 @@
 [build]
-  command = "next build --webpack"
+  command = "next build --webpack && node scripts/patch-netlify-manifest.js"
   publish  = ".next"
 
 [build.environment]
