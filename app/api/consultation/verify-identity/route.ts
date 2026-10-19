@@ -32,13 +32,19 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   }
 
-  const { error } = await service
+  // ต้องมีห้อง (hw_consultations) ก่อน — ฝั่งหมอจะเรียก /api/video/create-room ก่อนเสมอ
+  const { data: rows, error } = await service
     .from('hw_consultations')
     .update({
       identity_verified_at: new Date().toISOString(),
       verified_by: user.id,
     })
     .eq('appointment_id', appointmentId)
+    .select('id')
+
+  if (!error && (!rows || rows.length === 0)) {
+    return NextResponse.json({ error: 'ยังไม่ได้เปิดห้องวิดีโอ' }, { status: 409 })
+  }
 
   if (error) {
     console.error('verify-identity error:', error)

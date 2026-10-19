@@ -224,6 +224,8 @@ export default function ConsultationPage() {
 
   // Video call
   const [roomUrl, setRoomUrl] = useState<string | null>(null)
+  const [roomExists, setRoomExists] = useState(false)
+  const [identityConfirmed, setIdentityConfirmed] = useState(false)
   const [startingCall, setStartingCall] = useState(false)
   const [callError, setCallError] = useState<string | null>(null)
 
@@ -266,8 +268,13 @@ export default function ConsultationPage() {
   // Load existing room URL
   useEffect(() => {
     if (!apptId) return
-    sb.from('hw_consultations').select('room_url').eq('appointment_id', apptId).maybeSingle()
-      .then(({ data }) => { if (data?.room_url) setRoomUrl(data.room_url) })
+    // ห้องเป็น private — ไม่ฝัง URL ตรง ๆ แต่จำไว้ว่าเคยเปิดห้องแล้ว (กดเพื่อรับ token ใหม่)
+    sb.from('hw_consultations').select('room_url, identity_verified_at').eq('appointment_id', apptId)
+      .order('created_at', { ascending: false }).limit(1).maybeSingle()
+      .then(({ data }) => {
+        if (data?.room_url) setRoomExists(true)
+        if (data?.identity_verified_at) setIdentityConfirmed(true)
+      })
   }, [apptId])
 
   // Load existing Rx
@@ -289,6 +296,7 @@ export default function ConsultationPage() {
   }, [doctorId, apptId])
 
   async function startCall() {
+    if (!identityConfirmed) { setCallError('กรุณายืนยันตัวตนคนไข้ก่อนเริ่มวีดีโอคอล'); return }
     setStartingCall(true)
     setCallError(null)
     try {
@@ -299,7 +307,23 @@ export default function ConsultationPage() {
       })
       const json = await res.json()
       if (!res.ok) throw new Error(json.error ?? 'เกิดข้อผิดพลาด')
-      setRoomUrl(json.roomUrl)
+
+      // บันทึกว่าแพทย์ยืนยันตัวตนคนไข้แล้ว (หลังมีห้อง)
+      const vr = await fetch('/api/consultation/verify-identity', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ appointmentId: apptId }),
+      })
+      if (!vr.ok) { const d = await vr.json().catch(() => ({})); throw new Error(d.error ?? 'บันทึกการยืนยันตัวตนไม่สำเร็จ') }
+
+      // ไม่ต้องรอ — ให้สถานะเป็น "ยืนยันแล้ว" เมื่อเริ่มคอล
+      if (appt?.status === 'pending') {
+        sb.from('hw_appointments').update({ status: 'confirmed' }).eq('id', apptId).then(() => {})
+        setAppt(prev => prev ? { ...prev, status: 'confirmed' } : prev)
+      }
+
+      setRoomExists(true)
+      setRoomUrl(`${json.roomUrl}?t=${json.token}`)
     } catch (e) {
       setCallError(e instanceof Error ? e.message : 'เกิดข้อผิดพลาด')
     }
@@ -497,14 +521,20 @@ export default function ConsultationPage() {
                 <div className="font-semibold text-[var(--foreground)] mb-1">{'วีดีโอคอล'}</div>
                 <div className="text-sm text-[var(--muted)]">{'กดเริ่มเพื่อเปิดห้องวีดีโอกับคนไข้'}</div>
               </div>
+              <label className="flex items-start gap-3 max-w-sm text-sm cursor-pointer bg-[var(--card-bg)] border border-[var(--border)] rounded-xl p-3">
+                <input type="checkbox" checked={identityConfirmed}
+                  onChange={e => setIdentityConfirmed(e.target.checked)}
+                  className="mt-0.5 w-4 h-4 flex-shrink-0" />
+                <span>{'ข้าพเจ้าได้ตรวจสอบยืนยันตัวตนคนไข้แล้ว โดยข้อมูลตรงกับที่ลงทะเบียนไว้ในระบบ'}</span>
+              </label>
               {callError && (
                 <div className="text-xs text-red-400 bg-red-500/10 px-4 py-2 rounded-[10px]">{callError}</div>
               )}
-              <button onClick={startCall} disabled={startingCall}
+              <button onClick={startCall} disabled={startingCall || !identityConfirmed}
                 className="flex items-center gap-2 px-6 py-3 rounded-full font-semibold text-white text-sm hover:opacity-90 disabled:opacity-50 transition-opacity"
                 style={{ background: 'var(--hw-green-dk)' }}>
                 <IconVideo size={18} />
-                {startingCall ? 'กำลังเปิดห้อง...' : 'เริ่มวีดีโอคอล'}
+                {startingCall ? 'กำลังเปิดห้อง...' : roomExists ? 'กลับเข้าห้องวีดีโอ' : 'เริ่มวีดีโอคอล'}
               </button>
             </div>
           )}

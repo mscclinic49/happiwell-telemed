@@ -10,7 +10,14 @@ export async function POST(req: NextRequest) {
     const body = await req.json().catch(() => ({}))
     const symptoms: string | null = body.symptoms ?? null
     // admin can specify a patientId; otherwise default to the caller
-    const targetUserId: string = body.patientId ?? user.id
+    let targetUserId: string = user.id
+    if (body.patientId && body.patientId !== user.id) {
+      const { data: me } = await supabaseAuth.from('hw_users').select('role').eq('id', user.id).single()
+      if (me?.role !== 'admin' && me?.role !== 'superadmin') {
+        return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+      }
+      targetUserId = body.patientId
+    }
 
     // Bangkok time (UTC+7)
     const now = new Date()

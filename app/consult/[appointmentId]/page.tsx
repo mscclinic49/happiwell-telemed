@@ -186,21 +186,27 @@ export default function ConsultPage() {
     }
   }
 
-  async function createAndJoinRoom() {
+  async function openRoom(): Promise<{ roomUrl: string; token: string }> {
+    const res = await fetch('/api/video/create-room', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ appointmentId }),
+    })
+    const data = await res.json()
+    if (!res.ok) throw new Error(data.error || 'Failed to create room')
+    return data
+  }
+
+  async function createAndJoinRoom(prefetched?: { roomUrl: string; token: string }) {
     await cleanupCall()
     setStatus('joining')
     setError(null)
 
     try {
-      const res = await fetch('/api/video/create-room', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ appointmentId }),
-      })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.error || 'Failed to create room')
+      const data = prefetched ?? await openRoom()
 
-      setRoomUrl(data.roomUrl)
+      // ลิงก์สำรอง (เปิดแท็บใหม่) ต้องแนบ token เพราะห้องเป็น private
+      setRoomUrl(`${data.roomUrl}?t=${data.token}`)
       await new Promise(r => setTimeout(r, 200))
       if (!containerRef.current) throw new Error('Container not ready')
 
@@ -214,7 +220,7 @@ export default function ConsultPage() {
       callFrame.on('joined-meeting', () => setStatus('in-call'))
       callFrame.on('error', (e) => { setError('เกิดข้อผิดพลาด: ' + (e?.errorMsg || 'unknown')); setStatus('error'); })
 
-      await callFrame.join({ url: data.roomUrl, userName: displayName || undefined })
+      await callFrame.join({ url: data.roomUrl, token: data.token, userName: displayName || undefined })
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error')
       setStatus('error')
@@ -225,14 +231,22 @@ export default function ConsultPage() {
   async function handleDoctorVerify() {
     if (!identityConfirmed) return
     setVerifying(true)
-    const res = await fetch('/api/consultation/verify-identity', {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ appointmentId }),
-    })
-    if (!res.ok) { const d = await res.json(); setError(d.error || 'เกิดข้อผิดพลาด'); setStatus('error'); return }
-    setVerifying(false)
-    await createAndJoinRoom()
+    try {
+      // เปิดห้องก่อน (ต้องมีแถว hw_consultations) แล้วจึงบันทึกการยืนยันตัวตน
+      const room = await openRoom()
+      const res = await fetch('/api/consultation/verify-identity', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ appointmentId }),
+      })
+      if (!res.ok) { const d = await res.json(); throw new Error(d.error || 'เกิดข้อผิดพลาด') }
+      await createAndJoinRoom(room)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'เกิดข้อผิดพลาด')
+      setStatus('error')
+    } finally {
+      setVerifying(false)
+    }
   }
 
   async function handleCancelUnverified() {
@@ -292,7 +306,7 @@ export default function ConsultPage() {
               <li>{'✓ อยู่ในที่เงียบและเป็นส่วนตัว'}</li>
             </ul>
           </div>
-          <button onClick={createAndJoinRoom}
+          <button onClick={() => createAndJoinRoom()}
             className="w-full text-white py-3 rounded-full font-medium hover:opacity-90"
             style={{ background: 'var(--hw-green)' }}>
             {'ยินยอมและเข้าห้องปรึกษา'}
