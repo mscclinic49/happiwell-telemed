@@ -1,17 +1,17 @@
 'use client'
 
-import { useEffect, useRef, useState, useCallback } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { createBrowserClient } from '@supabase/ssr'
 import { usePathname, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import {
-  IconCalendarClock, IconStethoscope, IconPill, IconMessageCircle2,
+  IconStethoscope, IconPill, IconMessageCircle2,
   IconUser, IconLock, IconSignature,
   IconHistory, IconBook2, IconHeart, IconShield,
   IconMapPin, IconShieldCheck, IconShieldOff,
   IconFileText, IconHelp, IconLogout, IconChevronDown,
-  IconSettings2, IconSun, IconMoon,
+  IconSun, IconMoon, IconBell, IconHome2,
 } from '@tabler/icons-react'
 import { useAuth } from '@/lib/auth-context'
 
@@ -47,8 +47,8 @@ function ThemeToggle({ compact = false }: { compact?: boolean }) {
 const NAV = [
   {
     href: '/',
-    label: 'นัดหมาย',
-    Icon: IconCalendarClock,
+    label: 'หน้าหลัก',
+    Icon: IconHome2,
     match: (p: string) => p === '/',
   },
   {
@@ -84,6 +84,7 @@ const PROFILE_SECTIONS = [
       { href: '/account/profile',         label: 'ข้อมูลส่วนตัว',   Icon: IconUser },
       { href: '/account/change-password', label: 'เปลี่ยนรหัสผ่าน', Icon: IconLock },
       { href: '/account/signature',       label: 'ลายเซ็นดิจิทัล',  Icon: IconSignature },
+      { href: '/account/notifications',   label: 'การแจ้งเตือน LINE', Icon: IconBell },
     ],
   },
   {
@@ -109,18 +110,9 @@ const PROFILE_SECTIONS = [
       { href: '/help',             label: 'ศูนย์ช่วยเหลือ',        Icon: IconHelp },
     ],
   },
-  {
-    title: 'แอดมิน',
-    items: [
-      { href: '/admin/appointments',  label: 'จัดการนัดหมาย',    Icon: IconCalendarClock },
-      { href: '/admin/doctors',       label: 'จัดการข้อมูลแพทย์', Icon: IconStethoscope },
-      { href: '/admin/prescriptions', label: 'อัพโหลดใบสั่งยา',  Icon: IconPill },
-      { href: '/admin/chat',          label: 'กล่องข้อความ',      Icon: IconSettings2 },
-    ],
-  },
 ]
 
-const NO_SHELL = ['/login', '/register', '/consent', '/auth', '/consult', '/admin', '/admin-login', '/forgot-password', '/rx/', '/welcome']
+const NO_SHELL = ['/login', '/register', '/consent', '/auth', '/consult', '/admin', '/admin-login', '/forgot-password', '/rx/', '/welcome', '/line-link']
 // doctor routes: /doctor exactly or /doctor/* — but NOT /doctors
 function noShell(pathname: string) {
   if (NO_SHELL.some(p => pathname.startsWith(p))) return true
@@ -243,7 +235,7 @@ function MobileProfileDropdown({ displayName, onSignOut }: {
   )
 }
 
-const VERIFY_REQUIRED = ['/doctors']
+const VERIFY_REQUIRED = ['/doctors', '/book/']
 
 const sbChat = typeof window !== 'undefined'
   ? createBrowserClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!)

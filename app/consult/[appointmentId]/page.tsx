@@ -1,10 +1,17 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
+import Link from 'next/link'
+import Image from 'next/image'
 import DailyIframe, { DailyCall } from '@daily-co/daily-js'
+import {
+  IconChevronLeft, IconVideo, IconMicrophone, IconWifi, IconLock, IconShieldCheck,
+  IconAlertTriangle, IconLoader2, IconPhoneOff, IconRefresh,
+} from '@tabler/icons-react'
 import { useAuth } from '@/lib/auth-context'
 import { supabase } from '@/lib/supabase'
+import { bkkTime, bkkDate, dateLabel } from '@/lib/slots'
 
 type Role = 'patient' | 'doctor' | null
 
@@ -129,6 +136,48 @@ function DoctorVitalsPanel({ patientId }: { patientId: string }) {
   )
 }
 
+type ApptInfo = {
+  scheduled_at: string
+  status: string
+  doctor: { full_name: string; specialty: string | null; avatar_url: string | null } | null
+}
+
+type Status = 'loading' | 'consent' | 'waiting' | 'doctor-verify' | 'joining' | 'in-call' | 'ended' | 'error'
+
+class WaitingForDoctor extends Error {}
+
+function PreCallShell({ back, children }: { back: { href: string; label: string }; children: React.ReactNode }) {
+  return (
+    <div className="min-h-screen bg-[var(--background)]">
+      <div className="max-w-md mx-auto px-5 py-6">
+        <Link href={back.href} className="inline-flex items-center gap-1 text-sm text-[var(--muted)] mb-5 hover:text-[var(--foreground)]">
+          <IconChevronLeft size={16} />{back.label}
+        </Link>
+        {children}
+      </div>
+    </div>
+  )
+}
+
+function DoctorStrip({ info }: { info: ApptInfo | null }) {
+  if (!info?.doctor) return null
+  const date = bkkDate(new Date(info.scheduled_at))
+  return (
+    <div className="flex items-center gap-3 rounded-[16px] border border-[var(--border)] bg-[var(--card-bg)] p-4 mb-5">
+      {info.doctor.avatar_url ? (
+        <Image src={info.doctor.avatar_url} alt="" width={48} height={48}
+          className="rounded-full object-cover object-top flex-shrink-0" style={{ width: 48, height: 48 }} />
+      ) : <div className="w-12 h-12 rounded-full bg-[var(--hw-mint-bg)] flex-shrink-0" />}
+      <div className="min-w-0 flex-1">
+        <div className="font-semibold truncate">{info.doctor.full_name}</div>
+        <div className="text-sm text-[var(--muted)]">
+          {`${date === bkkDate() ? 'วันนี้' : dateLabel(date)} เวลา ${bkkTime(info.scheduled_at)} น.`}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function ConsultPage() {
   const params = useParams()
   const router = useRouter()
@@ -140,8 +189,9 @@ export default function ConsultPage() {
 
   const [role, setRole] = useState<Role>(null)
   const [patientUserId, setPatientUserId] = useState<string | null>(null)
+  const [info, setInfo] = useState<ApptInfo | null>(null)
   const [displayName, setDisplayName] = useState<string>('')
-  const [status, setStatus] = useState<'loading' | 'consent' | 'doctor-verify' | 'joining' | 'in-call' | 'error'>('loading')
+  const [status, setStatus] = useState<Status>('loading')
   const [error, setError] = useState<string | null>(null)
   const [roomUrl, setRoomUrl] = useState<string | null>(null)
   const [identityConfirmed, setIdentityConfirmed] = useState(false)
@@ -154,7 +204,7 @@ export default function ConsultPage() {
     async function detectRole() {
       const [apptRes, profileRes] = await Promise.all([
         supabase.from('hw_appointments')
-          .select('user_id, hw_doctors!inner(user_id)')
+          .select('user_id, scheduled_at, status, hw_doctors!inner(user_id, full_name, specialty, avatar_url)')
           .eq('id', appointmentId).single(),
         supabase.from('hw_users')
           .select('title, first_name, last_name, full_name')
@@ -169,8 +219,10 @@ export default function ConsultPage() {
         setDisplayName(name || user!.email?.split('@')[0] || 'ผู้ใช้')
       }
 
-      const doctorUserId = (apptRes.data.hw_doctors as unknown as { user_id: string | null })?.user_id
-      const detectedRole: Role = doctorUserId === user!.id ? 'doctor' : 'patient'
+      const doc = apptRes.data.hw_doctors as unknown as { user_id: string | null; full_name: string; specialty: string | null; avatar_url: string | null }
+      setInfo({ scheduled_at: apptRes.data.scheduled_at, status: apptRes.data.status, doctor: doc })
+      if (apptRes.data.status === 'cancelled') { setError('นัดหมายนี้ถูกยกเลิกแล้ว'); setStatus('error'); return }
+      const detectedRole: Role = doc?.user_id === user!.id ? 'doctor' : 'patient'
       setRole(detectedRole)
       setPatientUserId(apptRes.data.user_id)
       setStatus(detectedRole === 'doctor' ? 'doctor-verify' : 'consent')
@@ -186,24 +238,25 @@ export default function ConsultPage() {
     }
   }
 
-  async function openRoom(): Promise<{ roomUrl: string; token: string }> {
+  const openRoom = useCallback(async (): Promise<{ roomUrl: string; token: string }> => {
     const res = await fetch('/api/video/create-room', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ appointmentId }),
     })
     const data = await res.json()
-    if (!res.ok) throw new Error(data.error || 'Failed to create room')
+    if (res.status === 409 && data.waiting) throw new WaitingForDoctor()
+    if (!res.ok) throw new Error(data.error || 'เปิดห้องวิดีโอไม่สำเร็จ')
     return data
-  }
+  }, [appointmentId])
 
   async function createAndJoinRoom(prefetched?: { roomUrl: string; token: string }) {
     await cleanupCall()
-    setStatus('joining')
     setError(null)
 
     try {
       const data = prefetched ?? await openRoom()
+      setStatus('joining')
 
       // ลิงก์สำรอง (เปิดแท็บใหม่) ต้องแนบ token เพราะห้องเป็น private
       setRoomUrl(`${data.roomUrl}?t=${data.token}`)
@@ -216,17 +269,38 @@ export default function ConsultPage() {
       })
       callRef.current = callFrame
 
-      callFrame.on('left-meeting', async () => { await cleanupCall(); setStatus(role === 'doctor' ? 'doctor-verify' : 'consent') })
+      callFrame.on('left-meeting', async () => { await cleanupCall(); setStatus('ended') })
       callFrame.on('joined-meeting', () => setStatus('in-call'))
-      callFrame.on('error', (e) => { setError('เกิดข้อผิดพลาด: ' + (e?.errorMsg || 'unknown')); setStatus('error'); })
+      callFrame.on('error', (e) => { setError('เกิดข้อผิดพลาด: ' + (e?.errorMsg || 'unknown')); setStatus('error') })
 
       await callFrame.join({ url: data.roomUrl, token: data.token, userName: displayName || undefined })
     } catch (err) {
+      await cleanupCall()
+      if (err instanceof WaitingForDoctor) { setStatus('waiting'); return }
       setError(err instanceof Error ? err.message : 'Unknown error')
       setStatus('error')
-      await cleanupCall()
     }
   }
+
+  // คนไข้รอแพทย์: ฟังการเปิดห้องแบบ realtime + เช็กซ้ำทุก 15 วินาที แล้วพาเข้าห้องอัตโนมัติ
+  useEffect(() => {
+    if (status !== 'waiting') return
+    let done = false
+    const tryJoin = async () => {
+      if (done) return
+      try {
+        const room = await openRoom()
+        done = true
+        createAndJoinRoom(room)
+      } catch { /* ยังไม่เปิด */ }
+    }
+    const ch = supabase.channel(`consult-wait-${appointmentId}`)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'hw_consultations', filter: `appointment_id=eq.${appointmentId}` }, tryJoin)
+      .subscribe()
+    const t = setInterval(tryJoin, 15_000)
+    return () => { done = true; clearInterval(t); supabase.removeChannel(ch) }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [status, appointmentId, openRoom])
 
   async function handleDoctorVerify() {
     if (!identityConfirmed) return
@@ -250,125 +324,175 @@ export default function ConsultPage() {
   }
 
   async function handleCancelUnverified() {
-    if (!confirm('ยืนยันการยกเลิก? การนัดหมายจะถูกยกเลิกทันที')) return
     setCancelling(true)
     await fetch('/api/consultation/cancel-unverified', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ appointmentId }),
     })
-    router.push('/')
+    router.push('/doctor/appointments')
   }
 
   useEffect(() => () => { cleanupCall() }, [])
 
-  if (authLoading || status === 'loading') {
-    return <div className="min-h-screen flex items-center justify-center text-[var(--muted)]">{'กำลังโหลด...'}</div>
-  }
-
+  const back = role === 'doctor'
+    ? { href: `/doctor/appointments/${appointmentId}`, label: 'กลับไปหน้านัดหมาย' }
+    : { href: '/', label: 'หน้าหลัก' }
   const isInCall = status === 'in-call' || status === 'joining'
 
+  if (authLoading || status === 'loading') {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[var(--background)]">
+        <IconLoader2 size={28} className="animate-spin text-[var(--hw-green)]" />
+      </div>
+    )
+  }
+
   return (
-    <main className="min-h-screen bg-black">
+    <main className={isInCall ? 'min-h-screen bg-black' : ''}>
 
       {/* ── In-call layout ── */}
       {isInCall && (
         <div className="flex h-screen">
-          {/* Vitals panel — doctor only */}
-          {role === 'doctor' && patientUserId && (
-            <DoctorVitalsPanel patientId={patientUserId} />
-          )}
-          {/* Video */}
+          {role === 'doctor' && patientUserId && <DoctorVitalsPanel patientId={patientUserId} />}
           <div ref={containerRef} className="flex-1 h-full bg-black" />
         </div>
       )}
-
-      {/* ── Pre-call screens (video container still needed for joining state) ── */}
       {!isInCall && <div ref={containerRef} className="hidden" />}
 
-      {/* Patient consent */}
+      {/* Patient: prepare + consent */}
       {status === 'consent' && (
-        <div className="p-6 max-w-md mx-auto">
-          <a href="/" className="text-[var(--hw-blue)] mb-4 inline-block">{'← กลับ'}</a>
-          <h1 className="text-2xl font-bold mb-4">{'เตรียมเข้าห้องปรึกษา'}</h1>
-          <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700 rounded-xl p-4 mb-4">
-            <h2 className="font-semibold text-yellow-900 dark:text-yellow-300 mb-2">{'⚠️ การยินยอมบันทึกวิดีโอ'}</h2>
-            <ul className="text-sm text-yellow-800 dark:text-yellow-400 space-y-1 list-disc list-inside">
-              <li>{'การปรึกษานี้อาจถูกบันทึกเพื่อเก็บเป็นเวชระเบียน'}</li>
-              <li>{'ข้อมูลจะถูกเก็บรักษาตาม พ.ร.บ. คุ้มครองข้อมูลส่วนบุคคล (PDPA)'}</li>
-            </ul>
-          </div>
-          <div className="bg-[var(--card-bg)] border border-[var(--border)] rounded-xl p-4 mb-6">
-            <h2 className="font-semibold mb-2">{'ก่อนเข้าห้อง โปรดตรวจสอบ:'}</h2>
-            <ul className="text-sm text-[var(--muted)] space-y-1">
-              <li>{'✓ กล้องและไมโครโฟนทำงานปกติ'}</li>
-              <li>{'✓ อินเทอร์เน็ตเสถียร'}</li>
-              <li>{'✓ อยู่ในที่เงียบและเป็นส่วนตัว'}</li>
-            </ul>
+        <PreCallShell back={back}>
+          <h1 className="font-display text-2xl font-semibold mb-4">{'เตรียมเข้าห้องปรึกษา'}</h1>
+          <DoctorStrip info={info} />
+          <ul className="space-y-3 mb-5">
+            {[
+              { Icon: IconVideo, text: 'เปิดกล้องได้ และหันหน้าเข้าหาแสง' },
+              { Icon: IconMicrophone, text: 'อยู่ในที่เงียบ เป็นส่วนตัว' },
+              { Icon: IconWifi, text: 'อินเทอร์เน็ตเสถียร (แนะนำ Wi-Fi)' },
+            ].map(({ Icon, text }) => (
+              <li key={text} className="flex items-center gap-3 text-sm">
+                <span className="w-9 h-9 rounded-full bg-[var(--hw-mint-bg)] text-[var(--hw-green-dk)] flex items-center justify-center flex-shrink-0"><Icon size={18} /></span>
+                {text}
+              </li>
+            ))}
+          </ul>
+          <div className="flex gap-3 rounded-[14px] bg-[var(--hw-peach-bg)] p-4 mb-6 text-sm">
+            <IconLock size={18} className="text-[var(--hw-orange)] flex-shrink-0 mt-0.5" />
+            <p>{'การปรึกษาอาจถูกบันทึกเป็นเวชระเบียน และเก็บรักษาตาม พ.ร.บ. คุ้มครองข้อมูลส่วนบุคคล (PDPA) การกดเข้าห้องถือว่าคุณยินยอม'}</p>
           </div>
           <button onClick={() => createAndJoinRoom()}
-            className="w-full text-white py-3 rounded-full font-medium hover:opacity-90"
-            style={{ background: 'var(--hw-green)' }}>
-            {'ยินยอมและเข้าห้องปรึกษา'}
+            className="w-full flex items-center justify-center gap-2 text-[var(--hw-on-primary)] py-3.5 rounded-full font-semibold bg-[var(--hw-primary)] hover:opacity-90">
+            <IconVideo size={18} />{'ยินยอมและเข้าห้องปรึกษา'}
           </button>
-        </div>
+        </PreCallShell>
       )}
 
-      {/* Doctor identity verification */}
-      {status === 'doctor-verify' && (
-        <div className="p-6 max-w-md mx-auto">
-          <a href="/doctor/appointments" className="text-[var(--hw-blue)] mb-4 inline-block">{'← กลับ'}</a>
-          <h1 className="text-2xl font-bold mb-1">{'ยืนยันตัวตนคนไข้'}</h1>
-          <p className="text-sm text-[var(--muted)] mb-6">{'ก่อนเริ่มการปรึกษา กรุณายืนยันว่าได้ตรวจสอบตัวตนคนไข้แล้ว'}</p>
-          <div className="bg-[var(--card-bg)] border border-[var(--border)] rounded-xl p-5 mb-6">
-            <label className="flex items-start gap-3 cursor-pointer">
-              <input type="checkbox" checked={identityConfirmed}
-                onChange={e => setIdentityConfirmed(e.target.checked)}
-                className="mt-0.5 w-5 h-5 flex-shrink-0" />
-              <span className="text-sm">{'ข้าพเจ้าได้ตรวจสอบยืนยันตัวตนคนไข้แล้ว โดยข้อมูลตรงกับที่ลงทะเบียนไว้ในระบบ'}</span>
-            </label>
+      {/* Patient: waiting room */}
+      {status === 'waiting' && (
+        <PreCallShell back={back}>
+          <div className="text-center pt-6">
+            <div className="relative w-24 h-24 mx-auto mb-6">
+              <span className="absolute inset-0 rounded-full bg-[var(--hw-green)]/20 animate-ping" />
+              <span className="relative w-24 h-24 rounded-full bg-[var(--hw-mint-bg)] text-[var(--hw-green-dk)] flex items-center justify-center">
+                <IconVideo size={38} />
+              </span>
+            </div>
+            <h1 className="font-display text-2xl font-semibold mb-2">{'รอแพทย์เปิดห้อง'}</h1>
+            <p className="text-sm text-[var(--muted)] mb-6">{'เปิดหน้านี้ค้างไว้ได้เลย เมื่อแพทย์พร้อม ระบบจะพาเข้าห้องให้อัตโนมัติ'}</p>
           </div>
+          <DoctorStrip info={info} />
+        </PreCallShell>
+      )}
+
+      {/* Doctor: identity verification */}
+      {status === 'doctor-verify' && (
+        <PreCallShell back={back}>
+          <h1 className="font-display text-2xl font-semibold mb-1">{'ยืนยันตัวตนคนไข้'}</h1>
+          <p className="text-sm text-[var(--muted)] mb-5">{'ก่อนเริ่มการปรึกษา ตรวจว่าชื่อและหน้าตรงกับบัตรที่ลงทะเบียนไว้'}</p>
+          <label className="flex items-start gap-3 cursor-pointer rounded-[14px] border border-[var(--border)] bg-[var(--card-bg)] p-4 mb-6">
+            <input type="checkbox" checked={identityConfirmed}
+              onChange={e => setIdentityConfirmed(e.target.checked)}
+              className="mt-0.5 w-5 h-5 flex-shrink-0 accent-[var(--hw-green-dk)]" />
+            <span className="text-sm">{'ข้าพเจ้าได้ตรวจสอบยืนยันตัวตนคนไข้แล้ว ข้อมูลตรงกับที่ลงทะเบียนไว้ในระบบ'}</span>
+          </label>
           <div className="space-y-3">
             <button onClick={handleDoctorVerify} disabled={!identityConfirmed || verifying}
-              className="w-full text-white py-3 rounded-full font-medium hover:opacity-90 disabled:opacity-40"
-              style={{ background: 'var(--hw-green)' }}>
-              {verifying ? 'กำลังยืนยัน...' : 'ยืนยันและเริ่มการปรึกษา'}
+              className="w-full flex items-center justify-center gap-2 text-[var(--hw-on-primary)] py-3.5 rounded-full font-semibold bg-[var(--hw-primary)] hover:opacity-90 disabled:opacity-40">
+              {verifying ? <IconLoader2 size={18} className="animate-spin" /> : <IconShieldCheck size={18} />}
+              {verifying ? 'กำลังเปิดห้อง' : 'ยืนยันและเริ่มการปรึกษา'}
             </button>
-            <button onClick={handleCancelUnverified} disabled={cancelling}
-              className="w-full border border-red-300 dark:border-red-700 text-red-500 py-3 rounded-full font-medium hover:bg-red-50 dark:hover:bg-red-900/20 disabled:opacity-40">
-              {cancelling ? 'กำลังยกเลิก...' : 'ไม่สามารถยืนยันตัวตนได้ — ยกเลิกการปรึกษา'}
-            </button>
+            {!cancelling ? (
+              <button onClick={() => setCancelling(true)}
+                className="w-full py-3 rounded-full text-sm font-medium text-red-600 hover:bg-[var(--hw-red-bg)]">
+                {'ยืนยันตัวตนไม่ได้ — ยกเลิกการปรึกษา'}
+              </button>
+            ) : (
+              <div className="rounded-[14px] bg-[var(--hw-red-bg)] p-4">
+                <p className="text-sm mb-3">{'ยกเลิกนัดนี้ทันที? คนไข้จะได้รับแจ้งว่านัดถูกยกเลิก'}</p>
+                <div className="flex gap-2">
+                  <button onClick={handleCancelUnverified} className="flex-1 py-2.5 rounded-full text-sm font-semibold text-white bg-red-600">{'ยกเลิกนัด'}</button>
+                  <button onClick={() => setCancelling(false)} className="flex-1 py-2.5 rounded-full text-sm font-semibold border border-[var(--border)] bg-[var(--card-bg)]">{'ไม่ใช่'}</button>
+                </div>
+              </div>
+            )}
           </div>
-        </div>
+        </PreCallShell>
       )}
 
       {/* Joining overlay */}
       {status === 'joining' && (
-        <div className="fixed inset-0 flex flex-col items-center justify-center bg-black/80 z-50">
-          <div className="text-4xl mb-4">{'⏳'}</div>
-          <p className="text-white mb-4">{'กำลังเข้าห้องปรึกษา...'}</p>
+        <div className="fixed inset-0 flex flex-col items-center justify-center bg-black/80 z-50 text-white">
+          <IconLoader2 size={36} className="animate-spin mb-4" />
+          <p className="mb-4">{'กำลังเข้าห้องปรึกษา'}</p>
           {roomUrl && (
-            <a href={roomUrl} target="_blank" rel="noopener noreferrer" className="text-blue-300 underline text-sm">
-              {'เปิดในแท็บใหม่ (ถ้าค้างนาน)'}
+            <a href={roomUrl} target="_blank" rel="noopener noreferrer" className="text-white/70 underline text-sm">
+              {'ค้างนาน? เปิดในแท็บใหม่'}
             </a>
           )}
         </div>
       )}
 
+      {/* Ended */}
+      {status === 'ended' && (
+        <PreCallShell back={back}>
+          <div className="text-center pt-6">
+            <span className="w-20 h-20 rounded-full bg-[var(--hw-blue-bg)] text-[var(--hw-brand-blue)] flex items-center justify-center mx-auto mb-5">
+              <IconPhoneOff size={34} />
+            </span>
+            <h1 className="font-display text-2xl font-semibold mb-2">{'ออกจากห้องปรึกษาแล้ว'}</h1>
+            <p className="text-sm text-[var(--muted)] mb-6">
+              {role === 'doctor' ? 'บันทึกการรักษาและออกใบสั่งยาได้ที่หน้านัดหมาย' : 'ใบสั่งยาและคำแนะนำจากแพทย์จะแสดงในแอปเมื่อแพทย์บันทึกเสร็จ'}
+            </p>
+            <div className="space-y-3">
+              <Link href={back.href} className="block w-full py-3.5 rounded-full font-semibold text-[var(--hw-on-primary)] bg-[var(--hw-primary)]">
+                {role === 'doctor' ? 'ไปหน้านัดหมาย' : 'กลับหน้าหลัก'}
+              </Link>
+              <button onClick={() => createAndJoinRoom()} className="w-full flex items-center justify-center gap-2 py-3 rounded-full text-sm font-semibold border border-[var(--border)]">
+                <IconRefresh size={16} />{'หลุดออกมา? เข้าห้องอีกครั้ง'}
+              </button>
+            </div>
+          </div>
+        </PreCallShell>
+      )}
+
       {/* Error */}
       {status === 'error' && (
-        <div className="p-6 max-w-md mx-auto">
-          <a href="/" className="text-[var(--hw-blue)] mb-4 inline-block">{'← กลับ'}</a>
-          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-xl p-4 mb-4">
-            <h2 className="font-semibold text-red-600 mb-2">{'เกิดข้อผิดพลาด'}</h2>
-            <p className="text-sm text-red-500">{error}</p>
+        <PreCallShell back={back}>
+          <div role="alert" className="flex gap-3 rounded-[14px] bg-[var(--hw-red-bg)] p-4 mb-5">
+            <IconAlertTriangle size={20} className="text-red-600 flex-shrink-0 mt-0.5" />
+            <div>
+              <div className="font-semibold text-sm mb-0.5">{'เข้าห้องปรึกษาไม่ได้'}</div>
+              <p className="text-sm text-[var(--muted)]">{error}</p>
+            </div>
           </div>
-          <button onClick={() => { setStatus(role === 'doctor' ? 'doctor-verify' : 'consent'); setError(null) }}
-            className="w-full text-white py-3 rounded-full font-medium hover:opacity-90"
-            style={{ background: 'var(--hw-green)' }}>
-            {'ลองอีกครั้ง'}
-          </button>
-        </div>
+          {info?.status !== 'cancelled' && role && (
+            <button onClick={() => { setStatus(role === 'doctor' ? 'doctor-verify' : 'consent'); setError(null) }}
+              className="w-full text-[var(--hw-on-primary)] py-3.5 rounded-full font-semibold bg-[var(--hw-primary)] hover:opacity-90">
+              {'ลองอีกครั้ง'}
+            </button>
+          )}
+        </PreCallShell>
       )}
     </main>
   )

@@ -94,6 +94,10 @@ export async function POST(req: NextRequest) {
       : 0
 
     if (!roomUrl || roomExp - now < ROOM_MIN_REMAINING_SEC) {
+      // ห้องเปิดโดยแพทย์เท่านั้น (หลังยืนยันตัวตนคนไข้) — คนไข้รอในห้องรอจนกว่าแพทย์จะเปิด
+      if (!isDoctor) {
+        return NextResponse.json({ waiting: true, error: 'แพทย์ยังไม่เปิดห้องปรึกษา' }, { status: 409 })
+      }
       roomExp = now + ROOM_TTL_SEC
       const room = await daily('/rooms', {
         name: `appt-${appointmentId.slice(0, 8)}-${Date.now()}`,

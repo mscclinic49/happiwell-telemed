@@ -6,7 +6,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { createBrowserClient } from '@supabase/ssr'
 import {
-  IconStethoscope, IconStar, IconChevronLeft, IconMessageCircle2,
+  IconStethoscope, IconStar, IconChevronLeft, IconMessageCircle2, IconCalendarPlus,
 } from '@tabler/icons-react'
 
 const DAYS = ['อาทิตย์', 'จันทร์', 'อังคาร', 'พุธ', 'พฤหัสบดี', 'ศุกร์', 'เสาร์']
@@ -56,7 +56,7 @@ export default function DoctorDetailPage() {
   const scheduleByDay = Object.fromEntries(schedules.map(s => [s.day_of_week, s]))
 
   return (
-    <div className="max-w-lg mx-auto px-5 py-6 pb-12">
+    <div className="max-w-lg mx-auto px-5 pt-6">
       <Link href="/doctors" className="inline-flex items-center gap-1 text-sm text-[var(--muted)] mb-5 hover:text-[var(--foreground)]">
         <IconChevronLeft size={16} />{'รายชื่อแพทย์'}
       </Link>
@@ -68,7 +68,7 @@ export default function DoctorDetailPage() {
             <Image src={doctor.avatar_url} alt={doctor.full_name} width={72} height={72}
               className="rounded-full object-cover flex-shrink-0" style={{ width: 72, height: 72 }} />
           ) : (
-            <div className="w-[72px] h-[72px] rounded-full bg-[var(--hw-green-dk)] flex items-center justify-center text-white font-bold text-xl flex-shrink-0">
+            <div className="w-[72px] h-[72px] rounded-full bg-[var(--hw-primary)] flex items-center justify-center text-[var(--hw-on-primary)] font-bold text-xl flex-shrink-0">
               {initials}
             </div>
           )}
@@ -135,14 +135,18 @@ export default function DoctorDetailPage() {
       </div>
 
       {/* CTA */}
-      <Link
-        href="/chat"
-        className="flex items-center justify-center gap-2 w-full py-3.5 rounded-full font-semibold text-white text-base"
-        style={{ background: 'var(--hw-green-dk)' }}
-      >
-        <IconMessageCircle2 size={18} />
-        {'แชทกับคลินิกเพื่อนัดหมาย'}
-      </Link>
+      <div className="sticky bottom-0 -mx-5 px-5 py-3 bg-[var(--background)]/95 backdrop-blur border-t border-[var(--border)] space-y-2">
+        <Link
+          href={`/book/${doctor.id}`}
+          className="flex items-center justify-center gap-2 w-full py-3.5 rounded-full font-semibold text-[var(--hw-on-primary)] text-base bg-[var(--hw-primary)] hover:opacity-90 transition-opacity"
+        >
+          <IconCalendarPlus size={19} />
+          {'เลือกเวลานัด'}
+        </Link>
+        <Link href="/chat" className="flex items-center justify-center gap-1.5 w-full py-1.5 text-sm text-[var(--muted)] hover:text-[var(--foreground)]">
+          <IconMessageCircle2 size={16} />{'มีคำถามก่อนนัด? แชทกับคลินิก'}
+        </Link>
+      </div>
     </div>
   )
 }
