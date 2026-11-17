@@ -250,7 +250,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
     </div>
   )
 
-  const NavLinks = ({ onClick }: { onClick?: () => void }) => (
+  const navLinks = (onClick?: () => void) => (
     <>
       {NAV.map(({ href, label, Icon, exact }) => {
         const active = exact ? pathname === href : pathname.startsWith(href)
@@ -285,7 +285,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
           <div className="text-[11px] text-[var(--muted)]">{'แผงควบคุมแอดมิน'}</div>
         </div>
         <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
-          <NavLinks />
+          {navLinks()}
         </nav>
         <div className="px-4 py-4 border-t border-[var(--border)]">
           <div className="text-xs text-[var(--muted)] mb-3 truncate">{adminName}</div>
@@ -319,7 +319,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
               </div>
               <button onClick={() => setSidebarOpen(false)} className="p-1.5 text-[var(--muted)]"><IconX size={18} /></button>
             </div>
-            <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto"><NavLinks onClick={() => setSidebarOpen(false)} /></nav>
+            <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">{navLinks(() => setSidebarOpen(false))}</nav>
             <div className="px-4 py-4 border-t border-[var(--border)]">
               <div className="text-xs text-[var(--muted)] mb-3 truncate">{adminName}</div>
               <button onClick={signOut} className="flex items-center gap-2 text-xs text-[var(--muted)] hover:text-red-500 transition-colors">

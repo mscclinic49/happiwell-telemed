@@ -89,7 +89,7 @@ export default function LabResultsPage() {
       acc[rec.test_date].push(rec); return acc
     }, {}), [records])
 
-  const dates = Object.keys(grouped).sort((a, b) => b.localeCompare(a))
+  const dates = useMemo(() => Object.keys(grouped).sort((a, b) => b.localeCompare(a)), [grouped])
   const latestDate = dates[0]; const prevDate = dates[1]
 
   const latestByCategory = useMemo(() => {

@@ -9,6 +9,7 @@ import {
   IconCheck, IconX, IconUser, IconId, IconClock, IconExternalLink, IconUpload,
 } from '@tabler/icons-react'
 import { useAuth } from '@/lib/auth-context'
+import { ageFromDob } from '@/lib/date'
 
 const sb = createBrowserClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -131,7 +132,7 @@ export default function PatientDetailPage() {
   if (!patient) return <div className="p-8 text-center text-[var(--muted)]">{'ไม่พบข้อมูลคนไข้'}</div>
 
   const displayName = patient.full_name || `${patient.title ?? ''}${patient.first_name ?? ''} ${patient.last_name ?? ''}`.trim()
-  const age = patient.date_of_birth ? Math.floor((Date.now() - new Date(patient.date_of_birth).getTime()) / (1000 * 60 * 60 * 24 * 365.25)) : null
+  const age = ageFromDob(patient.date_of_birth)
 
   return (
     <div className="max-w-2xl mx-auto px-5 py-6 pb-12">

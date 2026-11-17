@@ -54,7 +54,7 @@ function DrugForm({
     setSaving(false)
   }
 
-  const Field = ({ label, k, placeholder }: { label: string; k: keyof typeof EMPTY; placeholder?: string }) => (
+  const field = (label: string, k: keyof typeof EMPTY, placeholder?: string) => (
     <div>
       <label className="block text-xs text-[var(--muted)] mb-1">{label}</label>
       <input
@@ -79,14 +79,14 @@ function DrugForm({
             className="w-full px-3 py-2 rounded-xl border border-[var(--border)] bg-[var(--input-bg)] text-sm focus:outline-none focus:border-[var(--hw-green-dk)]"
           />
         </div>
-        <Field label="ความแรง (strength)" k="strength" placeholder="เช่น 500mg, 10mg/5ml" />
-        <Field label="หมวดหมู่" k="category" placeholder="เช่น แก้ปวด, ยาปฏิชีวนะ" />
-        <Field label="ขนาดใช้ต่อครั้ง (dosage)" k="dosage" placeholder="เช่น 1 เม็ด, 5 ml" />
-        <Field label="หน่วย" k="unit" placeholder="เช่น เม็ด, แคปซูล, ช้อนชา" />
-        <Field label="ความถี่ (frequency)" k="frequency" placeholder="เช่น วันละ 3 ครั้ง" />
-        <Field label="ระยะเวลา (duration)" k="duration" placeholder="เช่น 5 วัน" />
+        {field('ความแรง (strength)', 'strength', 'เช่น 500mg, 10mg/5ml')}
+        {field('หมวดหมู่', 'category', 'เช่น แก้ปวด, ยาปฏิชีวนะ')}
+        {field('ขนาดใช้ต่อครั้ง (dosage)', 'dosage', 'เช่น 1 เม็ด, 5 ml')}
+        {field('หน่วย', 'unit', 'เช่น เม็ด, แคปซูล, ช้อนชา')}
+        {field('ความถี่ (frequency)', 'frequency', 'เช่น วันละ 3 ครั้ง')}
+        {field('ระยะเวลา (duration)', 'duration', 'เช่น 5 วัน')}
         <div className="col-span-2">
-          <Field label="วิธีรับประทาน (instructions)" k="instructions" placeholder="เช่น หลังอาหาร, ก่อนนอน" />
+          {field('วิธีรับประทาน (instructions)', 'instructions', 'เช่น หลังอาหาร, ก่อนนอน')}
         </div>
         <div>
           <label className="block text-xs text-[var(--muted)] mb-1">{'ราคาต่อหน่วย (บาท)'}</label>

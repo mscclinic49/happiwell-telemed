@@ -8,6 +8,7 @@ import {
   IconPlus, IconTrash, IconChevronRight, IconClock,
   IconTrendingUp, IconTrendingDown, IconMinus, IconBell, IconBellOff,
 } from '@tabler/icons-react'
+import { msUntil } from '@/lib/date'
 
 type Dtx      = { id: string; value: number; meal_status: string; measured_at: string }
 type Bp       = { id: string; systolic: number; diastolic: number; pulse: number | null; measured_at: string }
@@ -384,7 +385,7 @@ export default function HealthBookDashboard() {
           <div className="space-y-2">
             {vacList.map(v => {
               const od = v.next_due_date && new Date(v.next_due_date) < new Date()
-              const ds = v.next_due_date && !od && (new Date(v.next_due_date).getTime() - Date.now()) < 60 * 86400000
+              const ds = v.next_due_date && !od && msUntil(v.next_due_date) < 60 * 86400000
               return (
                 <div key={v.id} className={"bg-[var(--card-bg)] border rounded-[14px] px-4 py-3 " + (od ? 'border-red-200' : 'border-[var(--border)]')}>
                   <p className="text-sm font-semibold">{v.vaccine_name} <span className="text-xs font-normal text-[var(--muted)]">เข็มที่ {v.dose_number}</span></p>

@@ -69,7 +69,7 @@ export default function DoctorShell({ children }: { children: React.ReactNode })
     </div>
   )
 
-  const NavLinks = ({ onClick }: { onClick?: () => void }) => (
+  const navLinks = (onClick?: () => void) => (
     <>
       {NAV.map(({ href, label, Icon, exact }) => {
         const active = exact ? pathname === href : pathname.startsWith(href)
@@ -94,7 +94,7 @@ export default function DoctorShell({ children }: { children: React.ReactNode })
           <div className="text-[11px] text-[var(--muted)]">{'พอร์ทัลแพทย์'}</div>
         </div>
         <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
-          <NavLinks />
+          {navLinks()}
         </nav>
         <div className="px-4 py-4 border-t border-[var(--border)]">
           <div className="text-xs font-semibold text-[var(--foreground)] mb-2 truncate">{doctorName}</div>
@@ -153,7 +153,7 @@ export default function DoctorShell({ children }: { children: React.ReactNode })
               </button>
             </div>
             <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
-              <NavLinks onClick={() => setSidebarOpen(false)} />
+              {navLinks(() => setSidebarOpen(false))}
             </nav>
             <div className="px-4 py-4 border-t border-[var(--border)]">
               <div className="text-xs font-semibold truncate text-[var(--foreground)]">{doctorName}</div>

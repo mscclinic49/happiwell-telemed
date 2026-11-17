@@ -5,6 +5,7 @@ import { createBrowserClient } from '@supabase/ssr'
 import { useAuth } from '@/lib/auth-context'
 import Link from 'next/link'
 import { IconUsers, IconSearch, IconPhone, IconChevronRight, IconShieldCheck, IconShieldOff } from '@tabler/icons-react'
+import { ageFromDob } from '@/lib/date'
 
 const sb = createBrowserClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -55,8 +56,7 @@ export default function AdminPatientsPage() {
   }
 
   function calcAge(dob: string | null) {
-    if (!dob) return null
-    return Math.floor((Date.now() - new Date(dob).getTime()) / (1000 * 60 * 60 * 24 * 365.25))
+    return ageFromDob(dob)
   }
 
   return (
