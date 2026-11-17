@@ -7,11 +7,12 @@ import Image from 'next/image'
 import DailyIframe, { DailyCall } from '@daily-co/daily-js'
 import {
   IconChevronLeft, IconVideo, IconMicrophone, IconWifi, IconLock, IconShieldCheck,
-  IconAlertTriangle, IconLoader2, IconPhoneOff, IconRefresh,
+  IconAlertTriangle, IconLoader2, IconPhoneOff, IconRefresh, IconMessage2, IconX,
 } from '@tabler/icons-react'
 import { useAuth } from '@/lib/auth-context'
 import { supabase } from '@/lib/supabase'
 import { bkkTime, bkkDate, dateLabel } from '@/lib/slots'
+import { ConsultChat } from '@/components/ConsultChat'
 
 type Role = 'patient' | 'doctor' | null
 
@@ -197,6 +198,7 @@ export default function ConsultPage() {
   const [identityConfirmed, setIdentityConfirmed] = useState(false)
   const [verifying, setVerifying] = useState(false)
   const [cancelling, setCancelling] = useState(false)
+  const [chatOpen, setChatOpen] = useState(false)
 
   useEffect(() => {
     if (authLoading || !user) return
@@ -353,9 +355,24 @@ export default function ConsultPage() {
 
       {/* ── In-call layout ── */}
       {isInCall && (
-        <div className="flex h-screen">
-          {role === 'doctor' && patientUserId && <DoctorVitalsPanel patientId={patientUserId} />}
+        <div className="flex h-screen relative">
+          {role === 'doctor' && patientUserId && <div className="hidden lg:flex"><DoctorVitalsPanel patientId={patientUserId} /></div>}
           <div ref={containerRef} className="flex-1 h-full bg-black" />
+          {user && (
+            <aside aria-label="แชทกับแพทย์"
+              className={`${chatOpen ? 'flex' : 'hidden'} md:flex flex-col absolute md:static inset-y-0 right-0 w-full sm:w-80 bg-[#14161b] border-l border-white/10 z-20`}>
+              <div className="md:hidden flex justify-end p-2">
+                <button onClick={() => setChatOpen(false)} aria-label="ปิดแชท" className="p-2 text-white/70"><IconX size={20} /></button>
+              </div>
+              <ConsultChat appointmentId={appointmentId} me={user.id} dark closed={role === 'patient' && info?.status === 'completed'} />
+            </aside>
+          )}
+          {!chatOpen && (
+            <button onClick={() => setChatOpen(true)} aria-label="เปิดแชท"
+              className="md:hidden absolute top-3 right-3 z-10 w-11 h-11 rounded-full bg-black/60 text-white flex items-center justify-center">
+              <IconMessage2 size={20} />
+            </button>
+          )}
         </div>
       )}
       {!isInCall && <div ref={containerRef} className="hidden" />}

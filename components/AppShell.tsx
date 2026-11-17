@@ -11,7 +11,7 @@ import {
   IconHistory, IconBook2, IconHeart, IconShield,
   IconMapPin, IconShieldCheck, IconShieldOff,
   IconFileText, IconHelp, IconLogout, IconChevronDown,
-  IconSun, IconMoon, IconBell, IconHome2,
+  IconSun, IconMoon, IconHome2,
 } from '@tabler/icons-react'
 import { useAuth } from '@/lib/auth-context'
 
@@ -84,7 +84,6 @@ const PROFILE_SECTIONS = [
       { href: '/account/profile',         label: 'ข้อมูลส่วนตัว',   Icon: IconUser },
       { href: '/account/change-password', label: 'เปลี่ยนรหัสผ่าน', Icon: IconLock },
       { href: '/account/signature',       label: 'ลายเซ็นดิจิทัล',  Icon: IconSignature },
-      { href: '/account/notifications',   label: 'การแจ้งเตือน LINE', Icon: IconBell },
     ],
   },
   {
@@ -112,7 +111,7 @@ const PROFILE_SECTIONS = [
   },
 ]
 
-const NO_SHELL = ['/login', '/register', '/consent', '/auth', '/consult', '/admin', '/admin-login', '/forgot-password', '/rx/', '/welcome', '/line-link']
+const NO_SHELL = ['/login', '/register', '/consent', '/auth', '/consult', '/admin', '/admin-login', '/forgot-password', '/rx/', '/welcome', '/j/']
 // doctor routes: /doctor exactly or /doctor/* — but NOT /doctors
 function noShell(pathname: string) {
   if (NO_SHELL.some(p => pathname.startsWith(p))) return true

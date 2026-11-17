@@ -89,8 +89,8 @@ export function bookingDates(schedules: ScheduleRow[], now: Date = new Date()) {
 }
 
 /** ช่องเวลาของวันนั้น พร้อมสถานะว่าถูกจอง/เลยเวลาแล้ว */
-export function daySlots(date: string, schedules: ScheduleRow[], bookedMs: Set<number>, now: Date = new Date()): Slot[] {
-  const cutoff = now.getTime() + MIN_LEAD_MINUTES * 60_000
+export function daySlots(date: string, schedules: ScheduleRow[], bookedMs: Set<number>, now: Date = new Date(), leadMinutes = MIN_LEAD_MINUTES): Slot[] {
+  const cutoff = now.getTime() + leadMinutes * 60_000
   return dayTimes(date, schedules).map(time => {
     const iso = slotIso(date, time)
     const ms = new Date(iso).getTime()
@@ -99,12 +99,12 @@ export function daySlots(date: string, schedules: ScheduleRow[], bookedMs: Set<n
 }
 
 /** ตรวจซ้ำฝั่งเซิร์ฟเวอร์ว่าเวลาที่ส่งมาเป็นช่องที่จองได้จริง */
-export function isBookableSlot(iso: string, schedules: ScheduleRow[], now: Date = new Date()): boolean {
+export function isBookableSlot(iso: string, schedules: ScheduleRow[], now: Date = new Date(), leadMinutes = MIN_LEAD_MINUTES): boolean {
   const at = new Date(iso)
   if (Number.isNaN(at.getTime())) return false
   const date = bkkDate(at)
   const today = bkkDate(now)
   if (date < today || date > addDays(today, BOOKING_DAYS - 1)) return false
-  if (at.getTime() < now.getTime() + MIN_LEAD_MINUTES * 60_000) return false
+  if (at.getTime() < now.getTime() + leadMinutes * 60_000) return false
   return dayTimes(date, schedules).includes(bkkTime(at)) && at.getUTCSeconds() === 0 && at.getUTCMilliseconds() === 0
 }

@@ -105,7 +105,8 @@ export async function POST(req: NextRequest) {
         privacy: 'private',
         properties: {
           exp: roomExp,
-          enable_chat: true,
+          // แชทใช้ของ telemed (เก็บเป็นเวชระเบียน) แทนแชทของ Daily ที่หายเมื่อปิดห้อง
+          enable_chat: false,
           enable_screenshare: true,
           enable_knocking: false,
           enable_prejoin_ui: false,

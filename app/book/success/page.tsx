@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { IconCalendarPlus, IconCircleCheckFilled } from '@tabler/icons-react'
 import { supabase } from '@/lib/supabase'
 import { AppointmentTicket, type TicketAppointment } from '@/components/AppointmentTicket'
-import { LineConnectCard } from '@/components/LineConnectCard'
+import { LineNotifyButton } from '@/components/LineNotifyButton'
 import { JOIN_EARLY_MINUTES } from '@/lib/slots'
 
 function googleCalendarUrl(a: TicketAppointment) {
@@ -68,7 +68,7 @@ function SuccessContent() {
       </AppointmentTicket>
 
       <div className="mt-5">
-        <LineConnectCard context="booking" />
+        <LineNotifyButton appointmentId={appt.id} />
       </div>
 
       <Link href="/"

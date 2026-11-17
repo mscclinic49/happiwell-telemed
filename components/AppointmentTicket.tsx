@@ -10,6 +10,7 @@ export type TicketAppointment = {
   status: string
   symptoms: string | null
   duration_minutes?: number | null
+  source?: string | null
   hw_doctors: { full_name: string; specialty: string | null; avatar_url?: string | null } | null
 }
 

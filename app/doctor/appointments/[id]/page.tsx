@@ -4,8 +4,9 @@ import { useEffect, useRef, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { createBrowserClient } from '@supabase/ssr'
 import { useAuth } from '@/lib/auth-context'
+import { ConsultChat } from '@/components/ConsultChat'
 import {
-  IconArrowLeft, IconPill, IconTrash, IconPlus,
+  IconArrowLeft, IconPill, IconTrash, IconPlus, IconMessage2,
   IconCheck, IconUser, IconPhone, IconVideo, IconChevronDown,
 } from '@tabler/icons-react'
 
@@ -238,6 +239,7 @@ export default function ConsultationPage() {
   const [existingRxId, setExistingRxId] = useState<string | null>(null)
 
   const [tab, setTab] = useState<'video' | 'rx'>('video')
+  const [side, setSide] = useState<'rx' | 'chat'>('rx')
   const [vitals, setVitals] = useState<Vitals | null>(null)
 
   // Load appointment + doctor
@@ -541,16 +543,29 @@ export default function ConsultationPage() {
         </div>
 
         {/* RIGHT: Rx form */}
-        <div className={`flex flex-col w-full lg:w-96 flex-shrink-0 border-l border-[var(--border)] overflow-y-auto bg-[var(--card-bg)] ${tab === 'video' ? 'hidden lg:flex' : 'flex'}`}>
-          <div className="px-4 pt-4 pb-2 border-b border-[var(--border)]">
-            <div className="flex items-center gap-2 mb-1">
+        <div className={`relative flex flex-col w-full lg:w-96 flex-shrink-0 border-l border-[var(--border)] ${side === 'chat' ? 'overflow-hidden' : 'overflow-y-auto'} bg-[var(--card-bg)] ${tab === 'video' ? 'hidden lg:flex' : 'flex'}`}>
+          <div className="px-4 pt-3 pb-2 border-b border-[var(--border)] bg-[var(--card-bg)] sticky top-0 z-20">
+            <div className="flex gap-1 mb-2" role="tablist">
+              {([['rx', 'ใบสั่งยา', IconPill], ['chat', 'แชทกับคนไข้', IconMessage2]] as const).map(([k, label, Icon]) => (
+                <button key={k} role="tab" aria-selected={side === k} onClick={() => setSide(k)}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold ${side === k ? 'bg-[var(--hw-primary)] text-[var(--hw-on-primary)]' : 'text-[var(--muted)] hover:bg-[var(--background)]'}`}>
+                  <Icon size={14} />{label}
+                </button>
+              ))}
+            </div>
+            {side === 'rx' && <div className="flex items-center gap-2 mb-1">
               <IconPill size={16} className="text-[var(--hw-green-dk)]" />
               <span className="font-bold text-sm text-[var(--foreground)]">{'ใบสั่งยา'}</span>
               {existingRxId && (
                 <span className="text-[10px] bg-emerald-500/15 text-emerald-500 px-2 py-0.5 rounded-full font-medium ml-auto">{'บันทึกแล้ว'}</span>
               )}
-            </div>
+            </div>}
           </div>
+          {side === 'chat' && user && (
+            <div className="absolute inset-x-0 bottom-0 top-[52px] z-10 bg-[var(--card-bg)]">
+              <ConsultChat appointmentId={apptId} me={user.id} />
+            </div>
+          )}
 
           <div className="p-4 space-y-4 flex-1">
             <div>

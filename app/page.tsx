@@ -12,7 +12,7 @@ import {
   IconMapPin, IconPhone, IconBrandLine,
 } from '@tabler/icons-react'
 import { AppointmentTicket, type TicketAppointment } from '@/components/AppointmentTicket'
-import { LineConnectCard } from '@/components/LineConnectCard'
+import { LineNotifyButton } from '@/components/LineNotifyButton'
 import { bkkDate, bkkTime, dateLabel, DAY_LONG, dayOfWeek, MONTH_SHORT, CANCEL_LEAD_MINUTES, JOIN_EARLY_MINUTES } from '@/lib/slots'
 
 type Prescription = { id: string; issued_at: string; hw_doctors: { full_name: string } | null }
@@ -98,6 +98,10 @@ function NextAppointment({ appt, live, now, onCancelled }: {
         </div>
       )}
 
+      {!canJoin && appt.source !== 'docdesk' && (
+        <div className="mt-3"><LineNotifyButton appointmentId={appt.id} compact /></div>
+      )}
+
       {canCancel && !confirming && (
         <button onClick={() => setConfirming(true)}
           className="mt-3 w-full text-center text-xs font-medium text-[var(--muted)] hover:text-red-600">
@@ -150,7 +154,7 @@ export default function Dashboard() {
       const [profileRes, apptRes, rxRes, dtxRes, bpRes, docRes] = await Promise.all([
         supabase.from('hw_users').select('first_name, weight, height').eq('id', user!.id).single(),
         supabase.from('hw_appointments')
-          .select('id, scheduled_at, status, symptoms, duration_minutes, hw_doctors(full_name, specialty, avatar_url)')
+          .select('id, scheduled_at, status, symptoms, duration_minutes, source, hw_doctors(full_name, specialty, avatar_url)')
           .eq('user_id', user!.id)
           .in('status', ['pending', 'confirmed'])
           .gte('scheduled_at', since)
@@ -258,8 +262,6 @@ export default function Dashboard() {
           </div>
         </section>
       )}
-
-      <LineConnectCard context="home" />
 
       {/* ── นัดอื่นที่กำลังจะถึง ── */}
       {later.length > 0 && (
